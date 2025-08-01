@@ -1,0 +1,20 @@
+{
+  "path": "e:\\研究生学习\\ChatGPT\\promptHUB",
+  "desc": "PromptHUB - 高级提示词管理平台，具有多彩标签系统、Markdown实时预览、多主题切换(白天/黑夜/护眼/纸质/星空)、智能时间自动切换等功能",
+  "id": "1782a5dcbcc143e0a593b71f3a0675f4",
+  "data": {
+    "spaceKey": "1782a5dcbcc143e0a593b71f3a0675f4",
+    "connections": {
+      "webIDE": "https://1782a5dcbcc143e0a593b71f3a0675f4.ap-singapore.cloudstudio.club",
+      "preview": "",
+      "api": "https://1782a5dcbcc143e0a593b71f3a0675f4--api.ap-singapore.cloudstudio.club",
+      "pty": "https://1782a5dcbcc143e0a593b71f3a0675f4--pty.ap-singapore.cloudstudio.club"
+    }
+  },
+  "config": {
+    "api": "https://1782a5dcbcc143e0a593b71f3a0675f4--api.ap-singapore.cloudstudio.club",
+    "pty": "https://1782a5dcbcc143e0a593b71f3a0675f4--pty.ap-singapore.cloudstudio.club",
+    "region": "ap-shanghai",
+    "spaceKey": "1782a5dcbcc143e0a593b71f3a0675f4"
+  }
+}
