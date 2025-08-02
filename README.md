@@ -165,7 +165,7 @@ Vercel 是 Next.js 的官方部署平台，提供最佳的性能和开发体验�
 
 #### 一键部署
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/prompthub)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Dianel555/PromptHUB)
 
 #### 手动部署
 
