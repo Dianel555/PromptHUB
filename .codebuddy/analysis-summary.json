@@ -1,1 +1,0 @@
-{"title":"PromptHUB项目改进","features":["删除测试文件","增加Vercel部署方式","增加Docker部署方式","更新部署文档"],"tech":{"Web":{"arch":"react","component":"shadcn"}},"design":"","plan":{"清理项目中的测试文件":"done","为项目添加Vercel部署配置":"done","创建Docker部署相关文件":"done","更新README.md文档":"done"}}
