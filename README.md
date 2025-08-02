@@ -155,31 +155,213 @@ export function MyComponent() {
 }
 ```
 
-## 📦 构建部署
+## 📦 部署指南
 
-### 构建生产版本
+PromptHUB 支持多种部署方式，您可以根据需求选择最适合的部署方案。
 
+### 🚀 方式一：Vercel 部署（推荐）
+
+Vercel 是 Next.js 的官方部署平台，提供最佳的性能和开发体验。
+
+#### 一键部署
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/prompthub)
+
+#### 手动部署
+
+1. **安装 Vercel CLI**
+```bash
+npm i -g vercel
+```
+
+2. **登录 Vercel**
+```bash
+vercel login
+```
+
+3. **部署项目**
+```bash
+vercel
+```
+
+4. **生产部署**
+```bash
+vercel --prod
+```
+
+#### 环境变量配置
+
+在 Vercel 控制台中设置以下环境变量：
+- `NODE_ENV=production`
+- `NEXT_TELEMETRY_DISABLED=1`
+
+### 🐳 方式二：Docker 部署
+
+使用 Docker 可以确保在任何环境中的一致性部署。
+
+#### 使用 Docker Compose（推荐）
+
+1. **克隆项目**
+```bash
+git clone https://github.com/your-username/prompthub.git
+cd prompthub
+```
+
+2. **启动服务**
+```bash
+docker-compose up -d
+```
+
+3. **查看日志**
+```bash
+docker-compose logs -f
+```
+
+4. **停止服务**
+```bash
+docker-compose down
+```
+
+#### 使用 Dockerfile
+
+1. **构建镜像**
+```bash
+docker build -t prompthub .
+```
+
+2. **运行容器**
+```bash
+docker run -p 3000:3000 prompthub
+```
+
+#### Docker 环境变量
+
+可以通过环境变量配置：
+```bash
+docker run -p 3000:3000 \
+  -e NODE_ENV=production \
+  -e NEXT_TELEMETRY_DISABLED=1 \
+  prompthub
+```
+
+### 🖥️ 方式三：传统服务器部署
+
+适用于 VPS、云服务器等传统部署环境。
+
+#### 环境准备
+
+确保服务器已安装：
+- Node.js 18.0 或更高版本
+- npm 或 yarn
+- PM2（可选，用于进程管理）
+
+#### 部署步骤
+
+1. **克隆项目**
+```bash
+git clone https://github.com/your-username/prompthub.git
+cd prompthub
+```
+
+2. **安装依赖**
+```bash
+npm install --production
+```
+
+3. **构建项目**
 ```bash
 npm run build
-# 或
-yarn build
 ```
 
-### 启动生产服务器
-
+4. **启动应用**
 ```bash
 npm start
-# 或
-yarn start
 ```
 
-### 静态导出
+#### 使用 PM2 管理进程
 
+1. **安装 PM2**
 ```bash
-npm run export
-# 或
-yarn export
+npm install -g pm2
 ```
+
+2. **创建 PM2 配置文件**
+```bash
+# ecosystem.config.js
+module.exports = {
+  apps: [{
+    name: 'prompthub',
+    script: 'npm',
+    args: 'start',
+    env: {
+      NODE_ENV: 'production',
+      PORT: 3000
+    }
+  }]
+}
+```
+
+3. **启动应用**
+```bash
+pm2 start ecosystem.config.js
+```
+
+4. **设置开机自启**
+```bash
+pm2 startup
+pm2 save
+```
+
+### 🌐 Nginx 反向代理配置
+
+如果使用 Nginx 作为反向代理：
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+### 📊 部署方式对比
+
+| 部署方式 | 优点 | 缺点 | 适用场景 |
+|---------|------|------|----------|
+| **Vercel** | 零配置、自动扩展、CDN加速 | 有使用限制 | 个人项目、小型应用 |
+| **Docker** | 环境一致、易于扩展、容器化 | 需要容器知识 | 企业级应用、微服务 |
+| **传统服务器** | 完全控制、成本可控 | 需要运维知识 | 大型项目、定制需求 |
+
+### 🔧 部署后优化
+
+#### 性能优化
+- 启用 gzip 压缩
+- 配置 CDN 加速
+- 使用 Redis 缓存
+- 数据库连接池优化
+
+#### 监控配置
+- 设置应用监控
+- 配置错误日志收集
+- 性能指标监控
+- 用户行为分析
+
+#### 安全配置
+- HTTPS 证书配置
+- 安全头设置
+- 防火墙配置
+- 定期安全更新
 
 ## 🤝 贡献指南
 
