@@ -198,9 +198,7 @@ vercel --prod
 3. **添加以下环境变量**：
    - `NODE_ENV=production`
    - `NEXT_TELEMETRY_DISABLED=1`
-   - 以及您 `.env` 文件中的所有其他变量
 
-**注意**：Vercel 不会自动读取 `.env` 文件，您需要手动将所有环境变量复制到 Vercel 控制台中。
 
 **常见的环境变量示例**：
 ```bash
@@ -208,6 +206,8 @@ vercel --prod
 DATABASE_URL=your_database_url
 NEXTAUTH_SECRET=your_nextauth_secret
 NEXTAUTH_URL=https://your-domain.vercel.app
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
 
 # API 密钥
 OPENAI_API_KEY=your_openai_key
