@@ -4,16 +4,19 @@ import { useState } from "react"
 import { signIn, signOut, useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
+import { useRouter } from "next/navigation"
 
 export function AuthButton() {
   const { data: session, status } = useSession()
   const [isSigningIn, setIsSigningIn] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const router = useRouter()
 
   const handleSignIn = async () => {
     setIsSigningIn(true)
     try {
-      await signIn("github", { callbackUrl: "/" })
+      // 登录成功后跳转到个人中心页面
+      await signIn("github", { callbackUrl: "/profile" })
     } catch (error) {
       console.error("登录失败:", error)
       setIsSigningIn(false)
@@ -30,6 +33,10 @@ export function AuthButton() {
     }
   }
 
+  const handleProfileClick = () => {
+    router.push("/profile")
+  }
+
   if (status === "loading") {
     return (
       <Button variant="ghost" size="sm" disabled>
@@ -41,21 +48,36 @@ export function AuthButton() {
 
   if (session) {
     return (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleSignOut}
-        disabled={isSigningOut}
-      >
-        {isSigningOut ? (
-          <>
-            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-            退出中...
-          </>
-        ) : (
-          "退出登录"
-        )}
-      </Button>
+      <div className="flex items-center space-x-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleProfileClick}
+          className="flex items-center space-x-2"
+        >
+          <img
+            src={session.user?.image || ""}
+            alt={session.user?.name || "用户头像"}
+            className="w-6 h-6 rounded-full"
+          />
+          <span className="hidden sm:inline">{session.user?.name}</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleSignOut}
+          disabled={isSigningOut}
+        >
+          {isSigningOut ? (
+            <>
+              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+              退出中...
+            </>
+          ) : (
+            "退出"
+          )}
+        </Button>
+      </div>
     )
   }
 

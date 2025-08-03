@@ -2,6 +2,10 @@
 
 import { motion } from 'framer-motion'
 import { PromptCard } from './prompt-card'
+import { useState } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { getTagColorScheme } from '@/lib/tag-colors'
 
 // 模拟数据
 const mockPrompts = [
@@ -69,13 +73,41 @@ interface PromptGridProps {
 }
 
 export function PromptGrid({ searchQuery = '', selectedCategory = '' }: PromptGridProps) {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const [currentCategory, setCurrentCategory] = useState(selectedCategory)
+  const [displayCount, setDisplayCount] = useState(6)
   // 过滤提示词
   const filteredPrompts = mockPrompts.filter(prompt => {
     const matchesSearch = prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          prompt.description.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = !selectedCategory || prompt.tags.includes(selectedCategory)
+    const matchesCategory = !currentCategory || currentCategory === '全部' || prompt.tags.includes(currentCategory)
     return matchesSearch && matchesCategory
   })
+
+  // 显示的提示词（支持分页加载）
+  const displayedPrompts = filteredPrompts.slice(0, displayCount)
+
+  const handleCategoryChange = (category: string) => {
+    // 检查用户是否已登录
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin?callbackUrl=' + encodeURIComponent(window.location.pathname))
+      return
+    }
+    
+    setCurrentCategory(category === '全部' ? '' : category)
+    setDisplayCount(6) // 重置显示数量
+  }
+
+  const handleLoadMore = () => {
+    // 检查用户是否已登录
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin?callbackUrl=' + encodeURIComponent(window.location.pathname))
+      return
+    }
+    
+    setDisplayCount(prev => prev + 6)
+  }
 
   return (
     <section className="py-16 px-4">
@@ -102,23 +134,34 @@ export function PromptGrid({ searchQuery = '', selectedCategory = '' }: PromptGr
           transition={{ duration: 0.6, delay: 0.2 }}
           className="flex flex-wrap justify-center gap-3 mb-12"
         >
-          {['全部', '图像', '写作', '代码', '学术', '开源', '社区'].map((category, index) => (
-            <motion.button
-              key={category}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                selectedCategory === category || (category === '全部' && !selectedCategory)
-                  ? 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow-lg'
-                  : 'glass-effect text-muted-foreground hover:text-foreground hover:bg-accent/10'
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
-            >
-              {category}
-            </motion.button>
-          ))}
+          {['全部', '图像', '写作', '代码', '学术', '开源', '社区'].map((category, index) => {
+            const isActive = currentCategory === category || (category === '全部' && !currentCategory)
+            const colorScheme = category !== '全部' ? getTagColorScheme(category) : null
+            const isAuthenticated = status === 'authenticated'
+            
+            return (
+              <motion.button
+                key={category}
+                onClick={() => handleCategoryChange(category)}
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  isActive
+                    ? colorScheme 
+                      ? `${colorScheme.background} ${colorScheme.text} shadow-lg`
+                      : 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow-lg'
+                    : `glass-effect text-muted-foreground hover:text-foreground hover:bg-accent/10 ${
+                        !isAuthenticated ? 'opacity-75 hover:opacity-90' : ''
+                      }`
+                }`}
+                whileHover={{ scale: isAuthenticated ? 1.05 : 1.02 }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+              >
+                {category}
+              </motion.button>
+            )
+          })}
         </motion.div>
 
         {/* 提示词网格 */}
@@ -128,7 +171,7 @@ export function PromptGrid({ searchQuery = '', selectedCategory = '' }: PromptGr
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          {filteredPrompts.map((prompt, index) => (
+          {displayedPrompts.map((prompt, index) => (
             <motion.div
               key={prompt.id}
               initial={{ opacity: 0, y: 30 }}
@@ -145,20 +188,27 @@ export function PromptGrid({ searchQuery = '', selectedCategory = '' }: PromptGr
         </motion.div>
 
         {/* 加载更多按钮 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          className="text-center mt-12"
-        >
-          <motion.button
-            className="glass-effect px-8 py-3 rounded-full text-foreground font-medium hover:bg-accent/10 transition-all duration-300"
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
+        {displayCount < filteredPrompts.length && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="text-center mt-12"
           >
-            加载更多提示词
-          </motion.button>
-        </motion.div>
+            <motion.button
+              onClick={handleLoadMore}
+              className={`glass-effect px-8 py-3 rounded-full font-medium transition-all duration-300 ${
+                status === 'authenticated' 
+                  ? 'text-foreground hover:bg-accent/10' 
+                  : 'text-muted-foreground opacity-75 hover:opacity-90'
+              }`}
+              whileHover={{ scale: status === 'authenticated' ? 1.05 : 1.02, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {status === 'unauthenticated' ? '登录以查看更多' : `加载更多提示词 (${filteredPrompts.length - displayCount} 个剩余)`}
+            </motion.button>
+          </motion.div>
+        )}
 
         {/* 空状态 */}
         {filteredPrompts.length === 0 && (

@@ -4,8 +4,37 @@ import { motion } from 'framer-motion'
 import { Search, Star, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export function HeroSection() {
+  const [searchQuery, setSearchQuery] = useState('')
+  const router = useRouter()
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      // TODO: 实现搜索功能，跳转到搜索结果页面
+      console.log('搜索:', searchQuery)
+      // router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
+    }
+  }
+
+  const handleExplore = () => {
+    // 跳转到提示词浏览页面
+    router.push('/prompts')
+  }
+
+  const handleContribute = () => {
+    // 跳转到创建提示词页面
+    router.push('/create')
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  }
+
   return (
     <section className="relative py-20 px-4 overflow-hidden">
       {/* 背景粒子效果 */}
@@ -67,9 +96,13 @@ export function HeroSection() {
                 <Search className="w-5 h-5 text-gray-400 ml-4" />
                 <Input
                   placeholder="搜索提示词..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={handleKeyPress}
                   className="flex-1 bg-transparent border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 text-lg px-4"
                 />
                 <Button 
+                  onClick={handleSearch}
                   className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white rounded-full px-6"
                 >
                   搜索
@@ -87,6 +120,7 @@ export function HeroSection() {
           >
             <Button 
               size="lg"
+              onClick={handleExplore}
               className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white px-8 py-3 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
             >
               开始探索
@@ -96,6 +130,7 @@ export function HeroSection() {
             <Button 
               variant="outline" 
               size="lg"
+              onClick={handleContribute}
               className="border-border text-foreground hover:bg-accent px-8 py-3 rounded-full text-lg backdrop-blur-sm"
             >
               贡献提示词

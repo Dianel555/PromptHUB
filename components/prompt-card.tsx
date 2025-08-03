@@ -6,6 +6,10 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ColorfulTag } from '@/components/colorful-tag'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { useSession } from 'next-auth/react'
+import { getTagColorScheme } from '@/lib/tag-colors'
 
 interface PromptCardProps {
   id: string
@@ -31,22 +35,72 @@ export function PromptCard({
   views,
   featured = false
 }: PromptCardProps) {
+  const router = useRouter()
+  const { data: session, status } = useSession()
+  const [isLiked, setIsLiked] = useState(false)
+  const [likeCount, setLikeCount] = useState(likes)
+
+  const handleCardClick = () => {
+    // 检查用户是否已登录
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin?callbackUrl=' + encodeURIComponent(`/prompts/${id}`))
+      return
+    }
+    // 跳转到提示词详情页面
+    router.push(`/prompts/${id}`)
+  }
+
+  const handleLikeClick = (e: React.MouseEvent) => {
+    e.stopPropagation() // 阻止事件冒泡
+    
+    // 检查用户是否已登录
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin?callbackUrl=' + encodeURIComponent(window.location.pathname))
+      return
+    }
+    
+    setIsLiked(!isLiked)
+    setLikeCount(prev => isLiked ? prev - 1 : prev + 1)
+    
+    // TODO: 调用API更新点赞状态
+    console.log(`${isLiked ? '取消点赞' : '点赞'} 提示词:`, id)
+  }
+
+  const handleAuthorClick = (e: React.MouseEvent) => {
+    e.stopPropagation() // 阻止事件冒泡
+    
+    // 检查用户是否已登录
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin?callbackUrl=' + encodeURIComponent(`/users/${author.name}`))
+      return
+    }
+    
+    // 跳转到作者页面
+    router.push(`/users/${author.name}`)
+  }
+  const isAuthenticated = status === 'authenticated'
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ 
+      whileHover={isAuthenticated ? { 
         y: -8,
         scale: 1.02,
         rotateX: 5,
         rotateY: 5
+      } : {
+        scale: 1.01
       }}
       whileTap={{ scale: 0.98 }}
       transition={{ 
         duration: 0.3,
         ease: "easeOut"
       }}
-      className="group cursor-pointer perspective-1000"
+      className={`group cursor-pointer perspective-1000 ${
+        !isAuthenticated ? 'opacity-75 hover:opacity-90' : ''
+      }`}
+      onClick={handleCardClick}
     >
       <Card className={`
         relative overflow-hidden border-0 bg-gradient-to-br from-white/10 to-white/5 
@@ -85,19 +139,37 @@ export function PromptCard({
 
           {/* 标签 */}
           <div className="flex flex-wrap gap-2">
-            {tags.slice(0, 3).map((tag, index) => (
-              <motion.div
-                key={tag}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-              >
-                <ColorfulTag className="hover:scale-105 transition-transform duration-200">
-                  <Tag className="w-3 h-3 mr-1" />
-                  {tag}
-                </ColorfulTag>
-              </motion.div>
-            ))}
+            {tags.slice(0, 3).map((tag, index) => {
+              const colorScheme = getTagColorScheme(tag)
+              return (
+                <motion.div
+                  key={tag}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                >
+                  <Badge 
+                    className={`
+                      ${colorScheme.background} ${colorScheme.text} ${colorScheme.border}
+                      hover:scale-105 transition-all duration-200 cursor-pointer
+                      hover:shadow-lg hover:${colorScheme.hover}
+                    `}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (status === 'unauthenticated') {
+                        router.push('/auth/signin?callbackUrl=' + encodeURIComponent(window.location.pathname))
+                        return
+                      }
+                      // 跳转到标签页面
+                      router.push(`/tags/${tag}`)
+                    }}
+                  >
+                    <Tag className="w-3 h-3 mr-1" />
+                    {tag}
+                  </Badge>
+                </motion.div>
+              )
+            })}
             {tags.length > 3 && (
               <Badge variant="secondary" className="bg-accent/10 text-muted-foreground border-border">
                 +{tags.length - 3}
@@ -108,7 +180,10 @@ export function PromptCard({
           {/* 底部信息 */}
           <div className="flex items-center justify-between pt-4 border-t border-white/10">
             {/* 作者信息 */}
-            <div className="flex items-center space-x-2">
+            <div 
+              className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={handleAuthorClick}
+            >
               <Avatar className="w-6 h-6">
                 <AvatarImage src={author.avatar} alt={author.name} />
                 <AvatarFallback className="bg-gradient-to-br from-purple-500 to-cyan-500 text-white text-xs">
@@ -122,13 +197,17 @@ export function PromptCard({
 
             {/* 统计信息 */}
             <div className="flex items-center space-x-4 text-sm text-gray-400">
-              <motion.div 
-                className="flex items-center space-x-1 group-hover:text-red-400 transition-colors duration-300"
+              <motion.button 
+                className={`flex items-center space-x-1 transition-colors duration-300 ${
+                  isLiked ? 'text-red-500' : 'hover:text-red-400'
+                }`}
                 whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={handleLikeClick}
               >
-                <Heart className="w-4 h-4" />
-                <span>{likes}</span>
-              </motion.div>
+                <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+                <span>{likeCount}</span>
+              </motion.button>
               <motion.div 
                 className="flex items-center space-x-1 group-hover:text-blue-400 transition-colors duration-300"
                 whileHover={{ scale: 1.1 }}
