@@ -20,6 +20,8 @@
 - ⚡ **性能优化** - 基于Next.js 13的现代化架构
 - 🎭 **玻璃拟态UI** - 现代化的视觉设计语言
 - 🌟 **动画效果** - 流畅的交互动画和过渡效果
+- 🔐 **GitHub 认证** - 基于 NextAuth.js 的安全认证系统
+- 👤 **用户管理** - 完整的用户会话管理和状态维护
 
 ## 🛠️ 技术栈
 
@@ -30,6 +32,9 @@
 - **动画库**: Framer Motion
 - **主题系统**: next-themes
 - **图标库**: Lucide React
+- **认证系统**: NextAuth.js
+- **数据库**: Prisma ORM
+- **部署平台**: Vercel
 
 ## 🚀 快速开始
 
@@ -63,26 +68,60 @@ yarn dev
 4. **访问应用**
 打开浏览器访问 [http://localhost:3000](http://localhost:3000)
 
+## 🔧 环境变量配置
+
+在开始之前，你需要配置以下环境变量。复制 `.env.example` 为 `.env.local` 并填入相应的值：
+
+```bash
+# NextAuth.js 认证配置
+NEXTAUTH_URL=http://localhost:3000  # 生产环境请改为你的域名
+NEXTAUTH_SECRET=your-secret-key-here  # 生成一个随机密钥
+
+# GitHub OAuth 配置
+GITHUB_ID=your-github-client-id
+GITHUB_SECRET=your-github-client-secret
+
+# 数据库配置
+DATABASE_URL="postgresql://username:password@localhost:5432/prompthub?schema=public"
+```
+
+### GitHub OAuth 应用设置
+
+1. 访问 [GitHub Developer Settings](https://github.com/settings/developers)
+2. 创建新的 OAuth App
+3. 配置以下信息：
+   - **Application name**: PromptHUB
+   - **Homepage URL**: `http://localhost:3000` (开发环境) 或 `https://your-domain.com` (生产环境)
+   - **Authorization callback URL**: `http://localhost:3000/api/auth/callback/github` (开发环境) 或 `https://your-domain.com/api/auth/callback/github` (生产环境)
+4. 获取 Client ID 和 Client Secret，填入环境变量
+
 ## 📁 项目结构
 
 ```
 prompthub/
 ├── app/                    # Next.js 13 App Router
+│   ├── api/auth/          # NextAuth.js 认证 API
 │   ├── demo/              # 功能演示页面
 │   ├── globals.css        # 全局样式
 │   ├── layout.tsx         # 根布局组件
 │   └── page.tsx           # 首页
 ├── components/            # React 组件
 │   ├── ui/               # shadcn/ui 基础组件
+│   ├── auth-button.tsx   # 认证按钮组件
 │   ├── colorful-tag.tsx  # 多彩标签组件
 │   ├── hero-section.tsx  # 首页英雄区域
 │   ├── prompt-card.tsx   # 提示词卡片
 │   ├── prompt-grid.tsx   # 提示词网格
+│   ├── session-provider.tsx # 会话提供者
+│   ├── site-header.tsx   # 网站头部
 │   ├── theme-provider.tsx # 主题提供者
 │   └── theme-toggle.tsx  # 主题切换器
 ├── lib/                  # 工具库
+│   ├── auth.ts           # NextAuth.js 配置
 │   ├── themes.ts         # 主题配置
 │   └── utils.ts          # 工具函数
+├── types/                # TypeScript 类型定义
+│   └── next-auth.d.ts    # NextAuth.js 类型扩展
 ├── styles/               # 样式文件
 │   └── globals.css       # 全局CSS样式
 ├── public/               # 静态资源
@@ -210,7 +249,6 @@ GITHUB_CLIENT_ID=your_github_client_id
 GITHUB_CLIENT_SECRET=your_github_client_secret
 
 # API 密钥
-OPENAI_API_KEY=your_openai_key
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
