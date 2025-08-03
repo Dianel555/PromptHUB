@@ -152,7 +152,7 @@ export function PromptCard({
                     className={`
                       ${colorScheme.background} ${colorScheme.text} ${colorScheme.border}
                       hover:scale-105 transition-all duration-200 cursor-pointer
-                      hover:shadow-lg hover:${colorScheme.hover}
+                      hover:shadow-lg ${colorScheme.backgroundHover}
                     `}
                     onClick={(e) => {
                       e.stopPropagation()

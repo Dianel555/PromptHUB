@@ -1,6 +1,7 @@
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useCallback } from "react"
+import React from "react"
 
 export interface AuthGuardOptions {
   redirectTo?: string

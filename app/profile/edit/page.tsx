@@ -5,7 +5,7 @@ import { redirect, useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { profileSchema, type ProfileFormData } from "@/lib/validations/profile"
+import { profileSchema, type Profile } from "@/lib/validations/profile"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -45,16 +45,14 @@ export default function EditProfilePage() {
   const [avatarPreview, setAvatarPreview] = useState<string>("")
 
   // 使用react-hook-form进行表单管理
-  const form = useForm<ProfileFormData>({
+  const form = useForm<Profile>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: session?.user?.name || "",
+      username: session?.user?.name || "",
       email: session?.user?.email || "",
       bio: "",
       phone: "",
-      location: "",
-      website: "",
-      avatar: session?.user?.image || ""
+      website: ""
     }
   })
 
@@ -74,7 +72,6 @@ export default function EditProfilePage() {
 
   const handleAvatarChange = (file: File | null, previewUrl: string) => {
     setAvatarPreview(previewUrl)
-    setValue("avatar", previewUrl)
     
     // TODO: 这里可以实现实际的文件上传逻辑
     if (file) {
@@ -82,7 +79,7 @@ export default function EditProfilePage() {
     }
   }
 
-  const onSubmit = async (data: ProfileFormData) => {
+  const onSubmit = async (data: Profile) => {
     setIsLoading(true)
     try {
       // TODO: 实现保存逻辑
@@ -156,8 +153,8 @@ export default function EditProfilePage() {
             </CardHeader>
             <CardContent>
               <AvatarUpload
-                currentAvatar={watch("avatar") || ""}
-                userName={watch("name") || "用户"}
+                currentAvatar={avatarPreview || ""}
+                userName={watch("username") || "用户"}
                 onAvatarChange={handleAvatarChange}
                 size="lg"
                 disabled={isLoading}
@@ -179,15 +176,15 @@ export default function EditProfilePage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">用户名</Label>
+                  <Label htmlFor="username">用户名</Label>
                   <Input
-                    id="name"
+                    id="username"
                     placeholder="请输入用户名"
-                    {...register("name")}
+                    {...register("username")}
                     className="text-base"
                   />
-                  {errors.name && (
-                    <p className="text-sm text-destructive">{errors.name.message}</p>
+                  {errors.username && (
+                    <p className="text-sm text-destructive">{String(errors.username.message)}</p>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -201,7 +198,7 @@ export default function EditProfilePage() {
                     className="text-base"
                   />
                   {errors.email && (
-                    <p className="text-sm text-destructive">{errors.email.message}</p>
+                    <p className="text-sm text-destructive">{String(errors.email.message)}</p>
                   )}
                   <p className="text-xs text-muted-foreground">
                     邮箱地址由认证提供商管理，无法修改
@@ -218,7 +215,7 @@ export default function EditProfilePage() {
                   rows={4}
                 />
                 {errors.bio && (
-                  <p className="text-sm text-destructive">{errors.bio.message}</p>
+                  <p className="text-sm text-destructive">{String(errors.bio.message)}</p>
                 )}
               </div>
             </CardContent>
@@ -236,31 +233,17 @@ export default function EditProfilePage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone">手机号码</Label>
-                  <Input
-                    id="phone"
-                    placeholder="请输入手机号码"
-                    {...register("phone")}
-                    className="text-base"
-                  />
-                  {errors.phone && (
-                    <p className="text-sm text-destructive">{errors.phone.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="location">所在地区</Label>
-                  <Input
-                    id="location"
-                    placeholder="请输入所在地区"
-                    {...register("location")}
-                    className="text-base"
-                  />
-                  {errors.location && (
-                    <p className="text-sm text-destructive">{errors.location.message}</p>
-                  )}
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">手机号码</Label>
+                <Input
+                  id="phone"
+                  placeholder="请输入手机号码"
+                  {...register("phone")}
+                  className="text-base"
+                />
+                {errors.phone && (
+                  <p className="text-sm text-destructive">{String(errors.phone.message)}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -272,7 +255,7 @@ export default function EditProfilePage() {
                   {...register("website")}
                 />
                 {errors.website && (
-                  <p className="text-sm text-destructive">{errors.website.message}</p>
+                  <p className="text-sm text-destructive">{String(errors.website.message)}</p>
                 )}
               </div>
             </CardContent>

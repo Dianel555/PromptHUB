@@ -53,51 +53,51 @@
   }
 
   .eyecare {
-    --background: #f0f4f0;
-    --foreground: #1a3d1a;
-    --card: rgba(240, 244, 240, 0.9);
-    --card-foreground: #1a3d1a;
-    --popover: #e8f5e8;
-    --popover-foreground: #1a3d1a;
-    --primary: #22c55e;
-    --primary-foreground: #ffffff;
-    --secondary: #e8f5e8;
+    --background: #f8faf8;
+    --foreground: #2d4a2d;
+    --card: rgba(255, 255, 255, 0.95);
+    --card-foreground: #2d4a2d;
+    --popover: #ffffff;
+    --popover-foreground: #2d4a2d;
+    --primary: #16a34a;
+    --primary-foreground: #f0fdf4;
+    --secondary: #f0fdf4;
     --secondary-foreground: #166534;
-    --muted: #dcfce7;
+    --muted: #f0fdf4;
     --muted-foreground: #15803d;
-    --accent: #86efac;
-    --accent-foreground: #14532d;
+    --accent: #dcfce7;
+    --accent-foreground: #166534;
     --destructive: #dc2626;
-    --destructive-foreground: #ffffff;
-    --border: rgba(34, 197, 94, 0.2);
-    --input: rgba(232, 245, 232, 0.8);
-    --ring: #22c55e;
-    --glass: rgba(240, 244, 240, 0.2);
-    --glass-hover: rgba(240, 244, 240, 0.3);
+    --destructive-foreground: #fef2f2;
+    --border: rgba(187, 247, 208, 0.6);
+    --input: rgba(220, 252, 231, 0.8);
+    --ring: #16a34a;
+    --glass: rgba(248, 250, 248, 0.8);
+    --glass-hover: rgba(248, 250, 248, 0.9);
   }
 
   .paper {
-    --background: #f7f3e9;
-    --foreground: #2d2a1f;
-    --card: rgba(247, 243, 233, 0.9);
-    --card-foreground: #2d2a1f;
-    --popover: #f0ebe0;
-    --popover-foreground: #2d2a1f;
-    --primary: #8b6914;
-    --primary-foreground: #ffffff;
-    --secondary: #f0ebe0;
-    --secondary-foreground: #5d4e37;
-    --muted: #ede8dd;
-    --muted-foreground: #6b5b47;
-    --accent: #d4af37;
-    --accent-foreground: #2d2a1f;
+    --background: #faf7f0;
+    --foreground: #3a2f1f;
+    --card: rgba(254, 253, 251, 0.95);
+    --card-foreground: #3a2f1f;
+    --popover: #fefdfb;
+    --popover-foreground: #3a2f1f;
+    --primary: #92400e;
+    --primary-foreground: #fef7ed;
+    --secondary: #fef7ed;
+    --secondary-foreground: #92400e;
+    --muted: #fef7ed;
+    --muted-foreground: #a16207;
+    --accent: #fed7aa;
+    --accent-foreground: #92400e;
     --destructive: #dc2626;
-    --destructive-foreground: #ffffff;
-    --border: rgba(139, 105, 20, 0.2);
-    --input: rgba(240, 235, 224, 0.8);
-    --ring: #8b6914;
-    --glass: rgba(247, 243, 233, 0.2);
-    --glass-hover: rgba(247, 243, 233, 0.3);
+    --destructive-foreground: #fef2f2;
+    --border: rgba(254, 215, 170, 0.6);
+    --input: rgba(253, 230, 138, 0.8);
+    --ring: #92400e;
+    --glass: rgba(250, 247, 240, 0.85);
+    --glass-hover: rgba(250, 247, 240, 0.95);
   }
 
   .starry {
@@ -123,6 +123,52 @@
     --glass: rgba(30, 27, 75, 0.1);
     --glass-hover: rgba(30, 27, 75, 0.2);
   }
+}
+
+/* 增强滑块样式 */
+.slider-enhanced [data-radix-slider-track] {
+  @apply bg-gray-200 dark:bg-gray-700 h-2 rounded-full relative overflow-hidden;
+}
+
+.slider-enhanced [data-radix-slider-range] {
+  @apply bg-transparent;
+}
+
+.slider-enhanced [data-radix-slider-thumb] {
+  @apply w-5 h-5 bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 rounded-full shadow-lg transition-all duration-200 hover:scale-110 hover:shadow-xl focus:scale-110 focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20;
+}
+
+.slider-enhanced [data-radix-slider-thumb]:hover {
+  @apply border-blue-600 dark:border-blue-300;
+}
+
+.slider-enhanced [data-radix-slider-thumb]:active {
+  @apply scale-95;
+}
+
+/* 闪烁动画 */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* 进度条增强样式 */
+.progress-enhanced {
+  @apply relative overflow-hidden;
+}
+
+.progress-enhanced::after {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent;
+  animation: shimmer 2s infinite;
 }
 
 @layer base {

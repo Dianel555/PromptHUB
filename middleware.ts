@@ -7,8 +7,12 @@ export default withAuth(
     const { pathname } = req.nextUrl
     const token = req.nextauth.token
 
-    // 如果访问个人中心相关页面但未登录，重定向到登录页面
-    if (pathname.startsWith('/profile') && !token) {
+    // 需要登录的路径列表
+    const protectedPaths = ['/profile', '/prompts', '/create']
+    const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path))
+
+    // 如果访问受保护页面但未登录，重定向到登录页面
+    if (isProtectedPath && !token) {
       const signInUrl = new URL('/auth/signin', req.url)
       signInUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(signInUrl)
@@ -21,8 +25,12 @@ export default withAuth(
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl
         
-        // 对于个人中心页面，需要登录
-        if (pathname.startsWith('/profile')) {
+        // 需要登录的路径列表
+        const protectedPaths = ['/profile', '/prompts', '/create']
+        const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path))
+        
+        // 对于受保护页面，需要登录
+        if (isProtectedPath) {
           return !!token
         }
         
@@ -36,6 +44,8 @@ export default withAuth(
 export const config = {
   matcher: [
     '/profile/:path*',
+    '/prompts/:path*',
+    '/create/:path*',
     '/api/user/:path*'
   ]
 }

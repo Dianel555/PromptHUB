@@ -2,7 +2,7 @@
 
 import { useTheme } from 'next-themes';
 import { Badge } from '@/components/ui/badge';
-import { tagColors, darkTagColors, getTagColorIndex } from '@/lib/themes';
+import { getTagColorIndex, getTagColorsForTheme } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 
 interface ColorfulTagProps {
@@ -16,9 +16,8 @@ export function ColorfulTag({ children, className, variant = 'default' }: Colorf
   const text = typeof children === 'string' ? children : '';
   const colorIndex = getTagColorIndex(text);
   
-  // 根据主题选择颜色方案
-  const isDarkTheme = theme === 'dark' || theme === 'starry';
-  const colors = isDarkTheme ? darkTagColors : tagColors;
+  // 根据当前主题获取对应的颜色配置
+  const colors = getTagColorsForTheme(theme || 'light');
   const colorConfig = colors[colorIndex];
 
   if (variant !== 'default') {
@@ -32,11 +31,12 @@ export function ColorfulTag({ children, className, variant = 'default' }: Colorf
   return (
     <Badge
       className={cn(
-        'transition-all duration-200 hover:scale-105',
+        'transition-all duration-200 hover:scale-105 hover:shadow-md',
         colorConfig.bg,
         colorConfig.text,
         colorConfig.border,
-        'border backdrop-blur-sm',
+        colorConfig.shadow,
+        'border backdrop-blur-sm shadow-sm font-medium px-2.5 py-1',
         className
       )}
     >

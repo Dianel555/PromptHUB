@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Monitor, Palette } from 'lucide-react';
-import { themes, getTimeBasedTheme } from '@/lib/themes';
+import { themes, getAutoTheme, applyTheme } from '@/lib/themes';
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -25,16 +25,22 @@ export function ThemeToggle() {
     if (savedAutoMode === 'true') {
       setAutoMode(true);
       updateThemeBasedOnTime();
+    } else {
+      // 如果不是自动模式，确保当前主题被正确应用
+      if (theme) {
+        applyTheme(theme);
+      }
     }
-  }, []);
+  }, [theme]);
+
+  const updateThemeBasedOnTime = () => {
+    const timeBasedTheme = getAutoTheme();
+    setTheme(timeBasedTheme);
+    applyTheme(timeBasedTheme);
+  };
 
   useEffect(() => {
     if (!autoMode) return;
-
-    const updateThemeBasedOnTime = () => {
-      const timeBasedTheme = getTimeBasedTheme();
-      setTheme(timeBasedTheme);
-    };
 
     // 立即更新一次
     updateThemeBasedOnTime();
@@ -44,11 +50,6 @@ export function ThemeToggle() {
 
     return () => clearInterval(interval);
   }, [autoMode, setTheme]);
-
-  const updateThemeBasedOnTime = () => {
-    const timeBasedTheme = getTimeBasedTheme();
-    setTheme(timeBasedTheme);
-  };
 
   const handleAutoModeToggle = () => {
     const newAutoMode = !autoMode;
@@ -64,6 +65,7 @@ export function ThemeToggle() {
     setAutoMode(false);
     localStorage.setItem('auto-theme-mode', 'false');
     setTheme(newTheme);
+    applyTheme(newTheme);
   };
 
   if (!mounted) {

@@ -1,7 +1,10 @@
 export interface ThemeConfig {
   name: string;
   displayName: string;
+  displayNameEn: string;
   icon: string;
+  description: string;
+  descriptionEn: string;
   colors: {
     background: string;
     foreground: string;
@@ -25,194 +28,284 @@ export interface ThemeConfig {
     glass: string;
     glassHover: string;
   };
+  // 主题特定的标签样式配置
+  tagStyles: {
+    defaultOpacity: number;
+    hoverOpacity: number;
+    borderRadius: string;
+    fontSize: {
+      small: string;
+      medium: string;
+      large: string;
+    };
+  };
 }
 
 export const themes: Record<string, ThemeConfig> = {
   light: {
     name: 'light',
     displayName: '白天模式',
+    displayNameEn: 'Day Mode',
     icon: '🌞',
+    description: '明亮清爽的白色主题，适合白天使用',
+    descriptionEn: 'Bright and clean white theme, perfect for daytime use',
     colors: {
       background: '#ffffff',
-      foreground: '#1f2937',
-      card: 'rgba(255, 255, 255, 0.8)',
-      cardForeground: '#1f2937',
+      foreground: '#0f172a',
+      card: '#ffffff',
+      cardForeground: '#0f172a',
       popover: '#ffffff',
-      popoverForeground: '#1f2937',
+      popoverForeground: '#0f172a',
       primary: '#3b82f6',
-      primaryForeground: '#ffffff',
+      primaryForeground: '#f8fafc',
       secondary: '#f1f5f9',
-      secondaryForeground: '#475569',
-      muted: '#f8fafc',
+      secondaryForeground: '#0f172a',
+      muted: '#f1f5f9',
       mutedForeground: '#64748b',
-      accent: '#e2e8f0',
-      accentForeground: '#1e293b',
+      accent: '#f1f5f9',
+      accentForeground: '#0f172a',
       destructive: '#ef4444',
-      destructiveForeground: '#ffffff',
-      border: 'rgba(226, 232, 240, 0.5)',
-      input: 'rgba(241, 245, 249, 0.8)',
+      destructiveForeground: '#f8fafc',
+      border: '#e2e8f0',
+      input: '#e2e8f0',
       ring: '#3b82f6',
       glass: 'rgba(255, 255, 255, 0.1)',
       glassHover: 'rgba(255, 255, 255, 0.2)',
+    },
+    tagStyles: {
+      defaultOpacity: 0.9,
+      hoverOpacity: 1.0,
+      borderRadius: '0.5rem',
+      fontSize: {
+        small: '0.75rem',
+        medium: '0.875rem',
+        large: '1rem',
+      },
     },
   },
   dark: {
     name: 'dark',
     displayName: '黑夜模式',
+    displayNameEn: 'Night Mode',
     icon: '🌙',
+    description: '深色护眼主题，适合夜晚和低光环境使用',
+    descriptionEn: 'Dark eye-friendly theme, perfect for nighttime and low-light environments',
     colors: {
       background: '#0f172a',
-      foreground: '#f1f5f9',
-      card: 'rgba(15, 23, 42, 0.8)',
-      cardForeground: '#f1f5f9',
+      foreground: '#f8fafc',
+      card: '#1e293b',
+      cardForeground: '#f8fafc',
       popover: '#1e293b',
-      popoverForeground: '#f1f5f9',
+      popoverForeground: '#f8fafc',
       primary: '#06b6d4',
       primaryForeground: '#0f172a',
-      secondary: '#1e293b',
-      secondaryForeground: '#cbd5e1',
+      secondary: '#334155',
+      secondaryForeground: '#f8fafc',
       muted: '#334155',
       mutedForeground: '#94a3b8',
-      accent: '#475569',
-      accentForeground: '#f1f5f9',
-      destructive: '#f87171',
-      destructiveForeground: '#0f172a',
-      border: 'rgba(71, 85, 105, 0.5)',
-      input: 'rgba(30, 41, 59, 0.8)',
+      accent: '#334155',
+      accentForeground: '#f8fafc',
+      destructive: '#ef4444',
+      destructiveForeground: '#f8fafc',
+      border: '#334155',
+      input: '#334155',
       ring: '#06b6d4',
       glass: 'rgba(15, 23, 42, 0.1)',
       glassHover: 'rgba(15, 23, 42, 0.2)',
+    },
+    tagStyles: {
+      defaultOpacity: 0.85,
+      hoverOpacity: 1.0,
+      borderRadius: '0.5rem',
+      fontSize: {
+        small: '0.75rem',
+        medium: '0.875rem',
+        large: '1rem',
+      },
     },
   },
   eyecare: {
     name: 'eyecare',
     displayName: '护眼模式',
+    displayNameEn: 'Eye-care Mode',
     icon: '👁️',
+    description: '通过调整屏幕亮度、色温和减少蓝光辐射来提高阅读舒适度，减少长时间使用电子设备对眼睛的刺激',
+    descriptionEn: 'Improves reading comfort by adjusting screen brightness, color temperature, and reducing blue light radiation to minimize eye strain from prolonged electronic device use',
     colors: {
-      background: '#f0f4f0',
-      foreground: '#1a3d1a',
-      card: 'rgba(240, 244, 240, 0.9)',
-      cardForeground: '#1a3d1a',
-      popover: '#e8f5e8',
-      popoverForeground: '#1a3d1a',
-      primary: '#22c55e',
-      primaryForeground: '#ffffff',
-      secondary: '#e8f5e8',
+      background: '#f8faf8',
+      foreground: '#2d4a2d',
+      card: '#ffffff',
+      cardForeground: '#2d4a2d',
+      popover: '#ffffff',
+      popoverForeground: '#2d4a2d',
+      primary: '#16a34a',
+      primaryForeground: '#f0fdf4',
+      secondary: '#f0fdf4',
       secondaryForeground: '#166534',
-      muted: '#dcfce7',
+      muted: '#f0fdf4',
       mutedForeground: '#15803d',
-      accent: '#86efac',
-      accentForeground: '#14532d',
+      accent: '#dcfce7',
+      accentForeground: '#166534',
       destructive: '#dc2626',
-      destructiveForeground: '#ffffff',
-      border: 'rgba(34, 197, 94, 0.2)',
-      input: 'rgba(232, 245, 232, 0.8)',
-      ring: '#22c55e',
-      glass: 'rgba(240, 244, 240, 0.2)',
-      glassHover: 'rgba(240, 244, 240, 0.3)',
+      destructiveForeground: '#fef2f2',
+      border: '#bbf7d0',
+      input: '#dcfce7',
+      ring: '#16a34a',
+      glass: 'rgba(248, 250, 248, 0.8)',
+      glassHover: 'rgba(248, 250, 248, 0.9)',
+    },
+    tagStyles: {
+      defaultOpacity: 0.9,
+      hoverOpacity: 1.0,
+      borderRadius: '0.5rem',
+      fontSize: {
+        small: '0.75rem',
+        medium: '0.875rem',
+        large: '1rem',
+      },
     },
   },
   paper: {
     name: 'paper',
     displayName: '纸质模式',
+    displayNameEn: 'Paper Mode',
     icon: '📄',
+    description: '在护眼模式基础上增加模拟纸张纹理和色彩的功能，提供接近纸质阅读的体验，特别适合长时间电子书阅读或网页浏览',
+    descriptionEn: 'Based on eye-care mode with added paper texture and color simulation, providing a near-paper reading experience, especially suitable for long-term e-book reading or web browsing',
     colors: {
-      background: '#f7f3e9',
-      foreground: '#2d2a1f',
-      card: 'rgba(247, 243, 233, 0.9)',
-      cardForeground: '#2d2a1f',
-      popover: '#f0ebe0',
-      popoverForeground: '#2d2a1f',
-      primary: '#8b6914',
-      primaryForeground: '#ffffff',
-      secondary: '#f0ebe0',
-      secondaryForeground: '#5d4e37',
-      muted: '#ede8dd',
-      mutedForeground: '#6b5b47',
-      accent: '#d4af37',
-      accentForeground: '#2d2a1f',
+      background: '#faf7f0',
+      foreground: '#3a2f1f',
+      card: '#fefdfb',
+      cardForeground: '#3a2f1f',
+      popover: '#fefdfb',
+      popoverForeground: '#3a2f1f',
+      primary: '#92400e',
+      primaryForeground: '#fef7ed',
+      secondary: '#fef7ed',
+      secondaryForeground: '#92400e',
+      muted: '#fef7ed',
+      mutedForeground: '#a16207',
+      accent: '#fed7aa',
+      accentForeground: '#92400e',
       destructive: '#dc2626',
-      destructiveForeground: '#ffffff',
-      border: 'rgba(139, 105, 20, 0.2)',
-      input: 'rgba(240, 235, 224, 0.8)',
-      ring: '#8b6914',
-      glass: 'rgba(247, 243, 233, 0.2)',
-      glassHover: 'rgba(247, 243, 233, 0.3)',
+      destructiveForeground: '#fef2f2',
+      border: '#fed7aa',
+      input: '#fde68a',
+      ring: '#92400e',
+      glass: 'rgba(250, 247, 240, 0.85)',
+      glassHover: 'rgba(250, 247, 240, 0.95)',
+    },
+    tagStyles: {
+      defaultOpacity: 0.95,
+      hoverOpacity: 1.0,
+      borderRadius: '0.375rem',
+      fontSize: {
+        small: '0.75rem',
+        medium: '0.875rem',
+        large: '1rem',
+      },
     },
   },
   starry: {
     name: 'starry',
     displayName: '星空模式',
+    displayNameEn: 'Starry Mode',
     icon: '⭐',
+    description: '梦幻紫色星空主题，营造浪漫氛围',
+    descriptionEn: 'Dreamy purple starry theme that creates a romantic atmosphere',
     colors: {
-      background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
-      foreground: '#f8fafc',
-      card: 'rgba(30, 27, 75, 0.6)',
-      cardForeground: '#f8fafc',
-      popover: '#3730a3',
-      popoverForeground: '#f8fafc',
-      primary: '#8b5cf6',
-      primaryForeground: '#ffffff',
+      background: '#1e1b4b',
+      foreground: '#e0e7ff',
+      card: '#312e81',
+      cardForeground: '#e0e7ff',
+      popover: '#312e81',
+      popoverForeground: '#e0e7ff',
+      primary: '#a855f7',
+      primaryForeground: '#1e1b4b',
       secondary: '#4c1d95',
-      secondaryForeground: '#e2e8f0',
-      muted: '#581c87',
+      secondaryForeground: '#e0e7ff',
+      muted: '#4c1d95',
       mutedForeground: '#c4b5fd',
-      accent: '#7c3aed',
-      accentForeground: '#f8fafc',
-      destructive: '#f472b6',
-      destructiveForeground: '#ffffff',
-      border: 'rgba(139, 92, 246, 0.3)',
-      input: 'rgba(76, 29, 149, 0.5)',
-      ring: '#8b5cf6',
-      glass: 'rgba(30, 27, 75, 0.1)',
-      glassHover: 'rgba(30, 27, 75, 0.2)',
+      accent: '#4c1d95',
+      accentForeground: '#e0e7ff',
+      destructive: '#f87171',
+      destructiveForeground: '#1e1b4b',
+      border: '#6d28d9',
+      input: '#6d28d9',
+      ring: '#a855f7',
+      glass: 'rgba(30, 27, 75, 0.2)',
+      glassHover: 'rgba(30, 27, 75, 0.3)',
+    },
+    tagStyles: {
+      defaultOpacity: 0.9,
+      hoverOpacity: 1.0,
+      borderRadius: '0.5rem',
+      fontSize: {
+        small: '0.75rem',
+        medium: '0.875rem',
+        large: '1rem',
+      },
     },
   },
 };
 
-export const tagColors = [
-  { name: 'blue', bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200' },
-  { name: 'green', bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200' },
-  { name: 'purple', bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-200' },
-  { name: 'red', bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200' },
-  { name: 'orange', bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-200' },
-  { name: 'cyan', bg: 'bg-cyan-100', text: 'text-cyan-800', border: 'border-cyan-200' },
-  { name: 'pink', bg: 'bg-pink-100', text: 'text-pink-800', border: 'border-pink-200' },
-  { name: 'yellow', bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-200' },
-  { name: 'indigo', bg: 'bg-indigo-100', text: 'text-indigo-800', border: 'border-indigo-200' },
-  { name: 'lime', bg: 'bg-lime-100', text: 'text-lime-800', border: 'border-lime-200' },
-  { name: 'rose', bg: 'bg-rose-100', text: 'text-rose-800', border: 'border-rose-200' },
-  { name: 'sky', bg: 'bg-sky-100', text: 'text-sky-800', border: 'border-sky-200' },
-];
+export const getTheme = (themeName: string): ThemeConfig => {
+  return themes[themeName] || themes.light;
+};
 
-export const darkTagColors = [
-  { name: 'blue', bg: 'bg-blue-900/50', text: 'text-blue-200', border: 'border-blue-700/50' },
-  { name: 'green', bg: 'bg-green-900/50', text: 'text-green-200', border: 'border-green-700/50' },
-  { name: 'purple', bg: 'bg-purple-900/50', text: 'text-purple-200', border: 'border-purple-700/50' },
-  { name: 'red', bg: 'bg-red-900/50', text: 'text-red-200', border: 'border-red-700/50' },
-  { name: 'orange', bg: 'bg-orange-900/50', text: 'text-orange-200', border: 'border-orange-700/50' },
-  { name: 'cyan', bg: 'bg-cyan-900/50', text: 'text-cyan-200', border: 'border-cyan-700/50' },
-  { name: 'pink', bg: 'bg-pink-900/50', text: 'text-pink-200', border: 'border-pink-700/50' },
-  { name: 'yellow', bg: 'bg-yellow-900/50', text: 'text-yellow-200', border: 'border-yellow-700/50' },
-  { name: 'indigo', bg: 'bg-indigo-900/50', text: 'text-indigo-200', border: 'border-indigo-700/50' },
-  { name: 'lime', bg: 'bg-lime-900/50', text: 'text-lime-200', border: 'border-lime-700/50' },
-  { name: 'rose', bg: 'bg-rose-900/50', text: 'text-rose-200', border: 'border-rose-700/50' },
-  { name: 'sky', bg: 'bg-sky-900/50', text: 'text-sky-200', border: 'border-sky-700/50' },
-];
+export const getThemeNames = (): string[] => {
+  return Object.keys(themes);
+};
 
-// 根据字符串内容生成颜色索引
-export function getTagColorIndex(text: string): number {
-  let hash = 0;
-  for (let i = 0; i < text.length; i++) {
-    const char = text.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // 转换为32位整数
-  }
-  return Math.abs(hash) % tagColors.length;
-}
+export const getThemeDisplayName = (themeName: string, language: 'zh' | 'en' = 'zh'): string => {
+  const theme = getTheme(themeName);
+  return language === 'zh' ? theme.displayName : theme.displayNameEn;
+};
 
-// 获取当前时间应该使用的主题
-export function getTimeBasedTheme(): 'light' | 'dark' {
+export const getThemeDescription = (themeName: string, language: 'zh' | 'en' = 'zh'): string => {
+  const theme = getTheme(themeName);
+  return language === 'zh' ? theme.description : theme.descriptionEn;
+};
+
+// 应用主题到文档根元素
+export const applyTheme = (themeName: string) => {
+  if (typeof document === 'undefined') return;
+  
+  const theme = getTheme(themeName);
+  const root = document.documentElement;
+  
+  // 移除所有主题类
+  getThemeNames().forEach(name => {
+    root.classList.remove(name);
+  });
+  
+  // 添加当前主题类
+  root.classList.add(themeName);
+  
+  // 强制触发重新渲染
+  root.style.display = 'none';
+  root.offsetHeight; // 触发重排
+  root.style.display = '';
+  
+  // 设置CSS变量（作为备用）
+  Object.entries(theme.colors).forEach(([key, value]) => {
+    root.style.setProperty(`--${key}`, value);
+  });
+  
+  // 设置标签样式变量
+  Object.entries(theme.tagStyles).forEach(([key, value]) => {
+    if (typeof value === 'object') {
+      Object.entries(value).forEach(([subKey, subValue]) => {
+        root.style.setProperty(`--tag-${key}-${subKey}`, subValue);
+      });
+    } else {
+      root.style.setProperty(`--tag-${key}`, value.toString());
+    }
+  });
+};
+
+// 获取当前时间对应的自动主题
+export const getAutoTheme = (): string => {
   const hour = new Date().getHours();
   return hour >= 6 && hour < 18 ? 'light' : 'dark';
-}
+};
