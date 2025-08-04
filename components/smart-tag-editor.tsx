@@ -1,21 +1,46 @@
-'use client'
+"use client"
 
-import React, { useState, useEffect } from 'react'
-import { X, Plus, Star, Tag, BookOpen, Heart, MapPin, Palette } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
-import { SmartTagAnalyzer, SmartTag, TagSuggestion } from '@/lib/smart-tag-analyzer'
-import { tagDimensions } from '@/lib/tag-system'
-import { getTagConfig, validateTag, normalizeTag, processTags } from '@/lib/tag-config'
+import React, { useEffect, useState } from "react"
+import {
+  BookOpen,
+  Heart,
+  MapPin,
+  Palette,
+  Plus,
+  Star,
+  Tag,
+  X,
+} from "lucide-react"
+
+import {
+  SmartTag,
+  SmartTagAnalyzer,
+  TagSuggestion,
+} from "@/lib/smart-tag-analyzer"
+import {
+  getTagConfig,
+  normalizeTag,
+  processTags,
+  validateTag,
+} from "@/lib/tag-config"
+import { tagDimensions } from "@/lib/tag-system"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Separator } from "@/components/ui/separator"
 
 interface SmartTagEditorProps {
   content: string
   initialTags?: string[]
   onTagsChange: (tags: string[]) => void
-  language?: 'zh' | 'en'
+  language?: "zh" | "en"
   showSuggestions?: boolean
 }
 
@@ -24,40 +49,47 @@ const dimensionIcons = {
   Heart,
   MapPin,
   Palette,
-  Tag
+  Tag,
 }
 
 export function SmartTagEditor({
   content,
   initialTags = [],
   onTagsChange,
-  language = 'zh',
-  showSuggestions = true
+  language = "zh",
+  showSuggestions = true,
 }: SmartTagEditorProps) {
   const [tags, setTags] = useState<string[]>(initialTags)
-  const [inputValue, setInputValue] = useState('')
+  const [inputValue, setInputValue] = useState("")
   const [suggestions, setSuggestions] = useState<TagSuggestion[]>([])
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  
+
   // 获取标签配置
   const config = getTagConfig()
 
   // 智能分析内容并生成标签建议
   useEffect(() => {
-    if (content && content.trim().length > 0 && content.length <= config.maxAnalysisLength) {
+    if (
+      content &&
+      content.trim().length > 0 &&
+      content.length <= config.maxAnalysisLength
+    ) {
       setIsAnalyzing(true)
-      
+
       const timeoutId = setTimeout(() => {
         try {
           const tagSuggestions = SmartTagAnalyzer.getTagSuggestions(content)
           // 使用配置的置信度阈值过滤建议
           const filteredSuggestions = tagSuggestions
-            .filter(suggestion => suggestion.confidence >= config.confidenceThreshold)
+            .filter(
+              (suggestion) =>
+                suggestion.confidence >= config.confidenceThreshold
+            )
             .slice(0, config.maxSuggestions)
-          
+
           setSuggestions(filteredSuggestions)
         } catch (error) {
-          console.error('标签分析失败:', error)
+          console.error("标签分析失败:", error)
           setSuggestions([])
         } finally {
           setIsAnalyzing(false)
@@ -79,20 +111,22 @@ export function SmartTagEditor({
   const addTag = (tagText: string) => {
     const normalizedTag = normalizeTag(tagText)
     const validation = validateTag(normalizedTag)
-    
-    if (validation.valid && 
-        !tags.includes(normalizedTag) && 
-        tags.length < config.maxTags) {
-      setTags(prev => [...prev, normalizedTag])
-      setInputValue('')
+
+    if (
+      validation.valid &&
+      !tags.includes(normalizedTag) &&
+      tags.length < config.maxTags
+    ) {
+      setTags((prev) => [...prev, normalizedTag])
+      setInputValue("")
     } else if (!validation.valid && validation.reason) {
       // 可以在这里添加错误提示逻辑
-      console.warn('标签验证失败:', validation.reason)
+      console.warn("标签验证失败:", validation.reason)
     }
   }
 
   const removeTag = (tagToRemove: string) => {
-    setTags(prev => prev.filter(tag => tag !== tagToRemove))
+    setTags((prev) => prev.filter((tag) => tag !== tagToRemove))
   }
 
   const clearAllTags = () => {
@@ -100,21 +134,22 @@ export function SmartTagEditor({
   }
 
   const handleInputKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault()
       addTag(inputValue)
-    } else if (e.key === 'Escape') {
-      setInputValue('')
+    } else if (e.key === "Escape") {
+      setInputValue("")
     }
   }
 
   const applySuggestion = (suggestion: TagSuggestion) => {
-    const tagText = language === 'zh' ? suggestion.tag.text : suggestion.tag.textEn
+    const tagText =
+      language === "zh" ? suggestion.tag.text : suggestion.tag.textEn
     addTag(tagText)
   }
 
   const getTagDimensionInfo = (tag: SmartTag) => {
-    return tagDimensions.find(d => d.id === tag.dimension)
+    return tagDimensions.find((d) => d.id === tag.dimension)
   }
 
   const renderTagBadge = (tag: string) => {
@@ -122,16 +157,16 @@ export function SmartTagEditor({
       <Badge
         key={tag}
         variant="secondary"
-        className="flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-all duration-200 cursor-default"
+        className="flex cursor-default items-center gap-1 border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm text-blue-700 transition-all duration-200 hover:bg-blue-100"
       >
-        <Tag className="w-3 h-3" />
+        <Tag className="size-3" />
         <span className="max-w-24 truncate">{tag}</span>
         <button
           onClick={() => removeTag(tag)}
-          className="ml-1 hover:bg-blue-200 rounded-full p-0.5 transition-colors"
-          title={language === 'zh' ? '移除标签' : 'Remove tag'}
+          className="ml-1 rounded-full p-0.5 transition-colors hover:bg-blue-200"
+          title={language === "zh" ? "移除标签" : "Remove tag"}
         >
-          <X className="w-3 h-3" />
+          <X className="size-3" />
         </button>
       </Badge>
     )
@@ -139,10 +174,13 @@ export function SmartTagEditor({
 
   const renderSuggestionBadge = (suggestion: TagSuggestion) => {
     const dimensionInfo = getTagDimensionInfo(suggestion.tag)
-    const IconComponent = dimensionInfo ? dimensionIcons[dimensionInfo.icon as keyof typeof dimensionIcons] || Tag : Tag
-    const tagText = language === 'zh' ? suggestion.tag.text : suggestion.tag.textEn
+    const IconComponent = dimensionInfo
+      ? dimensionIcons[dimensionInfo.icon as keyof typeof dimensionIcons] || Tag
+      : Tag
+    const tagText =
+      language === "zh" ? suggestion.tag.text : suggestion.tag.textEn
     const isAlreadyAdded = tags.includes(tagText)
-    
+
     return (
       <Button
         key={suggestion.tag.id}
@@ -150,24 +188,28 @@ export function SmartTagEditor({
         size="sm"
         onClick={() => applySuggestion(suggestion)}
         disabled={isAlreadyAdded || tags.length >= config.maxTags}
-        className={`flex items-center gap-2 h-auto py-2 px-3 text-left justify-start transition-all duration-200 ${
-          isAlreadyAdded 
-            ? 'opacity-50 cursor-not-allowed' 
-            : 'hover:bg-gray-50 hover:scale-105'
+        className={`flex h-auto items-center justify-start gap-2 px-3 py-2 text-left transition-all duration-200 ${
+          isAlreadyAdded
+            ? "cursor-not-allowed opacity-50"
+            : "hover:scale-105 hover:bg-gray-50"
         }`}
         style={{ borderColor: dimensionInfo?.color }}
       >
-        <IconComponent 
-          className="w-4 h-4 flex-shrink-0" 
+        <IconComponent
+          className="size-4 shrink-0"
           style={{ color: dimensionInfo?.color }}
         />
-        <div className="flex flex-col items-start min-w-0 flex-1">
-          <span className="font-medium truncate max-w-full">{tagText}</span>
-          <span className="text-xs text-gray-500 truncate max-w-full">
-            {dimensionInfo ? (language === 'zh' ? dimensionInfo.name : dimensionInfo.nameEn) : '通用'}
+        <div className="flex min-w-0 flex-1 flex-col items-start">
+          <span className="max-w-full truncate font-medium">{tagText}</span>
+          <span className="max-w-full truncate text-xs text-gray-500">
+            {dimensionInfo
+              ? language === "zh"
+                ? dimensionInfo.name
+                : dimensionInfo.nameEn
+              : "通用"}
           </span>
         </div>
-        <Badge variant="secondary" className="text-xs ml-auto">
+        <Badge variant="secondary" className="ml-auto text-xs">
           {Math.round(suggestion.confidence * 100)}%
         </Badge>
       </Button>
@@ -180,9 +222,9 @@ export function SmartTagEditor({
       <Card className="border-2 border-blue-100">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Tag className="w-5 h-5 text-blue-600" />
-              {language === 'zh' ? '标签管理' : 'Tag Management'}
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Tag className="size-5 text-blue-600" />
+              {language === "zh" ? "标签管理" : "Tag Management"}
             </CardTitle>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-sm">
@@ -193,37 +235,43 @@ export function SmartTagEditor({
                   variant="ghost"
                   size="sm"
                   onClick={clearAllTags}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="text-red-600 hover:bg-red-50 hover:text-red-700"
                 >
-                  {language === 'zh' ? '清空' : 'Clear'}
+                  {language === "zh" ? "清空" : "Clear"}
                 </Button>
               )}
             </div>
           </div>
           <CardDescription>
-            {language === 'zh' 
-              ? '添加标签来描述内容的主题、风格和特征' 
-              : 'Add tags to describe content themes, styles and characteristics'}
+            {language === "zh"
+              ? "添加标签来描述内容的主题、风格和特征"
+              : "Add tags to describe content themes, styles and characteristics"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* 当前标签展示 */}
-          <div className="min-h-[60px] p-3 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+          <div className="min-h-[60px] rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 p-3">
             {tags.length > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {tags.map(tag => renderTagBadge(tag))}
+                {tags.map((tag) => renderTagBadge(tag))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-                {language === 'zh' ? '暂无标签，请添加或选择建议标签' : 'No tags yet, add or select suggested tags'}
+              <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                {language === "zh"
+                  ? "暂无标签，请添加或选择建议标签"
+                  : "No tags yet, add or select suggested tags"}
               </div>
             )}
           </div>
-          
+
           {/* 手动添加标签 */}
           <div className="flex gap-2">
             <Input
-              placeholder={language === 'zh' ? `输入自定义标签 (最多${config.maxTagLength}字符)...` : `Enter custom tag (max ${config.maxTagLength} chars)...`}
+              placeholder={
+                language === "zh"
+                  ? `输入自定义标签 (最多${config.maxTagLength}字符)...`
+                  : `Enter custom tag (max ${config.maxTagLength} chars)...`
+              }
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleInputKeyPress}
@@ -237,8 +285,8 @@ export function SmartTagEditor({
               size="sm"
               className="px-4"
             >
-              <Plus className="w-4 h-4 mr-1" />
-              {language === 'zh' ? '添加' : 'Add'}
+              <Plus className="mr-1 size-4" />
+              {language === "zh" ? "添加" : "Add"}
             </Button>
           </div>
         </CardContent>
@@ -248,54 +296,58 @@ export function SmartTagEditor({
       {showSuggestions && (
         <Card>
           <CardHeader className="pb-4">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Star className="w-5 h-5 text-amber-500" />
-              {language === 'zh' ? '智能推荐' : 'Smart Recommendations'}
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Star className="size-5 text-amber-500" />
+              {language === "zh" ? "智能推荐" : "Smart Recommendations"}
               {isAnalyzing && (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-500 ml-2"></div>
+                <div className="ml-2 size-4 animate-spin rounded-full border-b-2 border-amber-500"></div>
               )}
             </CardTitle>
             <CardDescription>
-              {language === 'zh' 
-                ? '基于内容智能分析的标签推荐，点击即可添加' 
-                : 'AI-powered tag recommendations based on content analysis'}
+              {language === "zh"
+                ? "基于内容智能分析的标签推荐，点击即可添加"
+                : "AI-powered tag recommendations based on content analysis"}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {isAnalyzing ? (
               <div className="flex items-center justify-center py-12">
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500 mx-auto mb-3"></div>
+                  <div className="mx-auto mb-3 size-8 animate-spin rounded-full border-b-2 border-amber-500"></div>
                   <p className="text-sm text-gray-500">
-                    {language === 'zh' ? '正在智能分析内容...' : 'Analyzing content intelligently...'}
+                    {language === "zh"
+                      ? "正在智能分析内容..."
+                      : "Analyzing content intelligently..."}
                   </p>
                 </div>
               </div>
             ) : suggestions.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {suggestions.map(suggestion => renderSuggestionBadge(suggestion))}
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {suggestions.map((suggestion) =>
+                  renderSuggestionBadge(suggestion)
+                )}
               </div>
             ) : content.trim().length > 0 ? (
-              <div className="text-center py-12">
-                <Star className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-sm text-gray-500 mb-2">
-                  {language === 'zh' 
-                    ? '暂无高质量标签推荐' 
-                    : 'No high-quality recommendations available'}
+              <div className="py-12 text-center">
+                <Star className="mx-auto mb-3 size-12 text-gray-300" />
+                <p className="mb-2 text-sm text-gray-500">
+                  {language === "zh"
+                    ? "暂无高质量标签推荐"
+                    : "No high-quality recommendations available"}
                 </p>
                 <p className="text-xs text-gray-400">
-                  {language === 'zh' 
-                    ? '请尝试输入更详细的内容描述' 
-                    : 'Try adding more detailed content description'}
+                  {language === "zh"
+                    ? "请尝试输入更详细的内容描述"
+                    : "Try adding more detailed content description"}
                 </p>
               </div>
             ) : (
-              <div className="text-center py-12">
-                <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <div className="py-12 text-center">
+                <BookOpen className="mx-auto mb-3 size-12 text-gray-300" />
                 <p className="text-sm text-gray-500">
-                  {language === 'zh' 
-                    ? '请先输入内容以获取智能推荐' 
-                    : 'Please enter content to get smart recommendations'}
+                  {language === "zh"
+                    ? "请先输入内容以获取智能推荐"
+                    : "Please enter content to get smart recommendations"}
                 </p>
               </div>
             )}
@@ -304,25 +356,30 @@ export function SmartTagEditor({
       )}
 
       {/* 标签维度说明 */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+      <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center gap-2 text-blue-800">
-            <BookOpen className="w-4 h-4" />
-            {language === 'zh' ? '标签分类说明' : 'Tag Categories'}
+          <CardTitle className="flex items-center gap-2 text-sm text-blue-800">
+            <BookOpen className="size-4" />
+            {language === "zh" ? "标签分类说明" : "Tag Categories"}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-            {tagDimensions.map(dimension => {
-              const IconComponent = dimensionIcons[dimension.icon as keyof typeof dimensionIcons] || Tag
+          <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
+            {tagDimensions.map((dimension) => {
+              const IconComponent =
+                dimensionIcons[dimension.icon as keyof typeof dimensionIcons] ||
+                Tag
               return (
-                <div key={dimension.id} className="flex items-center gap-2 p-2 bg-white rounded-md border border-blue-100">
-                  <IconComponent 
-                    className="w-3 h-3 flex-shrink-0" 
+                <div
+                  key={dimension.id}
+                  className="flex items-center gap-2 rounded-md border border-blue-100 bg-white p-2"
+                >
+                  <IconComponent
+                    className="size-3 shrink-0"
                     style={{ color: dimension.color }}
                   />
                   <span className="font-medium text-gray-700">
-                    {language === 'zh' ? dimension.name : dimension.nameEn}
+                    {language === "zh" ? dimension.name : dimension.nameEn}
                   </span>
                 </div>
               )

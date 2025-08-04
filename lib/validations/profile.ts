@@ -1,6 +1,6 @@
 /**
  * Profile 验证模式 - 基于 Zod v4 最新特性
- * 
+ *
  * 特性说明：
  * 1. 使用 Zod v4 的新 API 和改进的类型推断
  * 2. 利用 .overwrite() 方法进行类型保持的转换
@@ -19,26 +19,26 @@ const VALIDATION_CONSTANTS = {
     PATTERN: /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/,
     ERROR_MESSAGES: {
       TOO_SHORT: "用户名至少需要2个字符",
-      TOO_LONG: "用户名不能超过30个字符", 
-      INVALID_FORMAT: "用户名只能包含字母、数字、下划线和中文字符"
-    }
+      TOO_LONG: "用户名不能超过30个字符",
+      INVALID_FORMAT: "用户名只能包含字母、数字、下划线和中文字符",
+    },
   },
   EMAIL: {
     PATTERN: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    ERROR_MESSAGE: "请输入有效的邮箱地址"
+    ERROR_MESSAGE: "请输入有效的邮箱地址",
   },
   PHONE: {
     PATTERN: /^1[3-9]\d{9}$/,
-    ERROR_MESSAGE: "请输入有效的中国大陆手机号码"
+    ERROR_MESSAGE: "请输入有效的中国大陆手机号码",
   },
   WEBSITE: {
     PATTERN: /^https?:\/\/.+/,
-    ERROR_MESSAGE: "请输入有效的网站地址（必须包含 http:// 或 https://）"
+    ERROR_MESSAGE: "请输入有效的网站地址（必须包含 http:// 或 https://）",
   },
   BIO: {
     MAX_LENGTH: 500,
-    ERROR_MESSAGE: "个人简介不能超过500个字符"
-  }
+    ERROR_MESSAGE: "个人简介不能超过500个字符",
+  },
 } as const
 
 /**
@@ -47,16 +47,16 @@ const VALIDATION_CONSTANTS = {
 const usernameSchema = z
   .string({
     required_error: "用户名是必填项",
-    invalid_type_error: "用户名必须是字符串"
+    invalid_type_error: "用户名必须是字符串",
   })
   .min(VALIDATION_CONSTANTS.USERNAME.MIN_LENGTH, {
-    message: VALIDATION_CONSTANTS.USERNAME.ERROR_MESSAGES.TOO_SHORT
+    message: VALIDATION_CONSTANTS.USERNAME.ERROR_MESSAGES.TOO_SHORT,
   })
   .max(VALIDATION_CONSTANTS.USERNAME.MAX_LENGTH, {
-    message: VALIDATION_CONSTANTS.USERNAME.ERROR_MESSAGES.TOO_LONG
+    message: VALIDATION_CONSTANTS.USERNAME.ERROR_MESSAGES.TOO_LONG,
   })
   .regex(VALIDATION_CONSTANTS.USERNAME.PATTERN, {
-    message: VALIDATION_CONSTANTS.USERNAME.ERROR_MESSAGES.INVALID_FORMAT
+    message: VALIDATION_CONSTANTS.USERNAME.ERROR_MESSAGES.INVALID_FORMAT,
   })
   .transform((val) => val.trim())
 
@@ -66,10 +66,10 @@ const usernameSchema = z
 const emailSchema = z
   .string({
     required_error: "邮箱是必填项",
-    invalid_type_error: "邮箱必须是字符串"
+    invalid_type_error: "邮箱必须是字符串",
   })
   .email({
-    message: VALIDATION_CONSTANTS.EMAIL.ERROR_MESSAGE
+    message: VALIDATION_CONSTANTS.EMAIL.ERROR_MESSAGE,
   })
   .transform((val) => val.toLowerCase().trim())
 
@@ -82,11 +82,11 @@ const phoneSchema = z
   .refine(
     (val) => {
       // 空值或空字符串被认为是有效的（因为是可选的）
-      if (!val || val.trim() === '') return true
+      if (!val || val.trim() === "") return true
       return VALIDATION_CONSTANTS.PHONE.PATTERN.test(val)
     },
     {
-      message: VALIDATION_CONSTANTS.PHONE.ERROR_MESSAGE
+      message: VALIDATION_CONSTANTS.PHONE.ERROR_MESSAGE,
     }
   )
 
@@ -98,11 +98,11 @@ const websiteSchema = z
   .optional()
   .refine(
     (val) => {
-      if (!val || val.trim() === '') return true
+      if (!val || val.trim() === "") return true
       return VALIDATION_CONSTANTS.WEBSITE.PATTERN.test(val)
     },
     {
-      message: VALIDATION_CONSTANTS.WEBSITE.ERROR_MESSAGE
+      message: VALIDATION_CONSTANTS.WEBSITE.ERROR_MESSAGE,
     }
   )
 
@@ -118,7 +118,7 @@ const bioSchema = z
       return val.length <= VALIDATION_CONSTANTS.BIO.MAX_LENGTH
     },
     {
-      message: VALIDATION_CONSTANTS.BIO.ERROR_MESSAGE
+      message: VALIDATION_CONSTANTS.BIO.ERROR_MESSAGE,
     }
   )
 
@@ -130,7 +130,7 @@ export const profileSchema = z.object({
   email: emailSchema,
   phone: phoneSchema,
   website: websiteSchema,
-  bio: bioSchema
+  bio: bioSchema,
 })
 
 /**
@@ -147,7 +147,7 @@ export type ProfileUpdate = z.infer<typeof profileUpdateSchema>
 /**
  * 验证结果类型 - 增强的错误处理
  */
-export type ProfileValidationResult = 
+export type ProfileValidationResult =
   | { success: true; data: Profile }
   | { success: false; errors: z.ZodError }
 
@@ -185,15 +185,15 @@ export const formatProfileErrors = (error: z.ZodError) => {
  */
 export const getFieldErrors = (error: z.ZodError) => {
   const fieldErrors: Record<string, string[]> = {}
-  
+
   error.issues.forEach((issue) => {
-    const path = issue.path.join('.')
+    const path = issue.path.join(".")
     if (!fieldErrors[path]) {
       fieldErrors[path] = []
     }
     fieldErrors[path].push(issue.message)
   })
-  
+
   return fieldErrors
 }
 
@@ -209,11 +209,11 @@ export const validateField = (fieldName: keyof Profile, value: unknown) => {
  * 默认值配置
  */
 export const defaultProfileValues: Partial<Profile> = {
-  username: '',
-  email: '',
-  phone: '',
-  website: '',
-  bio: ''
+  username: "",
+  email: "",
+  phone: "",
+  website: "",
+  bio: "",
 }
 
 /**
@@ -222,23 +222,23 @@ export const defaultProfileValues: Partial<Profile> = {
 export const createProfileResolver = () => {
   return (data: unknown) => {
     const result = profileSchema.safeParse(data)
-    
+
     if (result.success) {
       return {
         values: result.data,
-        errors: {}
+        errors: {},
       }
     }
-    
+
     const errors: Record<string, { message: string }> = {}
     result.error.issues.forEach((issue) => {
-      const path = issue.path.join('.')
+      const path = issue.path.join(".")
       errors[path] = { message: issue.message }
     })
-    
+
     return {
       values: {},
-      errors
+      errors,
     }
   }
 }
@@ -250,7 +250,7 @@ export { VALIDATION_CONSTANTS }
 
 /**
  * Zod v4 特性展示：
- * 
+ *
  * 1. 改进的类型推断 - 更准确的 TypeScript 类型
  * 2. .overwrite() 方法 - 类型保持的转换
  * 3. 增强的错误处理 - 更好的错误消息和格式化

@@ -1,9 +1,4 @@
-import {
-  Moon,
-  SunMedium,
-  Github,
-  Loader2,
-} from "lucide-react"
+import { Github, Loader2, Moon, SunMedium } from "lucide-react"
 
 export const Icons = {
   sun: SunMedium,

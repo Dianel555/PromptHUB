@@ -1,11 +1,19 @@
-'use client'
+"use client"
 
-import React from 'react'
-import { X, Tag as TagIcon, BookOpen, Heart, MapPin, Palette } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { getTagColor, getTagIcon, tagDimensions } from '@/lib/tag-system'
+import React from "react"
+import {
+  BookOpen,
+  Heart,
+  MapPin,
+  Palette,
+  Tag as TagIcon,
+  X,
+} from "lucide-react"
+
+import { getTagColor, getTagIcon, tagDimensions } from "@/lib/tag-system"
+import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 
 interface EnhancedColorfulTagProps {
   children: React.ReactNode
@@ -13,9 +21,9 @@ interface EnhancedColorfulTagProps {
   confidence?: number
   isManual?: boolean
   removable?: boolean
-  size?: 'sm' | 'md' | 'lg'
-  variant?: 'default' | 'outline' | 'secondary'
-  language?: 'zh' | 'en'
+  size?: "sm" | "md" | "lg"
+  variant?: "default" | "outline" | "secondary"
+  language?: "zh" | "en"
   onRemove?: () => void
   onClick?: () => void
   className?: string
@@ -26,19 +34,19 @@ const dimensionIcons = {
   Heart,
   MapPin,
   Palette,
-  TagIcon
+  TagIcon,
 }
 
 const sizeClasses = {
-  sm: 'text-xs px-2 py-1 h-6',
-  md: 'text-sm px-3 py-1.5 h-7',
-  lg: 'text-base px-4 py-2 h-8'
+  sm: "h-6 px-2 py-1 text-xs",
+  md: "h-7 px-3 py-1.5 text-sm",
+  lg: "h-8 px-4 py-2 text-base",
 }
 
 const iconSizes = {
-  sm: 'w-3 h-3',
-  md: 'w-3.5 h-3.5',
-  lg: 'w-4 h-4'
+  sm: "size-3",
+  md: "size-3.5",
+  lg: "size-4",
 }
 
 export function EnhancedColorfulTag({
@@ -47,56 +55,68 @@ export function EnhancedColorfulTag({
   confidence,
   isManual = false,
   removable = false,
-  size = 'md',
-  variant = 'default',
-  language = 'zh',
+  size = "md",
+  variant = "default",
+  language = "zh",
   onRemove,
   onClick,
-  className
+  className,
 }: EnhancedColorfulTagProps) {
-  const dimensionInfo = dimension ? tagDimensions.find(d => d.id === dimension) : null
-  const color = dimensionInfo?.color || '#6B7280'
-  const IconComponent = dimensionInfo 
-    ? dimensionIcons[dimensionInfo.icon as keyof typeof dimensionIcons] || TagIcon
+  const dimensionInfo = dimension
+    ? tagDimensions.find((d) => d.id === dimension)
+    : null
+  const color = dimensionInfo?.color || "#6B7280"
+  const IconComponent = dimensionInfo
+    ? dimensionIcons[dimensionInfo.icon as keyof typeof dimensionIcons] ||
+      TagIcon
     : TagIcon
 
   const baseClasses = cn(
-    'inline-flex items-center gap-1.5 rounded-full font-medium transition-all duration-200',
-    'hover:shadow-sm cursor-pointer select-none',
+    "inline-flex cursor-pointer select-none items-center gap-1.5 rounded-full font-medium transition-all duration-200",
+    "hover:shadow-sm",
     sizeClasses[size],
     className
   )
 
   const getVariantClasses = () => {
-    if (variant === 'outline') {
+    if (variant === "outline") {
       return cn(
-        'border-2 bg-white hover:bg-gray-50',
-        isManual ? 'border-gray-300 text-gray-700' : ''
+        "border-2 bg-white hover:bg-gray-50",
+        isManual ? "border-gray-300 text-gray-700" : ""
       )
     }
-    
-    if (variant === 'secondary') {
-      return 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+
+    if (variant === "secondary") {
+      return "bg-gray-100 text-gray-800 hover:bg-gray-200"
     }
 
     // default variant
     if (isManual) {
-      return 'bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-150'
+      return "border border-gray-200 bg-gray-100 text-gray-700 hover:bg-gray-150"
     }
 
-    return 'text-white hover:opacity-90'
+    return "text-white hover:opacity-90"
   }
 
-  const tagStyle = variant === 'default' && !isManual ? {
-    backgroundColor: color,
-    borderColor: color
-  } : variant === 'outline' && !isManual ? {
-    borderColor: color,
-    color: color
-  } : {}
+  const tagStyle =
+    variant === "default" && !isManual
+      ? {
+          backgroundColor: color,
+          borderColor: color,
+        }
+      : variant === "outline" && !isManual
+      ? {
+          borderColor: color,
+          color: color,
+        }
+      : {}
 
-  const confidenceColor = confidence && confidence > 0.7 ? 'text-green-600' : 
-                         confidence && confidence > 0.4 ? 'text-yellow-600' : 'text-red-600'
+  const confidenceColor =
+    confidence && confidence > 0.7
+      ? "text-green-600"
+      : confidence && confidence > 0.4
+      ? "text-yellow-600"
+      : "text-red-600"
 
   return (
     <Badge
@@ -106,27 +126,23 @@ export function EnhancedColorfulTag({
     >
       {/* 维度图标 */}
       {dimensionInfo && (
-        <IconComponent 
-          className={cn(iconSizes[size], 'flex-shrink-0')}
-          style={variant === 'outline' && !isManual ? { color } : {}}
+        <IconComponent
+          className={cn(iconSizes[size], "shrink-0")}
+          style={variant === "outline" && !isManual ? { color } : {}}
         />
       )}
-      
+
       {/* 手动标签图标 */}
       {isManual && (
-        <TagIcon 
-          className={cn(iconSizes[size], 'flex-shrink-0 text-gray-500')}
-        />
+        <TagIcon className={cn(iconSizes[size], "shrink-0 text-gray-500")} />
       )}
 
       {/* 标签文本 */}
-      <span className="truncate max-w-32">
-        {children}
-      </span>
+      <span className="max-w-32 truncate">{children}</span>
 
       {/* 置信度显示 */}
-      {confidence !== undefined && confidence > 0 && size !== 'sm' && (
-        <span className={cn('text-xs font-normal opacity-75', confidenceColor)}>
+      {confidence !== undefined && confidence > 0 && size !== "sm" && (
+        <span className={cn("text-xs font-normal opacity-75", confidenceColor)}>
           {Math.round(confidence * 100)}%
         </span>
       )}
@@ -137,17 +153,19 @@ export function EnhancedColorfulTag({
           variant="ghost"
           size="sm"
           className={cn(
-            'h-auto p-0 hover:bg-black/10 rounded-full ml-1',
-            size === 'sm' ? 'w-3 h-3' : size === 'md' ? 'w-4 h-4' : 'w-5 h-5'
+            "ml-1 h-auto rounded-full p-0 hover:bg-black/10",
+            size === "sm" ? "size-3" : size === "md" ? "size-4" : "size-5"
           )}
           onClick={(e) => {
             e.stopPropagation()
             onRemove()
           }}
         >
-          <X className={cn(
-            size === 'sm' ? 'w-2 h-2' : size === 'md' ? 'w-3 h-3' : 'w-3.5 h-3.5'
-          )} />
+          <X
+            className={cn(
+              size === "sm" ? "size-2" : size === "md" ? "size-3" : "size-3.5"
+            )}
+          />
         </Button>
       )}
     </Badge>
@@ -163,9 +181,9 @@ interface EnhancedTagListProps {
     isManual?: boolean
   }>
   removable?: boolean
-  size?: 'sm' | 'md' | 'lg'
-  variant?: 'default' | 'outline' | 'secondary'
-  language?: 'zh' | 'en'
+  size?: "sm" | "md" | "lg"
+  variant?: "default" | "outline" | "secondary"
+  language?: "zh" | "en"
   maxDisplay?: number
   onTagRemove?: (index: number) => void
   onTagClick?: (tag: any, index: number) => void
@@ -175,19 +193,20 @@ interface EnhancedTagListProps {
 export function EnhancedTagList({
   tags,
   removable = false,
-  size = 'md',
-  variant = 'default',
-  language = 'zh',
+  size = "md",
+  variant = "default",
+  language = "zh",
   maxDisplay,
   onTagRemove,
   onTagClick,
-  className
+  className,
 }: EnhancedTagListProps) {
   const displayTags = maxDisplay ? tags.slice(0, maxDisplay) : tags
-  const remainingCount = maxDisplay && tags.length > maxDisplay ? tags.length - maxDisplay : 0
+  const remainingCount =
+    maxDisplay && tags.length > maxDisplay ? tags.length - maxDisplay : 0
 
   return (
-    <div className={cn('flex flex-wrap gap-2', className)}>
+    <div className={cn("flex flex-wrap gap-2", className)}>
       {displayTags.map((tag, index) => (
         <EnhancedColorfulTag
           key={`${tag.text}-${index}`}
@@ -204,14 +223,11 @@ export function EnhancedTagList({
           {tag.text}
         </EnhancedColorfulTag>
       ))}
-      
+
       {remainingCount > 0 && (
-        <Badge 
-          variant="outline" 
-          className={cn(
-            'text-gray-500 border-gray-300',
-            sizeClasses[size]
-          )}
+        <Badge
+          variant="outline"
+          className={cn("border-gray-300 text-gray-500", sizeClasses[size])}
         >
           +{remainingCount}
         </Badge>
@@ -228,7 +244,7 @@ interface DimensionTagGroupProps {
     confidence?: number
     isManual?: boolean
   }>
-  language?: 'zh' | 'en'
+  language?: "zh" | "en"
   removable?: boolean
   onTagRemove?: (index: number) => void
   className?: string
@@ -236,14 +252,14 @@ interface DimensionTagGroupProps {
 
 export function DimensionTagGroup({
   tags,
-  language = 'zh',
+  language = "zh",
   removable = false,
   onTagRemove,
-  className
+  className,
 }: DimensionTagGroupProps) {
   // 按维度分组
   const groupedTags = tags.reduce((groups, tag, index) => {
-    const dimension = tag.dimension || 'custom'
+    const dimension = tag.dimension || "custom"
     if (!groups[dimension]) {
       groups[dimension] = []
     }
@@ -252,19 +268,23 @@ export function DimensionTagGroup({
   }, {} as Record<string, Array<any>>)
 
   return (
-    <div className={cn('space-y-3', className)}>
+    <div className={cn("space-y-3", className)}>
       {Object.entries(groupedTags).map(([dimensionId, dimensionTags]) => {
-        const dimensionInfo = tagDimensions.find(d => d.id === dimensionId)
-        const dimensionName = dimensionInfo 
-          ? (language === 'zh' ? dimensionInfo.name : dimensionInfo.nameEn)
-          : (language === 'zh' ? '自定义' : 'Custom')
+        const dimensionInfo = tagDimensions.find((d) => d.id === dimensionId)
+        const dimensionName = dimensionInfo
+          ? language === "zh"
+            ? dimensionInfo.name
+            : dimensionInfo.nameEn
+          : language === "zh"
+          ? "自定义"
+          : "Custom"
 
         return (
           <div key={dimensionId} className="space-y-2">
             <div className="flex items-center gap-2">
-              <div 
-                className="w-2 h-2 rounded-full" 
-                style={{ backgroundColor: dimensionInfo?.color || '#6B7280' }}
+              <div
+                className="size-2 rounded-full"
+                style={{ backgroundColor: dimensionInfo?.color || "#6B7280" }}
               />
               <span className="text-sm font-medium text-gray-700">
                 {dimensionName}
@@ -273,7 +293,7 @@ export function DimensionTagGroup({
                 {dimensionTags.length}
               </Badge>
             </div>
-            <div className="flex flex-wrap gap-2 ml-4">
+            <div className="ml-4 flex flex-wrap gap-2">
               {dimensionTags.map((tag) => (
                 <EnhancedColorfulTag
                   key={`${tag.text}-${tag.originalIndex}`}
@@ -283,7 +303,11 @@ export function DimensionTagGroup({
                   removable={removable}
                   size="sm"
                   language={language}
-                  onRemove={onTagRemove ? () => onTagRemove(tag.originalIndex) : undefined}
+                  onRemove={
+                    onTagRemove
+                      ? () => onTagRemove(tag.originalIndex)
+                      : undefined
+                  }
                 >
                   {tag.text}
                 </EnhancedColorfulTag>

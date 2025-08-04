@@ -2,18 +2,18 @@ import Link from "next/link"
 
 import { siteConfig } from "@/config/site"
 import { buttonVariants } from "@/components/ui/button"
+import { AuthButton } from "@/components/auth-button"
 import { Icons } from "@/components/icons"
 import { MainNav } from "@/components/main-nav"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { AuthButton } from "@/components/auth-button"
 
 export function SiteHeader() {
   return (
-    <header className="fixed top-0 z-[100] w-full border-b border-border/40 bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80">
+    <header className="bg-background/98 fixed top-0 z-[100] w-full border-b border-border/40 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
         <MainNav items={siteConfig.mainNav} />
         <div className="flex flex-1 items-center justify-end space-x-4">
-          <nav className="flex items-center space-x-1 relative z-[110]">
+          <nav className="relative z-[110] flex items-center space-x-1">
             <AuthButton />
             <Link
               href={siteConfig.links.github}
@@ -26,7 +26,7 @@ export function SiteHeader() {
                   variant: "ghost",
                 })}
               >
-                <Icons.gitHub className="h-5 w-5" />
+                <Icons.gitHub className="size-5" />
                 <span className="sr-only">GitHub</span>
               </div>
             </Link>

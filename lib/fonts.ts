@@ -8,6 +8,6 @@ export const fontSans = {
 }
 
 export const fontMono = {
-  variable: "--font-mono", 
+  variable: "--font-mono",
   className: "",
 }

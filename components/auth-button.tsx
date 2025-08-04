@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { signIn, signOut, useSession } from "next-auth/react"
+
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
-import { useRouter } from "next/navigation"
 
 export function AuthButton() {
   const { data: session, status } = useSession()
@@ -40,7 +42,7 @@ export function AuthButton() {
   if (status === "loading") {
     return (
       <Button variant="ghost" size="sm" disabled>
-        <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+        <Icons.spinner className="mr-2 size-4 animate-spin" />
         加载中...
       </Button>
     )
@@ -55,10 +57,12 @@ export function AuthButton() {
           onClick={handleProfileClick}
           className="flex items-center space-x-2"
         >
-          <img
+          <Image
             src={session.user?.image || ""}
             alt={session.user?.name || "用户头像"}
-            className="w-6 h-6 rounded-full"
+            width={24}
+            height={24}
+            className="size-6 rounded-full"
           />
           <span className="hidden sm:inline">{session.user?.name}</span>
         </Button>
@@ -70,7 +74,7 @@ export function AuthButton() {
         >
           {isSigningOut ? (
             <>
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+              <Icons.spinner className="mr-2 size-4 animate-spin" />
               退出中...
             </>
           ) : (
@@ -90,12 +94,12 @@ export function AuthButton() {
     >
       {isSigningIn ? (
         <>
-          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+          <Icons.spinner className="mr-2 size-4 animate-spin" />
           登录中...
         </>
       ) : (
         <>
-          <Icons.gitHub className="mr-2 h-4 w-4" />
+          <Icons.gitHub className="mr-2 size-4" />
           GitHub 登录
         </>
       )}

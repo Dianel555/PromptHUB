@@ -1,7 +1,6 @@
-import { useSession } from "next-auth/react"
+import React, { useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { useCallback } from "react"
-import React from "react"
+import { useSession } from "next-auth/react"
 
 export interface AuthGuardOptions {
   redirectTo?: string
@@ -12,33 +11,38 @@ export interface AuthGuardOptions {
 export function useAuthGuard(options: AuthGuardOptions = {}) {
   const { data: session, status } = useSession()
   const router = useRouter()
-  
+
   const {
     redirectTo = "/auth/signin",
     showToast = true,
-    toastMessage = "请先登录以访问此功能"
+    toastMessage = "请先登录以访问此功能",
   } = options
 
-  const requireAuth = useCallback((callback?: () => void) => {
-    if (status === "loading") {
-      return false
-    }
+  const requireAuth = useCallback(
+    (callback?: () => void) => {
+      if (status === "loading") {
+        return false
+      }
 
-    if (!session) {
-      // 保存当前页面URL，登录后可以返回
-      const currentUrl = window.location.pathname + window.location.search
-      const loginUrl = `${redirectTo}?callbackUrl=${encodeURIComponent(currentUrl)}`
-      
-      router.push(loginUrl)
-      return false
-    }
+      if (!session) {
+        // 保存当前页面URL，登录后可以返回
+        const currentUrl = window.location.pathname + window.location.search
+        const loginUrl = `${redirectTo}?callbackUrl=${encodeURIComponent(
+          currentUrl
+        )}`
 
-    // 用户已认证，执行回调
-    if (callback) {
-      callback()
-    }
-    return true
-  }, [session, status, router, redirectTo])
+        router.push(loginUrl)
+        return false
+      }
+
+      // 用户已认证，执行回调
+      if (callback) {
+        callback()
+      }
+      return true
+    },
+    [session, status, router, redirectTo]
+  )
 
   const isAuthenticated = status !== "loading" && !!session
   const isLoading = status === "loading"
@@ -47,7 +51,7 @@ export function useAuthGuard(options: AuthGuardOptions = {}) {
     isAuthenticated,
     isLoading,
     requireAuth,
-    session
+    session,
   }
 }
 
@@ -62,7 +66,7 @@ export function withAuthGuard<T extends object>(
     if (isLoading) {
       return (
         <div className="flex items-center justify-center p-4">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+          <div className="size-6 animate-spin rounded-full border-b-2 border-primary"></div>
         </div>
       )
     }

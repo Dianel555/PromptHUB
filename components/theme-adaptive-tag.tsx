@@ -1,24 +1,25 @@
-'use client'
+"use client"
 
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, Star, Zap } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { 
-  getTagTheme, 
-  getDimensionColor, 
-  generateTagStyles, 
+import React, { useEffect, useState } from "react"
+import { AnimatePresence, motion } from "framer-motion"
+import { Star, X, Zap } from "lucide-react"
+
+import {
+  TagThemeConfig,
   generateTagClasses,
-  TagThemeConfig 
-} from '@/lib/enhanced-tag-themes'
+  generateTagStyles,
+  getDimensionColor,
+  getTagTheme,
+} from "@/lib/enhanced-tag-themes"
+import { cn } from "@/lib/utils"
 
 interface ThemeAdaptiveTagProps {
   children: React.ReactNode
   dimension?: string
   confidence?: number
   theme?: string
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
-  variant?: 'solid' | 'outline' | 'ghost' | 'gradient'
+  size?: "xs" | "sm" | "md" | "lg" | "xl"
+  variant?: "solid" | "outline" | "ghost" | "gradient"
   customColor?: string
   customTextColor?: string
   removable?: boolean
@@ -34,11 +35,11 @@ interface ThemeAdaptiveTagProps {
 
 export function ThemeAdaptiveTag({
   children,
-  dimension = 'custom',
+  dimension = "custom",
   confidence = 1.0,
-  theme = 'default',
-  size = 'md',
-  variant = 'solid',
+  theme = "default",
+  size = "md",
+  variant = "solid",
   customColor,
   customTextColor,
   removable = false,
@@ -49,36 +50,36 @@ export function ThemeAdaptiveTag({
   shimmer = false,
   onRemove,
   onClick,
-  className = ''
+  className = "",
 }: ThemeAdaptiveTagProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [isPressed, setIsPressed] = useState(false)
   const themeConfig = getTagTheme(theme)
-  
+
   // 动画变体
   const tagVariants = {
-    initial: { 
-      scale: 0.8, 
+    initial: {
+      scale: 0.8,
       opacity: 0,
-      y: 10
+      y: 10,
     },
-    animate: { 
-      scale: 1, 
+    animate: {
+      scale: 1,
       opacity: 1,
-      y: 0
+      y: 0,
     },
     hover: {
       scale: interactive ? themeConfig.effects.hover.scale : 1,
-      filter: `brightness(${themeConfig.effects.hover.brightness})`
+      filter: `brightness(${themeConfig.effects.hover.brightness})`,
     },
     tap: {
-      scale: interactive ? 0.95 : 1
+      scale: interactive ? 0.95 : 1,
     },
     exit: {
       scale: 0.8,
       opacity: 0,
-      y: -10
-    }
+      y: -10,
+    },
   }
 
   // 脉动动画
@@ -87,39 +88,44 @@ export function ThemeAdaptiveTag({
       boxShadow: [
         `0 0 0 0 ${getDimensionColor(dimension, themeConfig)}40`,
         `0 0 0 10px ${getDimensionColor(dimension, themeConfig)}00`,
-      ]
-    }
+      ],
+    },
   }
 
   // 闪烁动画
   const shimmerVariants = {
     shimmer: {
-      backgroundPosition: ['200% 0', '-200% 0']
-    }
+      backgroundPosition: ["200% 0", "-200% 0"],
+    },
   }
 
   // 生成标签样式
-  const tagStyles = generateTagStyles(dimension, themeConfig, variant, customColor)
+  const tagStyles = generateTagStyles(
+    dimension,
+    themeConfig,
+    variant,
+    customColor
+  )
   const tagClasses = generateTagClasses(dimension, themeConfig, size, variant)
 
   // 置信度指示器
   const ConfidenceIndicator = () => {
     if (confidence < 0.3) return null
-    
+
     const getConfidenceIcon = () => {
-      if (confidence >= 0.8) return <Star className="w-3 h-3" />
-      if (confidence >= 0.6) return <Zap className="w-3 h-3" />
-      return <Star className="w-3 h-3" />
+      if (confidence >= 0.8) return <Star className="size-3" />
+      if (confidence >= 0.6) return <Zap className="size-3" />
+      return <Star className="size-3" />
     }
 
     const getConfidenceColor = () => {
-      if (confidence >= 0.8) return '#10B981'
-      if (confidence >= 0.6) return '#F59E0B'
-      return '#6B7280'
+      if (confidence >= 0.8) return "#10B981"
+      if (confidence >= 0.6) return "#F59E0B"
+      return "#6B7280"
     }
 
     return (
-      <span 
+      <span
         className="ml-1 opacity-70"
         style={{ color: getConfidenceColor() }}
         title={`置信度: ${(confidence * 100).toFixed(0)}%`}
@@ -132,7 +138,7 @@ export function ThemeAdaptiveTag({
   // 移除按钮
   const RemoveButton = () => (
     <motion.button
-      className="ml-2 p-0.5 rounded-full hover:bg-black/10 transition-colors"
+      className="ml-2 rounded-full p-0.5 transition-colors hover:bg-black/10"
       onClick={(e) => {
         e.stopPropagation()
         onRemove?.()
@@ -140,7 +146,7 @@ export function ThemeAdaptiveTag({
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
     >
-      <X className="w-3 h-3" />
+      <X className="size-3" />
     </motion.button>
   )
 
@@ -151,14 +157,14 @@ export function ThemeAdaptiveTag({
         style={{
           ...tagStyles,
           ...(customTextColor && { color: customTextColor }),
-          ...(glowing && { 
+          ...(glowing && {
             boxShadow: themeConfig.effects.glow,
-            filter: 'drop-shadow(0 0 8px currentColor)'
+            filter: "drop-shadow(0 0 8px currentColor)",
           }),
           ...(shimmer && {
             background: `linear-gradient(90deg, ${tagStyles.backgroundColor} 25%, rgba(255,255,255,0.3) 50%, ${tagStyles.backgroundColor} 75%)`,
-            backgroundSize: '200% 100%'
-          })
+            backgroundSize: "200% 100%",
+          }),
         }}
         variants={tagVariants}
         initial={animated ? "initial" : undefined}
@@ -181,13 +187,13 @@ export function ThemeAdaptiveTag({
         {/* 悬停效果 */}
         {isHovered && interactive && (
           <motion.div
-            className="absolute inset-0 rounded-inherit"
+            className="rounded-inherit absolute inset-0"
             style={{
               background: `linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%)`,
-              pointerEvents: 'none'
+              pointerEvents: "none",
             }}
-            initial={{ x: '-100%' }}
-            animate={{ x: '100%' }}
+            initial={{ x: "-100%" }}
+            animate={{ x: "100%" }}
             transition={{ duration: 0.6, ease: "easeInOut" }}
           />
         )}
@@ -205,8 +211,8 @@ interface ThemeAdaptiveTagListProps {
     confidence?: number
   }>
   theme?: string
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
-  variant?: 'solid' | 'outline' | 'ghost' | 'gradient'
+  size?: "xs" | "sm" | "md" | "lg" | "xl"
+  variant?: "solid" | "outline" | "ghost" | "gradient"
   removable?: boolean
   animated?: boolean
   maxTags?: number
@@ -217,15 +223,15 @@ interface ThemeAdaptiveTagListProps {
 
 export function ThemeAdaptiveTagList({
   tags,
-  theme = 'default',
-  size = 'md',
-  variant = 'solid',
+  theme = "default",
+  size = "md",
+  variant = "solid",
   removable = false,
   animated = true,
   maxTags,
   onTagRemove,
   onTagClick,
-  className = ''
+  className = "",
 }: ThemeAdaptiveTagListProps) {
   const [showAll, setShowAll] = useState(false)
   const displayTags = maxTags && !showAll ? tags.slice(0, maxTags) : tags
@@ -262,12 +268,12 @@ export function ThemeAdaptiveTagList({
       {/* 显示更多按钮 */}
       {hasMoreTags && (
         <motion.button
-          className="px-3 py-1 text-sm text-gray-500 border border-dashed border-gray-300 rounded-md hover:border-gray-400 hover:text-gray-600 transition-colors"
+          className="rounded-md border border-dashed border-gray-300 px-3 py-1 text-sm text-gray-500 transition-colors hover:border-gray-400 hover:text-gray-600"
           onClick={() => setShowAll(!showAll)}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          {showAll ? '收起' : `+${tags.length - maxTags} 更多`}
+          {showAll ? "收起" : `+${tags.length - maxTags} 更多`}
         </motion.button>
       )}
     </div>
@@ -291,14 +297,14 @@ interface TagCloudProps {
 
 export function TagCloud({
   tags,
-  theme = 'default',
+  theme = "default",
   maxSize = 24,
   minSize = 12,
   onTagClick,
-  className = ''
+  className = "",
 }: TagCloudProps) {
-  const maxCount = Math.max(...tags.map(tag => tag.count))
-  const minCount = Math.min(...tags.map(tag => tag.count))
+  const maxCount = Math.max(...tags.map((tag) => tag.count))
+  const minCount = Math.min(...tags.map((tag) => tag.count))
 
   const getFontSize = (count: number) => {
     const ratio = (count - minCount) / (maxCount - minCount)
@@ -311,18 +317,23 @@ export function TagCloud({
   }
 
   return (
-    <div className={cn("flex flex-wrap gap-3 justify-center items-center", className)}>
+    <div
+      className={cn(
+        "flex flex-wrap items-center justify-center gap-3",
+        className
+      )}
+    >
       {tags.map((tag) => (
         <motion.div
           key={tag.id}
           style={{
             fontSize: `${getFontSize(tag.count)}px`,
-            opacity: getOpacity(tag.count)
+            opacity: getOpacity(tag.count),
           }}
-          whileHover={{ 
+          whileHover={{
             scale: 1.1,
             opacity: 1,
-            transition: { duration: 0.2 }
+            transition: { duration: 0.2 },
           }}
           whileTap={{ scale: 0.95 }}
         >
@@ -359,44 +370,48 @@ export function TagInput({
   value,
   onChange,
   suggestions = [],
-  theme = 'default',
-  placeholder = '输入标签...',
+  theme = "default",
+  placeholder = "输入标签...",
   maxTags,
-  className = ''
+  className = "",
 }: TagInputProps) {
-  const [inputValue, setInputValue] = useState('')
+  const [inputValue, setInputValue] = useState("")
   const [showSuggestions, setShowSuggestions] = useState(false)
 
   const filteredSuggestions = suggestions.filter(
-    suggestion => 
+    (suggestion) =>
       suggestion.toLowerCase().includes(inputValue.toLowerCase()) &&
       !value.includes(suggestion)
   )
 
   const addTag = (tag: string) => {
-    if (tag.trim() && !value.includes(tag.trim()) && (!maxTags || value.length < maxTags)) {
+    if (
+      tag.trim() &&
+      !value.includes(tag.trim()) &&
+      (!maxTags || value.length < maxTags)
+    ) {
       onChange([...value, tag.trim()])
-      setInputValue('')
+      setInputValue("")
       setShowSuggestions(false)
     }
   }
 
   const removeTag = (tagToRemove: string) => {
-    onChange(value.filter(tag => tag !== tagToRemove))
+    onChange(value.filter((tag) => tag !== tagToRemove))
   }
 
   return (
     <div className={cn("relative", className)}>
-      <div className="flex flex-wrap gap-2 p-3 border border-gray-300 rounded-lg focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+      <div className="flex flex-wrap gap-2 rounded-lg border border-gray-300 p-3 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
         <ThemeAdaptiveTagList
-          tags={value.map(tag => ({ id: tag, name: tag }))}
+          tags={value.map((tag) => ({ id: tag, name: tag }))}
           theme={theme}
           size="sm"
           removable={true}
           animated={true}
           onTagRemove={removeTag}
         />
-        
+
         <input
           type="text"
           value={inputValue}
@@ -405,7 +420,7 @@ export function TagInput({
             setShowSuggestions(true)
           }}
           onKeyPress={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === "Enter") {
               e.preventDefault()
               addTag(inputValue)
             }
@@ -413,7 +428,7 @@ export function TagInput({
           onFocus={() => setShowSuggestions(true)}
           onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
           placeholder={placeholder}
-          className="flex-1 min-w-[120px] outline-none bg-transparent"
+          className="min-w-[120px] flex-1 bg-transparent outline-none"
           disabled={!!(maxTags && value.length >= maxTags)}
         />
       </div>
@@ -421,7 +436,7 @@ export function TagInput({
       {/* 建议列表 */}
       {showSuggestions && filteredSuggestions.length > 0 && (
         <motion.div
-          className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-40 overflow-y-auto"
+          className="absolute inset-x-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
@@ -429,7 +444,7 @@ export function TagInput({
           {filteredSuggestions.map((suggestion) => (
             <button
               key={suggestion}
-              className="w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors"
+              className="w-full px-3 py-2 text-left transition-colors hover:bg-gray-50"
               onClick={() => addTag(suggestion)}
             >
               {suggestion}

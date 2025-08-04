@@ -1,17 +1,33 @@
-import { Suspense } from 'react'
-import { getServerSession } from 'next-auth'
-import { redirect } from 'next/navigation'
-import { authOptions } from '@/lib/auth'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
-import { Plus, X, Save, Eye } from 'lucide-react'
-import { SmartTagEditor } from '@/components/smart-tag-editor'
-import { ThemeAdaptiveTagList, ThemeAdaptiveTag } from '@/components/theme-adaptive-tag'
+import { Suspense } from "react"
+import { redirect } from "next/navigation"
+import { Eye, Plus, Save, X } from "lucide-react"
+import { getServerSession } from "next-auth"
+
+import { authOptions } from "@/lib/auth"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Textarea } from "@/components/ui/textarea"
+import { SmartTagEditor } from "@/components/smart-tag-editor"
+import {
+  ThemeAdaptiveTag,
+  ThemeAdaptiveTagList,
+} from "@/components/theme-adaptive-tag"
 
 // 彩色标签组件
 function ColorfulTag({ children }: { children: React.ReactNode }) {
@@ -29,13 +45,13 @@ function ColorfulTag({ children }: { children: React.ReactNode }) {
 
 async function CreatePage() {
   const session = await getServerSession(authOptions)
-  
+
   if (!session) {
-    redirect('/auth/signin')
+    redirect("/auth/signin")
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto max-w-4xl px-4 py-8">
       <div className="flex flex-col gap-6">
         {/* 页面标题 */}
         <div className="flex flex-col gap-2">
@@ -45,9 +61,9 @@ async function CreatePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* 主要编辑区域 */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6 lg:col-span-2">
             <Card>
               <CardHeader>
                 <CardTitle>基本信息</CardTitle>
@@ -62,7 +78,7 @@ async function CreatePage() {
                     className="w-full"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="description">描述 *</Label>
                   <Textarea
@@ -105,7 +121,7 @@ async function CreatePage() {
                     className="min-h-[200px] font-mono"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="example">使用示例</Label>
                   <Textarea
@@ -127,17 +143,17 @@ async function CreatePage() {
                   <Label>智能标签系统</Label>
                   <SmartTagEditor
                     content=""
-                    onTagsChange={(tags) => console.log('标签更新:', tags)}
+                    onTagsChange={(tags) => console.log("标签更新:", tags)}
                     language="zh"
                     showSuggestions={true}
                   />
                   <div className="mt-4">
-                    <p className="text-sm text-gray-600 mb-2">预设标签示例：</p>
+                    <p className="mb-2 text-sm text-gray-600">预设标签示例：</p>
                     <ThemeAdaptiveTagList
                       tags={[
-                        { id: '1', name: 'AI助手', dimension: 'genre' },
-                        { id: '2', name: '创意写作', dimension: 'genre' },
-                        { id: '3', name: '效率工具', dimension: 'style' }
+                        { id: "1", name: "AI助手", dimension: "genre" },
+                        { id: "2", name: "创意写作", dimension: "genre" },
+                        { id: "3", name: "效率工具", dimension: "style" },
                       ]}
                       size="sm"
                       animated={true}
@@ -178,22 +194,22 @@ async function CreatePage() {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <h3 className="font-semibold text-lg mb-2">提示词标题</h3>
-                    <p className="text-sm text-muted-foreground mb-3">
+                    <h3 className="mb-2 text-lg font-semibold">提示词标题</h3>
+                    <p className="mb-3 text-sm text-muted-foreground">
                       这里会显示你输入的描述内容...
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <ColorfulTag>示例标签</ColorfulTag>
                     </div>
                   </div>
-                  
+
                   <div className="border-t pt-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium">
-                        {session?.user?.name?.[0] || 'U'}
+                    <div className="mb-2 flex items-center gap-2">
+                      <div className="flex size-6 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+                        {session?.user?.name?.[0] || "U"}
                       </div>
                       <span className="text-sm text-muted-foreground">
-                        {session?.user?.name || '用户'}
+                        {session?.user?.name || "用户"}
                       </span>
                     </div>
                     <div className="text-xs text-muted-foreground">
@@ -210,11 +226,11 @@ async function CreatePage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button className="w-full" size="lg">
-                  <Save className="h-4 w-4 mr-2" />
+                  <Save className="mr-2 size-4" />
                   发布提示词
                 </Button>
                 <Button variant="outline" className="w-full">
-                  <Eye className="h-4 w-4 mr-2" />
+                  <Eye className="mr-2 size-4" />
                   预览效果
                 </Button>
                 <Button variant="ghost" className="w-full">
@@ -228,7 +244,7 @@ async function CreatePage() {
                 <CardTitle className="text-lg">创建提示</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-sm text-muted-foreground space-y-2">
+                <div className="space-y-2 text-sm text-muted-foreground">
                   <p>• 标题要简洁明了，突出提示词的核心功能</p>
                   <p>• 描述要详细说明使用场景和预期效果</p>
                   <p>• 添加相关标签有助于其他用户发现</p>
@@ -245,13 +261,15 @@ async function CreatePage() {
 
 export default function CreatePageWrapper() {
   return (
-    <Suspense fallback={
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    <Suspense
+      fallback={
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex h-64 items-center justify-center">
+            <div className="size-8 animate-spin rounded-full border-b-2 border-primary"></div>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       {/* @ts-expect-error Server Component */}
       <CreatePage />
     </Suspense>

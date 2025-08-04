@@ -1,7 +1,6 @@
 export const siteConfig = {
   name: "PromptHUB",
-  description:
-    "基于 Next.js、shadcn/ui 构建的高级提示词管理器",
+  description: "基于 Next.js、shadcn/ui 构建的高级提示词管理器",
   mainNav: [
     {
       title: "首页",

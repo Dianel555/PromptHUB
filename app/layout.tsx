@@ -4,10 +4,10 @@ import { Metadata } from "next"
 import { siteConfig } from "@/config/site"
 import { fontSans } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
+import { SessionProvider } from "@/components/session-provider"
 import { SiteHeader } from "@/components/site-header"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { ThemeProvider } from "@/components/theme-provider"
-import { SessionProvider } from "@/components/session-provider"
 
 export const metadata: Metadata = {
   title: {
@@ -34,20 +34,19 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <>
       <html lang="zh-CN" suppressHydrationWarning>
-        <head />
         <body
           className={cn(
-            "min-h-screen bg-background text-foreground font-sans antialiased",
+            "min-h-screen bg-background font-sans text-foreground antialiased",
             fontSans.variable
           )}
         >
           <SessionProvider>
             <ThemeProvider defaultTheme="system">
-                <div className="relative flex min-h-screen flex-col">
-                  <SiteHeader />
-                  <div className="flex-1 pt-16">{children}</div>
-                </div>
-                <TailwindIndicator />
+              <div className="relative flex min-h-screen flex-col">
+                <SiteHeader />
+                <div className="flex-1 pt-16">{children}</div>
+              </div>
+              <TailwindIndicator />
             </ThemeProvider>
           </SessionProvider>
         </body>

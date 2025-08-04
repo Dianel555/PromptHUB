@@ -1,28 +1,29 @@
-'use client';
+"use client"
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Globe, Languages } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React from "react"
+import { Globe, Languages } from "lucide-react"
+
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 
 interface LanguageSwitcherProps {
-  language: 'zh' | 'en';
-  onLanguageChange: (language: 'zh' | 'en') => void;
-  className?: string;
-  variant?: 'default' | 'outline' | 'ghost';
-  size?: 'default' | 'sm' | 'lg';
+  language: "zh" | "en"
+  onLanguageChange: (language: "zh" | "en") => void
+  className?: string
+  variant?: "default" | "outline" | "ghost"
+  size?: "default" | "sm" | "lg"
 }
 
-export function LanguageSwitcher({ 
-  language, 
-  onLanguageChange, 
+export function LanguageSwitcher({
+  language,
+  onLanguageChange,
   className,
-  variant = 'outline',
-  size = 'default'
+  variant = "outline",
+  size = "default",
 }: LanguageSwitcherProps) {
   const toggleLanguage = () => {
-    onLanguageChange(language === 'zh' ? 'en' : 'zh');
-  };
+    onLanguageChange(language === "zh" ? "en" : "zh")
+  }
 
   return (
     <Button
@@ -35,32 +36,32 @@ export function LanguageSwitcher({
         className
       )}
     >
-      <Globe className="w-4 h-4" />
+      <Globe className="size-4" />
       <span className="font-medium">
-        {language === 'zh' ? '中文' : 'English'}
+        {language === "zh" ? "中文" : "English"}
       </span>
       <div className="flex items-center gap-1 text-xs opacity-70">
-        <span>{language === 'zh' ? 'ZH' : 'EN'}</span>
-        <Languages className="w-3 h-3" />
+        <span>{language === "zh" ? "ZH" : "EN"}</span>
+        <Languages className="size-3" />
       </div>
     </Button>
-  );
+  )
 }
 
 // 简化版本的语言切换器
-export function SimpleLanguageSwitcher({ 
-  language, 
-  onLanguageChange, 
-  className 
-}: Omit<LanguageSwitcherProps, 'variant' | 'size'>) {
+export function SimpleLanguageSwitcher({
+  language,
+  onLanguageChange,
+  className,
+}: Omit<LanguageSwitcherProps, "variant" | "size">) {
   return (
     <div className={cn("flex items-center gap-1 text-sm", className)}>
       <button
-        onClick={() => onLanguageChange('zh')}
+        onClick={() => onLanguageChange("zh")}
         className={cn(
-          "px-2 py-1 rounded transition-colors",
-          language === 'zh' 
-            ? "bg-blue-100 text-blue-700 font-medium" 
+          "rounded px-2 py-1 transition-colors",
+          language === "zh"
+            ? "bg-blue-100 font-medium text-blue-700"
             : "text-gray-500 hover:text-gray-700"
         )}
       >
@@ -68,16 +69,16 @@ export function SimpleLanguageSwitcher({
       </button>
       <span className="text-gray-300">|</span>
       <button
-        onClick={() => onLanguageChange('en')}
+        onClick={() => onLanguageChange("en")}
         className={cn(
-          "px-2 py-1 rounded transition-colors",
-          language === 'en' 
-            ? "bg-blue-100 text-blue-700 font-medium" 
+          "rounded px-2 py-1 transition-colors",
+          language === "en"
+            ? "bg-blue-100 font-medium text-blue-700"
             : "text-gray-500 hover:text-gray-700"
         )}
       >
         English
       </button>
     </div>
-  );
+  )
 }

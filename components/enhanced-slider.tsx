@@ -1,20 +1,21 @@
-'use client';
+"use client"
 
-import React from 'react';
-import { Slider } from '@/components/ui/slider';
-import { cn } from '@/lib/utils';
+import React from "react"
+
+import { cn } from "@/lib/utils"
+import { Slider } from "@/components/ui/slider"
 
 interface EnhancedSliderProps {
-  value: number;
-  onChange: (value: number) => void;
-  min?: number;
-  max?: number;
-  step?: number;
-  label: string;
-  description?: string;
-  showValue?: boolean;
-  className?: string;
-  disabled?: boolean;
+  value: number
+  onChange: (value: number) => void
+  min?: number
+  max?: number
+  step?: number
+  label: string
+  description?: string
+  showValue?: boolean
+  className?: string
+  disabled?: boolean
 }
 
 export function EnhancedSlider({
@@ -27,10 +28,10 @@ export function EnhancedSlider({
   description,
   showValue = true,
   className,
-  disabled = false
+  disabled = false,
 }: EnhancedSliderProps) {
-  const percentage = ((value - min) / (max - min)) * 100;
-  
+  const percentage = ((value - min) / (max - min)) * 100
+
   return (
     <div className={cn("space-y-3", className)}>
       <div className="flex items-center justify-between">
@@ -46,20 +47,25 @@ export function EnhancedSlider({
         </div>
         {showValue && (
           <div className="flex items-center gap-2">
-            <span className="text-sm font-mono text-gray-600 dark:text-gray-300">
+            <span className="font-mono text-sm text-gray-600 dark:text-gray-300">
               {(value * 100).toFixed(0)}%
             </span>
-            <div className={cn(
-              "w-3 h-3 rounded-full border-2 transition-colors",
-              percentage > 75 ? "bg-green-500 border-green-500" :
-              percentage > 50 ? "bg-yellow-500 border-yellow-500" :
-              percentage > 25 ? "bg-orange-500 border-orange-500" :
-              "bg-red-500 border-red-500"
-            )} />
+            <div
+              className={cn(
+                "size-3 rounded-full border-2 transition-colors",
+                percentage > 75
+                  ? "border-green-500 bg-green-500"
+                  : percentage > 50
+                  ? "border-yellow-500 bg-yellow-500"
+                  : percentage > 25
+                  ? "border-orange-500 bg-orange-500"
+                  : "border-red-500 bg-red-500"
+              )}
+            />
           </div>
         )}
       </div>
-      
+
       <div className="relative">
         {/* 自定义滑块轨道 */}
         <div className="relative">
@@ -71,56 +77,56 @@ export function EnhancedSlider({
             step={step}
             disabled={disabled}
             className={cn(
-              "w-full slider-enhanced",
-              disabled && "opacity-50 cursor-not-allowed"
+              "slider-enhanced w-full",
+              disabled && "cursor-not-allowed opacity-50"
             )}
           />
-          
+
           {/* 进度填充效果 */}
-          <div 
-            className="absolute top-1/2 left-0 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full -translate-y-1/2 transition-all duration-300 pointer-events-none"
+          <div
+            className="pointer-events-none absolute left-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
             style={{ width: `${percentage}%` }}
           />
         </div>
-        
+
         {/* 数值标记点 */}
-        <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-2">
+        <div className="mt-2 flex justify-between text-xs text-gray-400 dark:text-gray-500">
           <span className="flex flex-col items-center">
-            <div className="w-1 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mb-1" />
+            <div className="mb-1 size-1 rounded-full bg-gray-300 dark:bg-gray-600" />
             {min}
           </span>
           <span className="flex flex-col items-center">
-            <div className="w-1 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mb-1" />
+            <div className="mb-1 size-1 rounded-full bg-gray-300 dark:bg-gray-600" />
             {((min + max) / 2).toFixed(1)}
           </span>
           <span className="flex flex-col items-center">
-            <div className="w-1 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mb-1" />
+            <div className="mb-1 size-1 rounded-full bg-gray-300 dark:bg-gray-600" />
             {max}
           </span>
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 interface SliderGroupProps {
-  title: string;
-  children: React.ReactNode;
-  className?: string;
+  title: string
+  children: React.ReactNode
+  className?: string
 }
 
 export function SliderGroup({ title, children, className }: SliderGroupProps) {
   return (
-    <div className={cn(
-      "p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 space-y-4",
-      className
-    )}>
-      <h4 className="font-medium text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
+    <div
+      className={cn(
+        "space-y-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/50",
+        className
+      )}
+    >
+      <h4 className="border-b border-gray-200 pb-2 font-medium text-gray-900 dark:border-gray-700 dark:text-gray-100">
         {title}
       </h4>
-      <div className="space-y-4">
-        {children}
-      </div>
+      <div className="space-y-4">{children}</div>
     </div>
-  );
+  )
 }

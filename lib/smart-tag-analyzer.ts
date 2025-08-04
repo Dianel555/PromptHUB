@@ -1,5 +1,9 @@
-import { generateSmartTags, TagCategory, getAllTagCategories } from './tag-system'
-import type { SmartTag } from './tag-system'
+import {
+  TagCategory,
+  generateSmartTags,
+  getAllTagCategories,
+  type SmartTag,
+} from "./tag-system"
 
 export interface ContentAnalysis {
   content: string
@@ -34,30 +38,34 @@ export class SmartTagAnalyzer {
         suggestedTags: [],
         confidence: 0,
         analysis: { genre: [], mood: [], scene: [], style: [] },
-        keywords: []
+        keywords: [],
       }
     }
 
     // 生成智能标签
     const suggestedTags = generateSmartTags(content, this.MAX_SUGGESTIONS)
-    
+
     // 计算整体置信度
-    const avgConfidence = suggestedTags.length > 0 
-      ? suggestedTags.reduce((sum, tag) => sum + tag.confidence, 0) / suggestedTags.length
-      : 0
+    const avgConfidence =
+      suggestedTags.length > 0
+        ? suggestedTags.reduce((sum, tag) => sum + tag.confidence, 0) /
+          suggestedTags.length
+        : 0
 
     // 按维度分组分析结果
     const analysis = this.groupTagsByDimension(suggestedTags)
-    
+
     // 提取关键词
     const keywords = this.extractKeywords(content)
 
     return {
       content,
-      suggestedTags: suggestedTags.filter(tag => tag.confidence >= this.CONFIDENCE_THRESHOLD),
+      suggestedTags: suggestedTags.filter(
+        (tag) => tag.confidence >= this.CONFIDENCE_THRESHOLD
+      ),
       confidence: avgConfidence,
       analysis,
-      keywords
+      keywords,
     }
   }
 
@@ -66,11 +74,11 @@ export class SmartTagAnalyzer {
    */
   static getTagSuggestions(content: string): TagSuggestion[] {
     const analysis = this.analyzeContent(content)
-    
-    return analysis.suggestedTags.map(tag => ({
+
+    return analysis.suggestedTags.map((tag) => ({
       tag,
       reason: this.generateTagReason(tag, content),
-      confidence: tag.confidence
+      confidence: tag.confidence,
     }))
   }
 
@@ -82,21 +90,21 @@ export class SmartTagAnalyzer {
       genre: [] as string[],
       mood: [] as string[],
       scene: [] as string[],
-      style: [] as string[]
+      style: [] as string[],
     }
 
-    tags.forEach(tag => {
+    tags.forEach((tag) => {
       switch (tag.dimension) {
-        case 'genre':
+        case "genre":
           analysis.genre.push(tag.text)
           break
-        case 'mood':
+        case "mood":
           analysis.mood.push(tag.text)
           break
-        case 'scene':
+        case "scene":
           analysis.scene.push(tag.text)
           break
-        case 'style':
+        case "style":
           analysis.style.push(tag.text)
           break
       }
@@ -109,20 +117,26 @@ export class SmartTagAnalyzer {
    * 生成标签推荐原因
    */
   private static generateTagReason(tag: SmartTag, content: string): string {
-    const category = getAllTagCategories().find(c => c.id === tag.category)
-    if (!category) return '基于内容分析推荐'
+    const category = getAllTagCategories().find((c) => c.id === tag.category)
+    if (!category) return "基于内容分析推荐"
 
-    const matchedKeywords = category.keywords.filter(keyword => 
+    const matchedKeywords = category.keywords.filter((keyword) =>
       content.toLowerCase().includes(keyword.toLowerCase())
     )
 
     if (matchedKeywords.length > 0) {
-      return `检测到相关关键词：${matchedKeywords.slice(0, 3).join('、')}`
+      return `检测到相关关键词：${matchedKeywords.slice(0, 3).join("、")}`
     }
 
-    return `基于${tag.dimension === 'genre' ? '体裁' : 
-                tag.dimension === 'mood' ? '情绪' :
-                tag.dimension === 'scene' ? '场景' : '风格'}特征分析推荐`
+    return `基于${
+      tag.dimension === "genre"
+        ? "体裁"
+        : tag.dimension === "mood"
+        ? "情绪"
+        : tag.dimension === "scene"
+        ? "场景"
+        : "风格"
+    }特征分析推荐`
   }
 
   /**
@@ -132,19 +146,19 @@ export class SmartTagAnalyzer {
     // 简单的关键词提取逻辑
     const words = content
       .toLowerCase()
-      .replace(/[^\u4e00-\u9fa5a-zA-Z0-9\s]/g, ' ')
+      .replace(/[^\u4e00-\u9fa5a-zA-Z0-9\s]/g, " ")
       .split(/\s+/)
-      .filter(word => word.length > 1)
+      .filter((word) => word.length > 1)
 
     // 统计词频
     const wordCount: Record<string, number> = {}
-    words.forEach(word => {
+    words.forEach((word) => {
       wordCount[word] = (wordCount[word] || 0) + 1
     })
 
     // 返回高频词汇
     return Object.entries(wordCount)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 10)
       .map(([word]) => word)
   }
@@ -153,13 +167,13 @@ export class SmartTagAnalyzer {
    * 验证标签相关性
    */
   static validateTagRelevance(content: string, tag: SmartTag): number {
-    const category = getAllTagCategories().find(c => c.id === tag.category)
+    const category = getAllTagCategories().find((c) => c.id === tag.category)
     if (!category) return 0
 
     const contentLower = content.toLowerCase()
     let matchCount = 0
 
-    category.keywords.forEach(keyword => {
+    category.keywords.forEach((keyword) => {
       if (contentLower.includes(keyword.toLowerCase())) {
         matchCount++
       }
@@ -172,26 +186,26 @@ export class SmartTagAnalyzer {
    * 合并手动标签和智能标签
    */
   static mergeManualAndSmartTags(
-    smartTags: SmartTag[], 
+    smartTags: SmartTag[],
     manualTags: string[]
   ): SmartTag[] {
     const merged: SmartTag[] = [...smartTags]
-    
+
     manualTags.forEach((tagText, index) => {
       // 检查是否已存在相同标签
-      const exists = merged.some(tag => 
-        tag.text === tagText || tag.textEn === tagText
+      const exists = merged.some(
+        (tag) => tag.text === tagText || tag.textEn === tagText
       )
-      
+
       if (!exists) {
         merged.push({
           id: `manual-${index}`,
           text: tagText,
           textEn: tagText,
-          dimension: 'custom',
-          category: 'manual',
+          dimension: "custom",
+          category: "manual",
           confidence: 1.0,
-          isManual: true
+          isManual: true,
         })
       }
     })
@@ -204,7 +218,7 @@ export class SmartTagAnalyzer {
    */
   static adjustTagCountByContentLength(content: string): number {
     const length = content.length
-    
+
     if (length < 100) return 3
     if (length < 300) return 5
     if (length < 600) return 6
@@ -220,11 +234,14 @@ export class SmartTagAnalyzer {
   ): string[] {
     // 简单的相似度计算和标签推荐
     const suggestions = new Set<string>()
-    
+
     similarContents.forEach(({ content, tags }) => {
-      const similarity = this.calculateContentSimilarity(currentContent, content)
+      const similarity = this.calculateContentSimilarity(
+        currentContent,
+        content
+      )
       if (similarity > 0.3) {
-        tags.forEach(tag => suggestions.add(tag))
+        tags.forEach((tag) => suggestions.add(tag))
       }
     })
 
@@ -234,13 +251,18 @@ export class SmartTagAnalyzer {
   /**
    * 计算内容相似度（简单实现）
    */
-  private static calculateContentSimilarity(content1: string, content2: string): number {
+  private static calculateContentSimilarity(
+    content1: string,
+    content2: string
+  ): number {
     const words1 = new Set(content1.toLowerCase().split(/\s+/))
     const words2 = new Set(content2.toLowerCase().split(/\s+/))
-    
-    const intersection = new Set(Array.from(words1).filter(word => words2.has(word)))
+
+    const intersection = new Set(
+      Array.from(words1).filter((word) => words2.has(word))
+    )
     const union = new Set([...Array.from(words1), ...Array.from(words2)])
-    
+
     return intersection.size / union.size
   }
 }

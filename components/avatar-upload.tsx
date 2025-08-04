@@ -1,18 +1,12 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useRef, useState } from "react"
+import { AlertCircle, Camera, Check, Loader2, Upload, X } from "lucide-react"
+
+import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { 
-  Upload, 
-  Camera, 
-  X, 
-  Loader2,
-  AlertCircle,
-  Check
-} from "lucide-react"
-import { cn } from "@/lib/utils"
 
 interface AvatarUploadProps {
   currentAvatar?: string
@@ -29,7 +23,7 @@ export function AvatarUpload({
   onAvatarChange,
   className,
   size = "md",
-  disabled = false
+  disabled = false,
 }: AvatarUploadProps) {
   const [preview, setPreview] = useState<string>(currentAvatar)
   const [isUploading, setIsUploading] = useState(false)
@@ -38,13 +32,13 @@ export function AvatarUpload({
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const sizeClasses = {
-    sm: "h-16 w-16",
-    md: "h-24 w-24",
-    lg: "h-32 w-32"
+    sm: "size-16",
+    md: "size-24",
+    lg: "size-32",
   }
 
   const maxFileSize = 2 * 1024 * 1024 // 2MB
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"]
 
   const validateFile = (file: File): string | null => {
     if (!allowedTypes.includes(file.type)) {
@@ -102,7 +96,7 @@ export function AvatarUpload({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setIsDragOver(false)
-    
+
     if (disabled) return
 
     const file = e.dataTransfer.files?.[0]
@@ -132,7 +126,7 @@ export function AvatarUpload({
       <div className="flex flex-col items-center space-y-4">
         <div
           className={cn(
-            "relative group cursor-pointer transition-all duration-300",
+            "group relative cursor-pointer transition-all duration-300",
             isDragOver && "scale-105",
             disabled && "cursor-not-allowed opacity-50"
           )}
@@ -141,33 +135,40 @@ export function AvatarUpload({
           onDrop={handleDrop}
           onClick={handleUploadClick}
         >
-          <Avatar className={cn(sizeClasses[size], "border-2 border-dashed border-transparent group-hover:border-primary/50 transition-colors")}>
-            <AvatarImage 
-              src={preview} 
+          <Avatar
+            className={cn(
+              sizeClasses[size],
+              "border-2 border-dashed border-transparent transition-colors group-hover:border-primary/50"
+            )}
+          >
+            <AvatarImage
+              src={preview}
               alt={`${userName}的头像`}
               className="object-cover"
             />
-            <AvatarFallback className="bg-gradient-to-br from-purple-500 to-cyan-500 text-white text-lg">
+            <AvatarFallback className="bg-gradient-to-br from-purple-500 to-cyan-500 text-lg text-white">
               {userName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
 
           {/* 上传覆盖层 */}
-          <div className={cn(
-            "absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300",
-            isDragOver && "opacity-100 bg-primary/20"
-          )}>
+          <div
+            className={cn(
+              "absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+              isDragOver && "bg-primary/20 opacity-100"
+            )}
+          >
             {isUploading ? (
-              <Loader2 className="h-6 w-6 text-white animate-spin" />
+              <Loader2 className="size-6 animate-spin text-white" />
             ) : (
-              <Camera className="h-6 w-6 text-white" />
+              <Camera className="size-6 text-white" />
             )}
           </div>
 
           {/* 拖拽提示 */}
           {isDragOver && (
-            <div className="absolute -inset-4 border-2 border-dashed border-primary rounded-full bg-primary/10 flex items-center justify-center">
-              <div className="text-primary text-sm font-medium">释放以上传</div>
+            <div className="absolute -inset-4 flex items-center justify-center rounded-full border-2 border-dashed border-primary bg-primary/10">
+              <div className="text-sm font-medium text-primary">释放以上传</div>
             </div>
           )}
         </div>
@@ -182,12 +183,12 @@ export function AvatarUpload({
           >
             {isUploading ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="mr-2 size-4 animate-spin" />
                 上传中...
               </>
             ) : (
               <>
-                <Upload className="h-4 w-4 mr-2" />
+                <Upload className="mr-2 size-4" />
                 更换头像
               </>
             )}
@@ -200,7 +201,7 @@ export function AvatarUpload({
               onClick={handleReset}
               disabled={disabled || isUploading}
             >
-              <X className="h-4 w-4 mr-2" />
+              <X className="mr-2 size-4" />
               重置
             </Button>
           )}
@@ -211,14 +212,14 @@ export function AvatarUpload({
       {error && (
         <Card className="border-destructive/50 bg-destructive/10">
           <CardContent className="flex items-center space-x-2 p-3">
-            <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
+            <AlertCircle className="size-4 shrink-0 text-destructive" />
             <p className="text-sm text-destructive">{error}</p>
           </CardContent>
         </Card>
       )}
 
       {/* 上传提示 */}
-      <div className="text-center space-y-1">
+      <div className="space-y-1 text-center">
         <p className="text-xs text-muted-foreground">
           支持 JPG、PNG、WebP、GIF 格式
         </p>

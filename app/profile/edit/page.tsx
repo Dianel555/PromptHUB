@@ -1,31 +1,38 @@
 "use client"
 
-import { useSession } from "next-auth/react"
-import { redirect, useRouter } from "next/navigation"
 import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { redirect, useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import {
+  ArrowLeft,
+  Camera,
+  Link as LinkIcon,
+  Mail,
+  MapPin,
+  Phone,
+  Save,
+  Upload,
+  User,
+  X,
+} from "lucide-react"
+import { useSession } from "next-auth/react"
+import { useForm } from "react-hook-form"
+
 import { profileSchema, type Profile } from "@/lib/validations/profile"
 import { useToast } from "@/hooks/use-toast"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { AvatarUpload } from "@/components/avatar-upload"
-import { 
-  ArrowLeft, 
-  Save, 
-  Upload, 
-  X,
-  Camera,
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Link as LinkIcon
-} from "lucide-react"
 
 interface UserProfile {
   name: string
@@ -52,16 +59,22 @@ export default function EditProfilePage() {
       email: session?.user?.email || "",
       bio: "",
       phone: "",
-      website: ""
-    }
+      website: "",
+    },
   })
 
-  const { register, handleSubmit, formState: { errors }, setValue, watch } = form
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = form
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="size-32 animate-spin rounded-full border-b-2 border-primary"></div>
       </div>
     )
   }
@@ -72,7 +85,7 @@ export default function EditProfilePage() {
 
   const handleAvatarChange = (file: File | null, previewUrl: string) => {
     setAvatarPreview(previewUrl)
-    
+
     // TODO: 这里可以实现实际的文件上传逻辑
     if (file) {
       console.log("上传文件:", file.name, file.size)
@@ -84,15 +97,15 @@ export default function EditProfilePage() {
     try {
       // TODO: 实现保存逻辑
       console.log("保存用户资料:", data)
-      
+
       // 模拟API调用
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
       toast({
         title: "保存成功",
         description: "您的个人资料已更新",
       })
-      
+
       // 保存成功后返回个人中心
       router.push("/profile")
     } catch (error) {
@@ -113,27 +126,36 @@ export default function EditProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8 max-w-4xl">
+      <div className="container mx-auto max-w-4xl p-4 sm:py-6 lg:py-8">
         {/* 导航栏 */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
+        <div className="mb-6 flex flex-col justify-between gap-4 sm:mb-8 sm:flex-row sm:items-center">
           <div className="flex items-center space-x-3 sm:space-x-4">
-            <Button variant="ghost" size="icon" onClick={handleCancel} className="flex-shrink-0">
-              <ArrowLeft className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleCancel}
+              className="shrink-0"
+            >
+              <ArrowLeft className="size-4" />
             </Button>
             <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">编辑资料</h1>
-              <p className="text-muted-foreground text-sm sm:text-base">更新您的个人信息</p>
+              <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
+                编辑资料
+              </h1>
+              <p className="text-sm text-muted-foreground sm:text-base">
+                更新您的个人信息
+              </p>
             </div>
           </div>
-          <Button 
-            onClick={handleSubmit(onSubmit)} 
+          <Button
+            onClick={handleSubmit(onSubmit)}
             disabled={isLoading}
             className="w-full sm:w-auto"
           >
             {isLoading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <div className="mr-2 size-4 animate-spin rounded-full border-b-2 border-white"></div>
             ) : (
-              <Save className="h-4 w-4 mr-2" />
+              <Save className="mr-2 size-4" />
             )}
             保存
           </Button>
@@ -144,7 +166,7 @@ export default function EditProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Camera className="h-5 w-5" />
+                <Camera className="size-5" />
                 头像设置
               </CardTitle>
               <CardDescription>
@@ -166,15 +188,13 @@ export default function EditProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
+                <User className="size-5" />
                 基本信息
               </CardTitle>
-              <CardDescription>
-                填写您的基本个人信息
-              </CardDescription>
+              <CardDescription>填写您的基本个人信息</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="username">用户名</Label>
                   <Input
@@ -184,7 +204,9 @@ export default function EditProfilePage() {
                     className="text-base"
                   />
                   {errors.username && (
-                    <p className="text-sm text-destructive">{String(errors.username.message)}</p>
+                    <p className="text-sm text-destructive">
+                      {String(errors.username.message)}
+                    </p>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -198,7 +220,9 @@ export default function EditProfilePage() {
                     className="text-base"
                   />
                   {errors.email && (
-                    <p className="text-sm text-destructive">{String(errors.email.message)}</p>
+                    <p className="text-sm text-destructive">
+                      {String(errors.email.message)}
+                    </p>
                   )}
                   <p className="text-xs text-muted-foreground">
                     邮箱地址由认证提供商管理，无法修改
@@ -215,7 +239,9 @@ export default function EditProfilePage() {
                   rows={4}
                 />
                 {errors.bio && (
-                  <p className="text-sm text-destructive">{String(errors.bio.message)}</p>
+                  <p className="text-sm text-destructive">
+                    {String(errors.bio.message)}
+                  </p>
                 )}
               </div>
             </CardContent>
@@ -225,12 +251,10 @@ export default function EditProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Phone className="h-5 w-5" />
+                <Phone className="size-5" />
                 联系信息
               </CardTitle>
-              <CardDescription>
-                添加您的联系方式（可选）
-              </CardDescription>
+              <CardDescription>添加您的联系方式（可选）</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -242,7 +266,9 @@ export default function EditProfilePage() {
                   className="text-base"
                 />
                 {errors.phone && (
-                  <p className="text-sm text-destructive">{String(errors.phone.message)}</p>
+                  <p className="text-sm text-destructive">
+                    {String(errors.phone.message)}
+                  </p>
                 )}
               </div>
 
@@ -255,30 +281,32 @@ export default function EditProfilePage() {
                   {...register("website")}
                 />
                 {errors.website && (
-                  <p className="text-sm text-destructive">{String(errors.website.message)}</p>
+                  <p className="text-sm text-destructive">
+                    {String(errors.website.message)}
+                  </p>
                 )}
               </div>
             </CardContent>
           </Card>
 
           {/* 操作按钮 */}
-          <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6">
-            <Button 
-              variant="outline" 
+          <div className="flex flex-col justify-end gap-3 pt-6 sm:flex-row sm:gap-4">
+            <Button
+              variant="outline"
               onClick={handleCancel}
-              className="w-full sm:w-auto order-2 sm:order-1"
+              className="order-2 w-full sm:order-1 sm:w-auto"
             >
               取消
             </Button>
-            <Button 
-              onClick={handleSubmit(onSubmit)} 
+            <Button
+              onClick={handleSubmit(onSubmit)}
               disabled={isLoading}
-              className="w-full sm:w-auto order-1 sm:order-2"
+              className="order-1 w-full sm:order-2 sm:w-auto"
             >
               {isLoading ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                <div className="mr-2 size-4 animate-spin rounded-full border-b-2 border-white"></div>
               ) : (
-                <Save className="h-4 w-4 mr-2" />
+                <Save className="mr-2 size-4" />
               )}
               保存更改
             </Button>

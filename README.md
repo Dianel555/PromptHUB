@@ -14,11 +14,11 @@
 ## ✨ 特性
 
 - 🎨 **多主题系统** - 支持白天、黑夜、护眼、纸质、星空五种主题模式
-- 🏷️ **智能标签系统** - 12色动态标签，根据内容自动分配颜色
+- 🏷️ **智能标签系统** - 12 色动态标签，根据内容自动分配颜色
 - 🔍 **智能搜索** - 支持标题、描述、标签的全文搜索
 - 📱 **响应式设计** - 完美适配桌面端和移动端
-- ⚡ **性能优化** - 基于Next.js 13的现代化架构
-- 🎭 **玻璃拟态UI** - 现代化的视觉设计语言
+- ⚡ **性能优化** - 基于 Next.js 13 的现代化架构
+- 🎭 **玻璃拟态 UI** - 现代化的视觉设计语言
 - 🌟 **动画效果** - 流畅的交互动画和过渡效果
 - 🔐 **GitHub 认证** - 基于 NextAuth.js 的安全认证系统
 - 👤 **用户管理** - 完整的用户会话管理和状态维护
@@ -46,12 +46,14 @@
 ### 安装步骤
 
 1. **克隆项目**
+
 ```bash
 git clone https://github.com/your-username/prompthub.git
 cd prompthub
 ```
 
 2. **安装依赖**
+
 ```bash
 npm install
 # 或
@@ -59,6 +61,7 @@ yarn install
 ```
 
 3. **启动开发服务器**
+
 ```bash
 npm run dev
 # 或
@@ -66,7 +69,7 @@ yarn dev
 ```
 
 4. **访问应用**
-打开浏览器访问 [http://localhost:3000](http://localhost:3000)
+   打开浏览器访问 [http://localhost:3000](http://localhost:3000)
 
 ## 🔧 环境变量配置
 
@@ -133,33 +136,38 @@ prompthub/
 PromptHUB 支持五种主题模式：
 
 ### 🌞 白天模式
+
 - 清爽的白色背景
 - 深色文字，确保良好的对比度
 - 适合日间使用
 
 ### 🌙 黑夜模式
+
 - 深色背景，减少眼部疲劳
-- 浅色文字和UI元素
+- 浅色文字和 UI 元素
 - 适合夜间使用
 
 ### 👁️ 护眼模式
+
 - 柔和的绿色调背景
 - 降低蓝光，保护视力
 - 长时间使用的理想选择
 
 ### 📄 纸质模式
+
 - 温暖的米白色背景
 - 纸质纹理效果
 - 模拟纸质阅读体验
 
 ### ⭐ 星空模式
+
 - 渐变的深紫色背景
 - 星空般的视觉效果
 - 独特的沉浸式体验
 
 ## 🏷️ 标签系统
 
-智能的12色标签系统：
+智能的 12 色标签系统：
 
 - **自动分配**: 根据标签内容的哈希值自动分配颜色
 - **主题适配**: 在不同主题下自动调整颜色方案
@@ -173,7 +181,7 @@ PromptHUB 支持五种主题模式：
 ### 添加新主题
 
 1. 在 `lib/themes.ts` 中添加新的主题配置
-2. 在 `styles/globals.css` 中添加对应的CSS变量
+2. 在 `styles/globals.css` 中添加对应的 CSS 变量
 3. 更新主题切换器组件
 
 ### 自定义组件
@@ -181,8 +189,8 @@ PromptHUB 支持五种主题模式：
 所有组件都基于 shadcn/ui 构建，支持完全的自定义：
 
 ```tsx
-import { Button } from '@/components/ui/button'
-import { ColorfulTag } from '@/components/colorful-tag'
+import { Button } from "@/components/ui/button"
+import { ColorfulTag } from "@/components/colorful-tag"
 
 export function MyComponent() {
   return (
@@ -209,21 +217,25 @@ Vercel 是 Next.js 的官方部署平台，提供最佳的性能和开发体验�
 #### 手动部署
 
 1. **安装 Vercel CLI**
+
 ```bash
 npm i -g vercel
 ```
 
 2. **登录 Vercel**
+
 ```bash
 vercel login
 ```
 
 3. **部署项目**
+
 ```bash
 vercel
 ```
 
 4. **生产部署**
+
 ```bash
 vercel --prod
 ```
@@ -238,8 +250,8 @@ vercel --prod
    - `NODE_ENV=production`
    - `NEXT_TELEMETRY_DISABLED=1`
 
-
 **常见的环境变量示例**：
+
 ```bash
 # 数据库配置
 DATABASE_URL=your_database_url
@@ -260,22 +272,26 @@ GOOGLE_CLIENT_SECRET=your_google_client_secret
 #### 使用 Docker Compose（推荐）
 
 1. **克隆项目**
+
 ```bash
 git clone https://github.com/your-username/prompthub.git
 cd prompthub
 ```
 
 2. **启动服务**
+
 ```bash
 docker-compose up -d
 ```
 
 3. **查看日志**
+
 ```bash
 docker-compose logs -f
 ```
 
 4. **停止服务**
+
 ```bash
 docker-compose down
 ```
@@ -283,11 +299,13 @@ docker-compose down
 #### 使用 Dockerfile
 
 1. **构建镜像**
+
 ```bash
 docker build -t prompthub .
 ```
 
 2. **运行容器**
+
 ```bash
 docker run -p 3000:3000 prompthub
 ```
@@ -295,6 +313,7 @@ docker run -p 3000:3000 prompthub
 #### Docker 环境变量
 
 可以通过环境变量配置：
+
 ```bash
 docker run -p 3000:3000 \
   -e NODE_ENV=production \
@@ -309,6 +328,7 @@ docker run -p 3000:3000 \
 #### 环境准备
 
 确保服务器已安装：
+
 - Node.js 18.0 或更高版本
 - npm 或 yarn
 - PM2（可选，用于进程管理）
@@ -316,22 +336,26 @@ docker run -p 3000:3000 \
 #### 部署步骤
 
 1. **克隆项目**
+
 ```bash
 git clone https://github.com/your-username/prompthub.git
 cd prompthub
 ```
 
 2. **安装依赖**
+
 ```bash
 npm install --production
 ```
 
 3. **构建项目**
+
 ```bash
 npm run build
 ```
 
 4. **启动应用**
+
 ```bash
 npm start
 ```
@@ -339,11 +363,13 @@ npm start
 #### 使用 PM2 管理进程
 
 1. **安装 PM2**
+
 ```bash
 npm install -g pm2
 ```
 
 2. **创建 PM2 配置文件**
+
 ```bash
 # ecosystem.config.js
 module.exports = {
@@ -360,11 +386,13 @@ module.exports = {
 ```
 
 3. **启动应用**
+
 ```bash
 pm2 start ecosystem.config.js
 ```
 
 4. **设置开机自启**
+
 ```bash
 pm2 startup
 pm2 save
@@ -395,27 +423,30 @@ server {
 
 ### 📊 部署方式对比
 
-| 部署方式 | 优点 | 缺点 | 适用场景 |
-|---------|------|------|----------|
-| **Vercel** | 零配置、自动扩展、CDN加速 | 有使用限制 | 个人项目、小型应用 |
-| **Docker** | 环境一致、易于扩展、容器化 | 需要容器知识 | 企业级应用、微服务 |
-| **传统服务器** | 完全控制、成本可控 | 需要运维知识 | 大型项目、定制需求 |
+| 部署方式       | 优点                       | 缺点         | 适用场景           |
+| -------------- | -------------------------- | ------------ | ------------------ |
+| **Vercel**     | 零配置、自动扩展、CDN 加速 | 有使用限制   | 个人项目、小型应用 |
+| **Docker**     | 环境一致、易于扩展、容器化 | 需要容器知识 | 企业级应用、微服务 |
+| **传统服务器** | 完全控制、成本可控         | 需要运维知识 | 大型项目、定制需求 |
 
 ### 🔧 部署后优化
 
 #### 性能优化
+
 - 启用 gzip 压缩
 - 配置 CDN 加速
 - 使用 Redis 缓存
 - 数据库连接池优化
 
 #### 监控配置
+
 - 设置应用监控
 - 配置错误日志收集
 - 性能指标监控
 - 用户行为分析
 
 #### 安全配置
+
 - HTTPS 证书配置
 - 安全头设置
 - 防火墙配置
@@ -450,7 +481,7 @@ server {
 
 - [Next.js](https://nextjs.org/) - React 全栈框架
 - [shadcn/ui](https://ui.shadcn.com/) - 现代化组件库
-- [Tailwind CSS](https://tailwindcss.com/) - 实用优先的CSS框架
+- [Tailwind CSS](https://tailwindcss.com/) - 实用优先的 CSS 框架
 - [Framer Motion](https://www.framer.com/motion/) - 动画库
 - [Lucide](https://lucide.dev/) - 图标库
 
