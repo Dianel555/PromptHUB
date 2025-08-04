@@ -48,19 +48,16 @@ const tagVariants = {
   visible: { 
     opacity: 1, 
     scale: 1, 
-    y: 0,
-    transition: { duration: 0.3, ease: "easeOut" }
+    y: 0
   },
   hover: { 
     scale: 1.05, 
-    y: -2,
-    transition: { duration: 0.2 }
+    y: -2
   },
   exit: { 
     opacity: 0, 
     scale: 0.8, 
-    y: -20,
-    transition: { duration: 0.2 }
+    y: -20
   }
 }
 

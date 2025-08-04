@@ -65,17 +65,21 @@ export function HeroSection() {
             className="space-y-4"
           >
             <motion.div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-effect text-sm text-purple-200 mb-6"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-effect text-sm text-foreground/90 dark:text-foreground/95 mb-6 border border-border/60 dark:border-border/80 bg-background/20 dark:bg-background/40"
               whileHover={{ scale: 1.05 }}
             >
-              <Star className="w-4 h-4" />
+              <Star className="w-4 h-4 text-primary dark:text-primary/90" />
               发现最佳AI提示词
             </motion.div>
             
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight">
-              <span className="gradient-text">PromptHUB</span>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-relaxed">
+              <span className="bg-gradient-to-r from-primary via-purple-500 to-cyan-500 dark:from-purple-400 dark:via-pink-400 dark:to-cyan-400 paper:from-amber-600 paper:via-orange-500 paper:to-red-500 eyecare:from-green-500 eyecare:via-emerald-400 eyecare:to-teal-400 bg-clip-text text-transparent">
+                PromptHUB
+              </span>
               <br />
-              <span className="text-foreground">开放提示词社区</span>
+              <span className="bg-gradient-to-r from-foreground/90 via-foreground/80 to-foreground/90 bg-clip-text text-transparent mt-4 block">
+                开放提示词社区
+              </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">

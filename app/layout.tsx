@@ -1,4 +1,4 @@
-import "@/styles/globals.css"
+import "@/app/globals.css"
 import { Metadata } from "next"
 
 import { siteConfig } from "@/config/site"
@@ -37,17 +37,17 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <head />
         <body
           className={cn(
-            "min-h-screen bg-background font-sans antialiased",
+            "min-h-screen bg-background text-foreground font-sans antialiased",
             fontSans.variable
           )}
         >
           <SessionProvider>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              <div className="relative flex min-h-screen flex-col">
-                <SiteHeader />
-                <div className="flex-1">{children}</div>
-              </div>
-              <TailwindIndicator />
+            <ThemeProvider defaultTheme="system">
+                <div className="relative flex min-h-screen flex-col">
+                  <SiteHeader />
+                  <div className="flex-1 pt-16">{children}</div>
+                </div>
+                <TailwindIndicator />
             </ThemeProvider>
           </SessionProvider>
         </body>

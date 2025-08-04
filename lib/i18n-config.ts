@@ -233,7 +233,7 @@ export const tagSystemTranslations = {
 // 国际化Hook
 export function useI18n(language: 'zh' | 'en' = 'zh') {
   const t = (key: string): string => {
-    return tagSystemTranslations[language][key] || key
+    return (tagSystemTranslations[language] as Record<string, string>)[key] || key
   }
 
   const getCurrentLanguage = () => language

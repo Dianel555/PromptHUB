@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { getTagColorScheme } from '@/lib/tag-colors'
+import { useTheme } from 'next-themes'
 
 // 模拟数据
 const mockPrompts = [
@@ -74,9 +75,13 @@ interface PromptGridProps {
 
 export function PromptGrid({ searchQuery = '', selectedCategory = '' }: PromptGridProps) {
   const { data: session, status } = useSession()
+  const { theme, resolvedTheme } = useTheme()
   const router = useRouter()
   const [currentCategory, setCurrentCategory] = useState(selectedCategory)
   const [displayCount, setDisplayCount] = useState(6)
+  
+  // 检测当前是否为深色模式
+  const isDark = resolvedTheme === 'dark'
   // 过滤提示词
   const filteredPrompts = mockPrompts.filter(prompt => {
     const matchesSearch = prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -136,7 +141,7 @@ export function PromptGrid({ searchQuery = '', selectedCategory = '' }: PromptGr
         >
           {['全部', '图像', '写作', '代码', '学术', '开源', '社区'].map((category, index) => {
             const isActive = currentCategory === category || (category === '全部' && !currentCategory)
-            const colorScheme = category !== '全部' ? getTagColorScheme(category) : null
+            const colorScheme = category !== '全部' ? getTagColorScheme(category, isDark) : null
             const isAuthenticated = status === 'authenticated'
             
             return (

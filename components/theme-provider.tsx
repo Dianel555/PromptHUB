@@ -1,10 +1,9 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useAutomaticTheme } from '../lib/hooks';
 
 // Expanded theme type to include all options
-type Theme = 'light' | 'dark' | 'system' | 'paper' | 'eye-protection' | 'auto';
+type Theme = 'light' | 'dark' | 'system' | 'paper' | 'eyecare';
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -15,7 +14,7 @@ type ThemeProviderProps = {
 type ThemeProviderState = {
   theme: Theme; // The user's selected preference
   setTheme: (theme: Theme) => void;
-  resolvedTheme: 'light' | 'dark' | 'paper' | 'eye-protection'; // The actual theme applied to the DOM
+  resolvedTheme: 'light' | 'dark' | 'paper' | 'eyecare'; // The actual theme applied to the DOM
 };
 
 const initialState: ThemeProviderState = {
@@ -33,9 +32,8 @@ export function ThemeProvider({
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(defaultTheme);
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark' | 'paper' | 'eye-protection'>('light');
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark' | 'paper' | 'eyecare'>('light');
   const [mounted, setMounted] = useState(false);
-  const autoTheme = useAutomaticTheme(); // Hook for automatic theme based on time
 
   // Effect to run on the client after mounting
   useEffect(() => {
@@ -53,27 +51,25 @@ export function ThemeProvider({
     if (!mounted) return;
 
     const root = window.document.documentElement;
-    let currentTheme: 'light' | 'dark' | 'paper' | 'eye-protection';
+    let currentTheme: 'light' | 'dark' | 'paper' | 'eyecare';
 
     // Resolve the theme to be applied
-    if (theme === 'auto') {
-      currentTheme = autoTheme;
-    } else if (theme === 'system') {
+    if (theme === 'system') {
       currentTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
         ? 'dark'
         : 'light';
     } else {
-      // Direct themes: 'light', 'dark', 'paper', 'eye-protection'
-      currentTheme = theme as 'light' | 'dark' | 'paper' | 'eye-protection';
+      // Direct themes: 'light', 'dark', 'paper', 'eyecare'
+      currentTheme = theme as 'light' | 'dark' | 'paper' | 'eyecare';
     }
 
     // Update the DOM
-    root.classList.remove('light', 'dark', 'paper', 'eye-protection');
+    root.classList.remove('light', 'dark', 'paper', 'eyecare');
     root.classList.add(currentTheme);
     
     // Update the resolved theme state
     setResolvedTheme(currentTheme);
-  }, [theme, autoTheme, mounted]);
+  }, [theme, mounted]);
 
   const value = {
     theme,
@@ -87,18 +83,12 @@ export function ThemeProvider({
     resolvedTheme,
   };
 
-  // Render a non-themed version on the server to avoid hydration mismatch
-  if (!mounted) {
-    return (
-      <ThemeProviderContext.Provider {...props} value={initialState}>
-        {children}
-      </ThemeProviderContext.Provider>
-    );
-  }
-
+  // Always render with the current value to avoid hydration mismatch
   return (
     <ThemeProviderContext.Provider {...props} value={value}>
-      {children}
+      <div suppressHydrationWarning>
+        {children}
+      </div>
     </ThemeProviderContext.Provider>
   );
 }

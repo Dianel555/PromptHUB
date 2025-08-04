@@ -4,6 +4,13 @@
 
 @layer base {
   :root {
+    --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+}
+
+@layer base {
+  :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -95,42 +102,89 @@
     --ring: 15 25% 29%;
   }
 
-  .eye-protection {
-    --background: 125 45% 85%; /* #C7EDCC */
-    --foreground: 200 15% 26%; /* #37474F */
+  .eyecare {
+    --background: 120 20% 95%; /* #f8faf8 */
+    --foreground: 120 30% 20%; /* #2d4a2d */
 
-    --card: 125 45% 85%;
-    --card-foreground: 200 15% 26%;
+    --card: 0 0% 100%;
+    --card-foreground: 120 30% 20%;
 
-    --popover: 125 45% 85%;
-    --popover-foreground: 200 15% 26%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 120 30% 20%;
 
-    --primary: 200 15% 26%;
-    --primary-foreground: 125 45% 98%;
+    --primary: 142 76% 36%; /* #16a34a */
+    --primary-foreground: 138 76% 97%;
 
-    --secondary: 125 45% 88%;
-    --secondary-foreground: 200 15% 26%;
+    --secondary: 138 76% 97%;
+    --secondary-foreground: 142 86% 20%;
 
-    --muted: 125 45% 88%;
-    --muted-foreground: 200 15% 42%;
+    --muted: 138 76% 97%;
+    --muted-foreground: 142 69% 58%;
 
-    --accent: 125 45% 88%;
-    --accent-foreground: 200 15% 26%;
+    --accent: 142 69% 85%;
+    --accent-foreground: 142 86% 20%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 125 45% 80%;
-    --input: 125 45% 80%;
-    --ring: 200 15% 26%;
+    --border: 142 69% 85%;
+    --input: 142 69% 85%;
+    --ring: 142 76% 36%;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
+  
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    /* 启用硬件加速 */
+    transform: translateZ(0);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 全局性能优化 */
+  * {
+    box-sizing: border-box;
+  }
+
+  /* 减少重绘和回流 */
+  img, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* 优化滚动性能 */
+  * {
+    scroll-behavior: smooth;
+  }
+
+  /* 主题切换平滑过渡 */
+  .theme-transitioning,
+  .theme-transitioning * {
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  /* 硬件加速的动画元素 */
+  [class*="animate-"], 
+  [class*="transition-"],
+  button:hover,
+  a:hover {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+  }
+
+  /* 优化字体渲染 */
+  body, input, textarea, button {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }

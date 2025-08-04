@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { getTagColorScheme } from '@/lib/tag-colors'
+import { useTheme } from 'next-themes'
 
 interface PromptCardProps {
   id: string
@@ -36,9 +37,13 @@ export function PromptCard({
   featured = false
 }: PromptCardProps) {
   const router = useRouter()
+  const { resolvedTheme } = useTheme()
   const { data: session, status } = useSession()
   const [isLiked, setIsLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(likes)
+  
+  // 检测当前是否为深色模式
+  const isDark = resolvedTheme === 'dark'
 
   const handleCardClick = () => {
     // 检查用户是否已登录
@@ -140,7 +145,7 @@ export function PromptCard({
           {/* 标签 */}
           <div className="flex flex-wrap gap-2">
             {tags.slice(0, 3).map((tag, index) => {
-              const colorScheme = getTagColorScheme(tag)
+              const colorScheme = getTagColorScheme(tag, isDark)
               return (
                 <motion.div
                   key={tag}
@@ -152,7 +157,7 @@ export function PromptCard({
                     className={`
                       ${colorScheme.background} ${colorScheme.text} ${colorScheme.border}
                       hover:scale-105 transition-all duration-200 cursor-pointer
-                      hover:shadow-lg ${colorScheme.backgroundHover}
+                      hover:shadow-lg ${colorScheme.hover}
                     `}
                     onClick={(e) => {
                       e.stopPropagation()

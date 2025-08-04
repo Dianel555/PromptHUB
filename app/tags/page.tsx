@@ -12,7 +12,8 @@ import {
   Star,
   Languages,
   Download,
-  Upload
+  Upload,
+  Zap
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -175,7 +176,7 @@ export default function TagsPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">活跃标签</CardTitle>
-                <Sparkles className="h-4 w-4 text-muted-foreground" />
+                <Zap className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">856</div>
@@ -321,7 +322,7 @@ export default function TagsPage() {
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-4 h-4 mr-2" />
+                      <Zap className="w-4 h-4 mr-2" />
                       开始智能分析
                     </>
                   )}
@@ -417,7 +418,18 @@ export default function TagsPage() {
         {/* 精细调优页面 */}
         <TabsContent value="fine-tuning">
           <TagFineTuning 
-            tags={mockTagStats.map(tag => ({ id: tag.id, name: tag.name, dimension: tag.dimension }))}
+            tags={mockTagStats.map(tag => ({ 
+              id: tag.id, 
+              name: tag.name, 
+              nameEn: tag.name, // 临时使用中文名作为英文名
+              dimension: tag.dimension,
+              confidence: 0.8,
+              color: '#3b82f6',
+              weight: 1.0,
+              keywords: [tag.name],
+              isActive: true,
+              category: 'default'
+            }))}
             onTagsChange={(tags) => console.log('标签更新:', tags)}
             language={language}
           />

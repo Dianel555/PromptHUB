@@ -309,3 +309,73 @@ export const getAutoTheme = (): string => {
   const hour = new Date().getHours();
   return hour >= 6 && hour < 18 ? 'light' : 'dark';
 };
+
+// 标签颜色配置
+const tagColorPalettes = {
+  light: [
+    { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200', shadow: 'shadow-blue-100/50' },
+    { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200', shadow: 'shadow-green-100/50' },
+    { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-200', shadow: 'shadow-purple-100/50' },
+    { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-200', shadow: 'shadow-orange-100/50' },
+    { bg: 'bg-pink-100', text: 'text-pink-800', border: 'border-pink-200', shadow: 'shadow-pink-100/50' },
+    { bg: 'bg-indigo-100', text: 'text-indigo-800', border: 'border-indigo-200', shadow: 'shadow-indigo-100/50' },
+    { bg: 'bg-teal-100', text: 'text-teal-800', border: 'border-teal-200', shadow: 'shadow-teal-100/50' },
+    { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200', shadow: 'shadow-red-100/50' },
+  ],
+  dark: [
+    { bg: 'bg-blue-900/50', text: 'text-blue-200', border: 'border-blue-700', shadow: 'shadow-blue-900/30' },
+    { bg: 'bg-green-900/50', text: 'text-green-200', border: 'border-green-700', shadow: 'shadow-green-900/30' },
+    { bg: 'bg-purple-900/50', text: 'text-purple-200', border: 'border-purple-700', shadow: 'shadow-purple-900/30' },
+    { bg: 'bg-orange-900/50', text: 'text-orange-200', border: 'border-orange-700', shadow: 'shadow-orange-900/30' },
+    { bg: 'bg-pink-900/50', text: 'text-pink-200', border: 'border-pink-700', shadow: 'shadow-pink-900/30' },
+    { bg: 'bg-indigo-900/50', text: 'text-indigo-200', border: 'border-indigo-700', shadow: 'shadow-indigo-900/30' },
+    { bg: 'bg-teal-900/50', text: 'text-teal-200', border: 'border-teal-700', shadow: 'shadow-teal-900/30' },
+    { bg: 'bg-red-900/50', text: 'text-red-200', border: 'border-red-700', shadow: 'shadow-red-900/30' },
+  ],
+  eyecare: [
+    { bg: 'bg-green-50', text: 'text-green-800', border: 'border-green-200', shadow: 'shadow-green-100/50' },
+    { bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-200', shadow: 'shadow-emerald-100/50' },
+    { bg: 'bg-teal-50', text: 'text-teal-800', border: 'border-teal-200', shadow: 'shadow-teal-100/50' },
+    { bg: 'bg-lime-50', text: 'text-lime-800', border: 'border-lime-200', shadow: 'shadow-lime-100/50' },
+    { bg: 'bg-cyan-50', text: 'text-cyan-800', border: 'border-cyan-200', shadow: 'shadow-cyan-100/50' },
+    { bg: 'bg-green-100', text: 'text-green-900', border: 'border-green-300', shadow: 'shadow-green-200/50' },
+    { bg: 'bg-emerald-100', text: 'text-emerald-900', border: 'border-emerald-300', shadow: 'shadow-emerald-200/50' },
+    { bg: 'bg-teal-100', text: 'text-teal-900', border: 'border-teal-300', shadow: 'shadow-teal-200/50' },
+  ],
+  paper: [
+    { bg: 'bg-amber-50', text: 'text-amber-900', border: 'border-amber-200', shadow: 'shadow-amber-100/50' },
+    { bg: 'bg-orange-50', text: 'text-orange-900', border: 'border-orange-200', shadow: 'shadow-orange-100/50' },
+    { bg: 'bg-yellow-50', text: 'text-yellow-900', border: 'border-yellow-200', shadow: 'shadow-yellow-100/50' },
+    { bg: 'bg-stone-50', text: 'text-stone-900', border: 'border-stone-200', shadow: 'shadow-stone-100/50' },
+    { bg: 'bg-neutral-50', text: 'text-neutral-900', border: 'border-neutral-200', shadow: 'shadow-neutral-100/50' },
+    { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-300', shadow: 'shadow-amber-200/50' },
+    { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-300', shadow: 'shadow-orange-200/50' },
+    { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-300', shadow: 'shadow-yellow-200/50' },
+  ],
+  starry: [
+    { bg: 'bg-purple-900/50', text: 'text-purple-200', border: 'border-purple-600', shadow: 'shadow-purple-900/30' },
+    { bg: 'bg-indigo-900/50', text: 'text-indigo-200', border: 'border-indigo-600', shadow: 'shadow-indigo-900/30' },
+    { bg: 'bg-violet-900/50', text: 'text-violet-200', border: 'border-violet-600', shadow: 'shadow-violet-900/30' },
+    { bg: 'bg-fuchsia-900/50', text: 'text-fuchsia-200', border: 'border-fuchsia-600', shadow: 'shadow-fuchsia-900/30' },
+    { bg: 'bg-pink-900/50', text: 'text-pink-200', border: 'border-pink-600', shadow: 'shadow-pink-900/30' },
+    { bg: 'bg-purple-800/50', text: 'text-purple-100', border: 'border-purple-500', shadow: 'shadow-purple-800/30' },
+    { bg: 'bg-indigo-800/50', text: 'text-indigo-100', border: 'border-indigo-500', shadow: 'shadow-indigo-800/30' },
+    { bg: 'bg-violet-800/50', text: 'text-violet-100', border: 'border-violet-500', shadow: 'shadow-violet-800/30' },
+  ],
+};
+
+// 根据字符串生成颜色索引
+export const getTagColorIndex = (text: string): number => {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    const char = text.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // 转换为32位整数
+  }
+  return Math.abs(hash) % 8;
+};
+
+// 根据主题获取标签颜色配置
+export const getTagColorsForTheme = (themeName: string) => {
+  return tagColorPalettes[themeName as keyof typeof tagColorPalettes] || tagColorPalettes.light;
+};

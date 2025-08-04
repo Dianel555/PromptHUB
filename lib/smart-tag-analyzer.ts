@@ -246,4 +246,4 @@ export class SmartTagAnalyzer {
 }
 
 // 导出类型和工具函数
-export type { SmartTag, TagSuggestion, ContentAnalysis }
+export type { SmartTag }

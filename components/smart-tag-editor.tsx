@@ -16,6 +16,7 @@ interface SmartTagEditorProps {
   initialTags?: string[]
   onTagsChange: (tags: string[]) => void
   language?: 'zh' | 'en'
+  showSuggestions?: boolean
 }
 
 const dimensionIcons = {
@@ -30,7 +31,8 @@ export function SmartTagEditor({
   content,
   initialTags = [],
   onTagsChange,
-  language = 'zh'
+  language = 'zh',
+  showSuggestions = true
 }: SmartTagEditorProps) {
   const [tags, setTags] = useState<string[]>(initialTags)
   const [inputValue, setInputValue] = useState('')
@@ -243,61 +245,63 @@ export function SmartTagEditor({
       </Card>
 
       {/* 智能建议区域 */}
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Star className="w-5 h-5 text-amber-500" />
-            {language === 'zh' ? '智能推荐' : 'Smart Recommendations'}
-            {isAnalyzing && (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-500 ml-2"></div>
-            )}
-          </CardTitle>
-          <CardDescription>
-            {language === 'zh' 
-              ? '基于内容智能分析的标签推荐，点击即可添加' 
-              : 'AI-powered tag recommendations based on content analysis'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isAnalyzing ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500 mx-auto mb-3"></div>
-                <p className="text-sm text-gray-500">
-                  {language === 'zh' ? '正在智能分析内容...' : 'Analyzing content intelligently...'}
+      {showSuggestions && (
+        <Card>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Star className="w-5 h-5 text-amber-500" />
+              {language === 'zh' ? '智能推荐' : 'Smart Recommendations'}
+              {isAnalyzing && (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-500 ml-2"></div>
+              )}
+            </CardTitle>
+            <CardDescription>
+              {language === 'zh' 
+                ? '基于内容智能分析的标签推荐，点击即可添加' 
+                : 'AI-powered tag recommendations based on content analysis'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isAnalyzing ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500 mx-auto mb-3"></div>
+                  <p className="text-sm text-gray-500">
+                    {language === 'zh' ? '正在智能分析内容...' : 'Analyzing content intelligently...'}
+                  </p>
+                </div>
+              </div>
+            ) : suggestions.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {suggestions.map(suggestion => renderSuggestionBadge(suggestion))}
+              </div>
+            ) : content.trim().length > 0 ? (
+              <div className="text-center py-12">
+                <Star className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-sm text-gray-500 mb-2">
+                  {language === 'zh' 
+                    ? '暂无高质量标签推荐' 
+                    : 'No high-quality recommendations available'}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {language === 'zh' 
+                    ? '请尝试输入更详细的内容描述' 
+                    : 'Try adding more detailed content description'}
                 </p>
               </div>
-            </div>
-          ) : suggestions.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {suggestions.map(suggestion => renderSuggestionBadge(suggestion))}
-            </div>
-          ) : content.trim().length > 0 ? (
-            <div className="text-center py-12">
-              <Star className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-sm text-gray-500 mb-2">
-                {language === 'zh' 
-                  ? '暂无高质量标签推荐' 
-                  : 'No high-quality recommendations available'}
-              </p>
-              <p className="text-xs text-gray-400">
-                {language === 'zh' 
-                  ? '请尝试输入更详细的内容描述' 
-                  : 'Try adding more detailed content description'}
-              </p>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-sm text-gray-500">
-                {language === 'zh' 
-                  ? '请先输入内容以获取智能推荐' 
-                  : 'Please enter content to get smart recommendations'}
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            ) : (
+              <div className="text-center py-12">
+                <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-sm text-gray-500">
+                  {language === 'zh' 
+                    ? '请先输入内容以获取智能推荐' 
+                    : 'Please enter content to get smart recommendations'}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* 标签维度说明 */}
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">

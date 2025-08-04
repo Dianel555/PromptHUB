@@ -65,33 +65,19 @@ export function ThemeAdaptiveTag({
     animate: { 
       scale: 1, 
       opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 500,
-        damping: 30
-      }
+      y: 0
     },
     hover: {
       scale: interactive ? themeConfig.effects.hover.scale : 1,
-      filter: `brightness(${themeConfig.effects.hover.brightness})`,
-      transition: {
-        duration: 0.2
-      }
+      filter: `brightness(${themeConfig.effects.hover.brightness})`
     },
     tap: {
-      scale: interactive ? 0.95 : 1,
-      transition: {
-        duration: 0.1
-      }
+      scale: interactive ? 0.95 : 1
     },
     exit: {
       scale: 0.8,
       opacity: 0,
-      y: -10,
-      transition: {
-        duration: 0.2
-      }
+      y: -10
     }
   }
 
@@ -101,24 +87,14 @@ export function ThemeAdaptiveTag({
       boxShadow: [
         `0 0 0 0 ${getDimensionColor(dimension, themeConfig)}40`,
         `0 0 0 10px ${getDimensionColor(dimension, themeConfig)}00`,
-      ],
-      transition: {
-        duration: 2,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }
+      ]
     }
   }
 
   // 闪烁动画
   const shimmerVariants = {
     shimmer: {
-      backgroundPosition: ['200% 0', '-200% 0'],
-      transition: {
-        duration: 2,
-        repeat: Infinity,
-        ease: "linear"
-      }
+      backgroundPosition: ['200% 0', '-200% 0']
     }
   }
 
@@ -185,12 +161,8 @@ export function ThemeAdaptiveTag({
           })
         }}
         variants={tagVariants}
-        initial={animated ? "initial" : false}
-        animate={[
-          animated ? "animate" : "",
-          pulsing ? "pulse" : "",
-          shimmer ? "shimmer" : ""
-        ].filter(Boolean)}
+        initial={animated ? "initial" : undefined}
+        animate={animated ? "animate" : undefined}
         whileHover={interactive ? "hover" : undefined}
         whileTap={interactive ? "tap" : undefined}
         exit={animated ? "exit" : undefined}
@@ -265,7 +237,7 @@ export function ThemeAdaptiveTagList({
         {displayTags.map((tag, index) => (
           <motion.div
             key={tag.id}
-            initial={animated ? { opacity: 0, scale: 0.8 } : false}
+            initial={animated ? { opacity: 0, scale: 0.8 } : undefined}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ delay: animated ? index * 0.05 : 0 }}
@@ -442,7 +414,7 @@ export function TagInput({
           onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
           placeholder={placeholder}
           className="flex-1 min-w-[120px] outline-none bg-transparent"
-          disabled={maxTags && value.length >= maxTags}
+          disabled={!!(maxTags && value.length >= maxTags)}
         />
       </div>
 
