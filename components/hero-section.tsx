@@ -108,7 +108,7 @@ export function HeroSection() {
                 />
                 <Button
                   onClick={handleSearch}
-                  className="rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 px-6 text-white hover:from-purple-600 hover:to-cyan-600"
+                  className="rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-6 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg transition-all duration-200"
                 >
                   搜索
                 </Button>
