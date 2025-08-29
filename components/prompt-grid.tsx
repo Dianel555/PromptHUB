@@ -6,7 +6,7 @@ import { motion } from "framer-motion"
 import { useSession } from "next-auth/react"
 import { useTheme } from "next-themes"
 
-import { getTagThemeClasses, TagType } from "@/lib/enhanced-tag-system"
+import { TagType, getTagThemeClasses } from "@/lib/enhanced-tag-system"
 
 import { PromptCard } from "./prompt-card"
 
@@ -69,7 +69,8 @@ const mockPrompts = [
   {
     id: "5",
     title: "开源项目文档生成器",
-    description: "为开源项目创建清晰、全面的README和技术文档，提升项目可读性。包括安装指南、使用说明、API文档和贡献指南，让开发者快速上手。",
+    description:
+      "为开源项目创建清晰、全面的README和技术文档，提升项目可读性。包括安装指南、使用说明、API文档和贡献指南，让开发者快速上手。",
     author: {
       name: "Emma Davis",
       avatar: "/placeholder.svg?height=32&width=32",
@@ -81,7 +82,8 @@ const mockPrompts = [
   {
     id: "6",
     title: "社区讨论主持人",
-    description: "专业引导和促进技术社区讨论，创建包容性的交流环境。帮助维护社区秩序，鼓励建设性对话，解决冲突，提升整体讨论质量和参与度。",
+    description:
+      "专业引导和促进技术社区讨论，创建包容性的交流环境。帮助维护社区秩序，鼓励建设性对话，解决冲突，提升整体讨论质量和参与度。",
     author: {
       name: "Community Team",
       avatar: "/placeholder.svg?height=32&width=32",
@@ -182,7 +184,9 @@ export function PromptGrid({
                 currentCategory === category ||
                 (category === "全部" && !currentCategory)
               const colorScheme =
-                category !== "全部" ? getTagThemeClasses(category as TagType, 'solid') : null
+                category !== "全部"
+                  ? getTagThemeClasses(category as TagType, "solid")
+                  : null
               const isAuthenticated = status === "authenticated"
 
               return (
@@ -213,7 +217,7 @@ export function PromptGrid({
 
         {/* 提示词网格 */}
         <motion.div
-          className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr"
+          className="grid auto-rows-fr grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}

@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Bell, Lock, Shield } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -17,6 +18,7 @@ import { Switch } from "@/components/ui/switch"
 
 export default function SettingsPage() {
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
   const [settings, setSettings] = useState({
     emailNotifications: true,
     pushNotifications: false,
@@ -27,10 +29,31 @@ export default function SettingsPage() {
   })
 
   const handleSettingChange = (key: string, value: boolean) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }))
+  }
+
+  const handleSave = async () => {
+    setIsLoading(true)
+    try {
+      // 模拟API调用
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+
+      // 这里应该调用实际的API来保存设置
+      console.log("保存设置:", settings)
+
+      toast.success("设置已保存", {
+        description: "您的账户设置已成功更新。",
+      })
+    } catch (error) {
+      toast.error("保存失败", {
+        description: "保存设置时出现错误，请重试。",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -38,18 +61,12 @@ export default function SettingsPage() {
       <div className="container mx-auto max-w-4xl px-4 py-6">
         {/* 页面头部 */}
         <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.back()}
-          >
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
             <ArrowLeft className="size-4" />
           </Button>
           <div>
             <h1 className="text-2xl font-bold">账户设置</h1>
-            <p className="text-muted-foreground">
-              管理您的账户安全和通知偏好
-            </p>
+            <p className="text-muted-foreground">管理您的账户安全和通知偏好</p>
           </div>
         </div>
 
@@ -61,9 +78,7 @@ export default function SettingsPage() {
                 <Bell className="size-5" />
                 通知设置
               </CardTitle>
-              <CardDescription>
-                控制您接收通知的方式和频率
-              </CardDescription>
+              <CardDescription>控制您接收通知的方式和频率</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
@@ -75,7 +90,7 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   checked={settings.emailNotifications}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     handleSettingChange("emailNotifications", checked)
                   }
                 />
@@ -89,7 +104,7 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   checked={settings.pushNotifications}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     handleSettingChange("pushNotifications", checked)
                   }
                 />
@@ -104,9 +119,7 @@ export default function SettingsPage() {
                 <Lock className="size-5" />
                 安全设置
               </CardTitle>
-              <CardDescription>
-                保护您的账户安全
-              </CardDescription>
+              <CardDescription>保护您的账户安全</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
@@ -118,15 +131,13 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   checked={settings.twoFactorAuth}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     handleSettingChange("twoFactorAuth", checked)
                   }
                 />
               </div>
               <div className="pt-2">
-                <Button variant="outline">
-                  更改密码
-                </Button>
+                <Button variant="outline">更改密码</Button>
               </div>
             </CardContent>
           </Card>
@@ -138,9 +149,7 @@ export default function SettingsPage() {
                 <Shield className="size-5" />
                 隐私设置
               </CardTitle>
-              <CardDescription>
-                控制您的信息可见性
-              </CardDescription>
+              <CardDescription>控制您的信息可见性</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
@@ -152,7 +161,7 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   checked={settings.publicProfile}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     handleSettingChange("publicProfile", checked)
                   }
                 />
@@ -166,7 +175,7 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   checked={settings.showEmail}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     handleSettingChange("showEmail", checked)
                   }
                 />
@@ -180,7 +189,7 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   checked={settings.allowMessages}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     handleSettingChange("allowMessages", checked)
                   }
                 />
@@ -190,8 +199,8 @@ export default function SettingsPage() {
 
           {/* 保存按钮 */}
           <div className="flex justify-end">
-            <Button>
-              保存设置
+            <Button onClick={handleSave} disabled={isLoading}>
+              {isLoading ? "保存中..." : "保存设置"}
             </Button>
           </div>
         </div>

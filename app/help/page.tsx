@@ -11,6 +11,12 @@ import {
   Search,
 } from "lucide-react"
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -20,12 +26,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
 
 export default function HelpPage() {
   const router = useRouter()
@@ -34,28 +34,34 @@ export default function HelpPage() {
   const faqItems = [
     {
       question: "如何创建一个新的提示词？",
-      answer: "点击导航栏中的'创建'按钮，填写提示词的标题、描述和内容，选择合适的标签，然后点击发布即可。"
+      answer:
+        "点击导航栏中的'创建'按钮，填写提示词的标题、描述和内容，选择合适的标签，然后点击发布即可。",
     },
     {
       question: "如何编辑我的个人资料？",
-      answer: "进入个人中心页面，点击'编辑资料'按钮，您可以修改用户名、头像、个人简介等信息。"
+      answer:
+        "进入个人中心页面，点击'编辑资料'按钮，您可以修改用户名、头像、个人简介等信息。",
     },
     {
       question: "如何设置隐私权限？",
-      answer: "在个人中心的'隐私设置'中，您可以控制个人资料、提示词和活动的可见性，以及其他隐私选项。"
+      answer:
+        "在个人中心的'隐私设置'中，您可以控制个人资料、提示词和活动的可见性，以及其他隐私选项。",
     },
     {
       question: "如何搜索和发现提示词？",
-      answer: "使用顶部的搜索框输入关键词，或者浏览不同的标签分类来发现感兴趣的提示词。"
+      answer:
+        "使用顶部的搜索框输入关键词，或者浏览不同的标签分类来发现感兴趣的提示词。",
     },
     {
       question: "如何关注其他用户？",
-      answer: "在用户的个人资料页面点击'关注'按钮，您将能够看到他们的最新动态和提示词。"
+      answer:
+        "在用户的个人资料页面点击'关注'按钮，您将能够看到他们的最新动态和提示词。",
     },
     {
       question: "如何举报不当内容？",
-      answer: "在任何提示词或用户页面，点击'举报'按钮，选择举报原因并提交，我们会及时处理。"
-    }
+      answer:
+        "在任何提示词或用户页面，点击'举报'按钮，选择举报原因并提交，我们会及时处理。",
+    },
   ]
 
   const contactOptions = [
@@ -64,27 +70,28 @@ export default function HelpPage() {
       title: "邮件支持",
       description: "发送邮件获得详细帮助",
       action: "发送邮件",
-      href: "mailto:support@prompthub.com"
+      href: "mailto:support@prompthub.com",
     },
     {
       icon: MessageCircle,
       title: "在线客服",
       description: "实时聊天获得即时帮助",
       action: "开始聊天",
-      href: "#"
+      href: "#",
     },
     {
       icon: Book,
       title: "用户手册",
       description: "查看详细的使用指南",
       action: "查看手册",
-      href: "#"
-    }
+      href: "#",
+    },
   ]
 
-  const filteredFAQ = faqItems.filter(item =>
-    item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.answer.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredFAQ = faqItems.filter(
+    (item) =>
+      item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.answer.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   return (
@@ -92,18 +99,12 @@ export default function HelpPage() {
       <div className="container mx-auto max-w-4xl px-4 py-6">
         {/* 页面头部 */}
         <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.back()}
-          >
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
             <ArrowLeft className="size-4" />
           </Button>
           <div>
             <h1 className="text-2xl font-bold">帮助中心</h1>
-            <p className="text-muted-foreground">
-              获取使用帮助和技术支持
-            </p>
+            <p className="text-muted-foreground">获取使用帮助和技术支持</p>
           </div>
         </div>
 
@@ -130,9 +131,7 @@ export default function HelpPage() {
                 <HelpCircle className="size-5" />
                 常见问题
               </CardTitle>
-              <CardDescription>
-                查找常见问题的解答
-              </CardDescription>
+              <CardDescription>查找常见问题的解答</CardDescription>
             </CardHeader>
             <CardContent>
               <Accordion type="single" collapsible className="w-full">
@@ -183,10 +182,10 @@ export default function HelpPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        if (option.href.startsWith('mailto:')) {
+                        if (option.href.startsWith("mailto:")) {
                           window.location.href = option.href
-                        } else if (option.href !== '#') {
-                          window.open(option.href, '_blank')
+                        } else if (option.href !== "#") {
+                          window.open(option.href, "_blank")
                         }
                       }}
                     >

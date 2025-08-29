@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 
-export default function SignInPage() {
+function SignInContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const callbackUrl = searchParams.get("callbackUrl") || "/prompts"
@@ -225,5 +225,13 @@ export default function SignInPage() {
         )}
       </motion.div>
     </div>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <SignInContent />
+    </Suspense>
   )
 }

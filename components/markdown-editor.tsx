@@ -18,11 +18,7 @@ import {
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import ReactMarkdown from "react-markdown"
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
-import {
-  oneDark,
-  oneLight,
-} from "react-syntax-highlighter/dist/esm/styles/prism"
+import SyntaxHighlighter from "react-syntax-highlighter"
 import remarkGfm from "remark-gfm"
 
 import { cn } from "@/lib/utils"
@@ -90,7 +86,7 @@ export function MarkdownEditor({
     { icon: Code, label: "代码", action: () => insertText("`", "`") },
   ]
 
-  const isDarkTheme = theme === "dark" || theme === "starry"
+  // const isDarkTheme = theme === "dark" || theme === "starry"
 
   return (
     <div
@@ -178,7 +174,6 @@ export function MarkdownEditor({
                     const isInline = props.inline
                     return !isInline && match ? (
                       <SyntaxHighlighter
-                        style={isDarkTheme ? oneDark : oneLight}
                         language={match[1]}
                         PreTag="div"
                         className="rounded-md"

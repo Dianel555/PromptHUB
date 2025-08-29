@@ -32,7 +32,7 @@ export const tagDimensionColors = {
       border: "border-blue-200 hover:border-blue-300",
       borderHover: "hover:border-blue-300",
       shadow: "shadow-blue-100/50",
-      gradient: "bg-gradient-to-r from-blue-500/10 to-blue-600/10"
+      gradient: "bg-gradient-to-r from-blue-500/10 to-blue-600/10",
     },
     dark: {
       background: "bg-blue-900/30 hover:bg-blue-900/50",
@@ -42,7 +42,7 @@ export const tagDimensionColors = {
       border: "border-blue-700/50 hover:border-blue-600/70",
       borderHover: "hover:border-blue-600/70",
       shadow: "shadow-blue-900/30",
-      gradient: "bg-gradient-to-r from-blue-400/20 to-blue-500/20"
+      gradient: "bg-gradient-to-r from-blue-400/20 to-blue-500/20",
     },
     paper: {
       background: "bg-amber-50 hover:bg-amber-100",
@@ -52,7 +52,7 @@ export const tagDimensionColors = {
       border: "border-amber-200 hover:border-amber-300",
       borderHover: "hover:border-amber-300",
       shadow: "shadow-amber-100/50",
-      gradient: "bg-gradient-to-r from-amber-500/10 to-orange-500/10"
+      gradient: "bg-gradient-to-r from-amber-500/10 to-orange-500/10",
     },
     eyecare: {
       background: "bg-green-50 hover:bg-green-100",
@@ -62,8 +62,8 @@ export const tagDimensionColors = {
       border: "border-green-200 hover:border-green-300",
       borderHover: "hover:border-green-300",
       shadow: "shadow-green-100/50",
-      gradient: "bg-gradient-to-r from-green-500/10 to-emerald-500/10"
-    }
+      gradient: "bg-gradient-to-r from-green-500/10 to-emerald-500/10",
+    },
   },
   style: {
     light: {
@@ -74,7 +74,7 @@ export const tagDimensionColors = {
       border: "border-purple-200 hover:border-purple-300",
       borderHover: "hover:border-purple-300",
       shadow: "shadow-purple-100/50",
-      gradient: "bg-gradient-to-r from-purple-500/10 to-pink-500/10"
+      gradient: "bg-gradient-to-r from-purple-500/10 to-pink-500/10",
     },
     dark: {
       background: "bg-purple-900/30 hover:bg-purple-900/50",
@@ -84,7 +84,7 @@ export const tagDimensionColors = {
       border: "border-purple-700/50 hover:border-purple-600/70",
       borderHover: "hover:border-purple-600/70",
       shadow: "shadow-purple-900/30",
-      gradient: "bg-gradient-to-r from-purple-400/20 to-pink-400/20"
+      gradient: "bg-gradient-to-r from-purple-400/20 to-pink-400/20",
     },
     paper: {
       background: "bg-rose-50 hover:bg-rose-100",
@@ -94,7 +94,7 @@ export const tagDimensionColors = {
       border: "border-rose-200 hover:border-rose-300",
       borderHover: "hover:border-rose-300",
       shadow: "shadow-rose-100/50",
-      gradient: "bg-gradient-to-r from-rose-500/10 to-pink-500/10"
+      gradient: "bg-gradient-to-r from-rose-500/10 to-pink-500/10",
     },
     eyecare: {
       background: "bg-teal-50 hover:bg-teal-100",
@@ -104,8 +104,8 @@ export const tagDimensionColors = {
       border: "border-teal-200 hover:border-teal-300",
       borderHover: "hover:border-teal-300",
       shadow: "shadow-teal-100/50",
-      gradient: "bg-gradient-to-r from-teal-500/10 to-cyan-500/10"
-    }
+      gradient: "bg-gradient-to-r from-teal-500/10 to-cyan-500/10",
+    },
   },
   mood: {
     light: {
@@ -116,7 +116,7 @@ export const tagDimensionColors = {
       border: "border-orange-200 hover:border-orange-300",
       borderHover: "hover:border-orange-300",
       shadow: "shadow-orange-100/50",
-      gradient: "bg-gradient-to-r from-orange-500/10 to-red-500/10"
+      gradient: "bg-gradient-to-r from-orange-500/10 to-red-500/10",
     },
     dark: {
       background: "bg-orange-900/30 hover:bg-orange-900/50",
@@ -126,7 +126,7 @@ export const tagDimensionColors = {
       border: "border-orange-700/50 hover:border-orange-600/70",
       borderHover: "hover:border-orange-600/70",
       shadow: "shadow-orange-900/30",
-      gradient: "bg-gradient-to-r from-orange-400/20 to-red-400/20"
+      gradient: "bg-gradient-to-r from-orange-400/20 to-red-400/20",
     },
     paper: {
       background: "bg-yellow-50 hover:bg-yellow-100",
@@ -136,7 +136,7 @@ export const tagDimensionColors = {
       border: "border-yellow-200 hover:border-yellow-300",
       borderHover: "hover:border-yellow-300",
       shadow: "shadow-yellow-100/50",
-      gradient: "bg-gradient-to-r from-yellow-500/10 to-orange-500/10"
+      gradient: "bg-gradient-to-r from-yellow-500/10 to-orange-500/10",
     },
     eyecare: {
       background: "bg-emerald-50 hover:bg-emerald-100",
@@ -146,8 +146,8 @@ export const tagDimensionColors = {
       border: "border-emerald-200 hover:border-emerald-300",
       borderHover: "hover:border-emerald-300",
       shadow: "shadow-emerald-100/50",
-      gradient: "bg-gradient-to-r from-emerald-500/10 to-green-500/10"
-    }
+      gradient: "bg-gradient-to-r from-emerald-500/10 to-green-500/10",
+    },
   },
   scene: {
     light: {
@@ -158,7 +158,7 @@ export const tagDimensionColors = {
       border: "border-cyan-200 hover:border-cyan-300",
       borderHover: "hover:border-cyan-300",
       shadow: "shadow-cyan-100/50",
-      gradient: "bg-gradient-to-r from-cyan-500/10 to-blue-500/10"
+      gradient: "bg-gradient-to-r from-cyan-500/10 to-blue-500/10",
     },
     dark: {
       background: "bg-cyan-900/30 hover:bg-cyan-900/50",
@@ -168,7 +168,7 @@ export const tagDimensionColors = {
       border: "border-cyan-700/50 hover:border-cyan-600/70",
       borderHover: "hover:border-cyan-600/70",
       shadow: "shadow-cyan-900/30",
-      gradient: "bg-gradient-to-r from-cyan-400/20 to-blue-400/20"
+      gradient: "bg-gradient-to-r from-cyan-400/20 to-blue-400/20",
     },
     paper: {
       background: "bg-sky-50 hover:bg-sky-100",
@@ -178,7 +178,7 @@ export const tagDimensionColors = {
       border: "border-sky-200 hover:border-sky-300",
       borderHover: "hover:border-sky-300",
       shadow: "shadow-sky-100/50",
-      gradient: "bg-gradient-to-r from-sky-500/10 to-blue-500/10"
+      gradient: "bg-gradient-to-r from-sky-500/10 to-blue-500/10",
     },
     eyecare: {
       background: "bg-slate-50 hover:bg-slate-100",
@@ -188,8 +188,8 @@ export const tagDimensionColors = {
       border: "border-slate-200 hover:border-slate-300",
       borderHover: "hover:border-slate-300",
       shadow: "shadow-slate-100/50",
-      gradient: "bg-gradient-to-r from-slate-500/10 to-gray-500/10"
-    }
+      gradient: "bg-gradient-to-r from-slate-500/10 to-gray-500/10",
+    },
   },
   default: {
     light: {
@@ -200,7 +200,7 @@ export const tagDimensionColors = {
       border: "border-gray-200 hover:border-gray-300",
       borderHover: "hover:border-gray-300",
       shadow: "shadow-gray-100/50",
-      gradient: "bg-gradient-to-r from-gray-500/10 to-slate-500/10"
+      gradient: "bg-gradient-to-r from-gray-500/10 to-slate-500/10",
     },
     dark: {
       background: "bg-gray-800/50 hover:bg-gray-800/70",
@@ -210,7 +210,7 @@ export const tagDimensionColors = {
       border: "border-gray-600/50 hover:border-gray-500/70",
       borderHover: "hover:border-gray-500/70",
       shadow: "shadow-gray-900/30",
-      gradient: "bg-gradient-to-r from-gray-400/20 to-slate-400/20"
+      gradient: "bg-gradient-to-r from-gray-400/20 to-slate-400/20",
     },
     paper: {
       background: "bg-stone-50 hover:bg-stone-100",
@@ -220,7 +220,7 @@ export const tagDimensionColors = {
       border: "border-stone-200 hover:border-stone-300",
       borderHover: "hover:border-stone-300",
       shadow: "shadow-stone-100/50",
-      gradient: "bg-gradient-to-r from-stone-500/10 to-gray-500/10"
+      gradient: "bg-gradient-to-r from-stone-500/10 to-gray-500/10",
     },
     eyecare: {
       background: "bg-neutral-50 hover:bg-neutral-100",
@@ -230,9 +230,9 @@ export const tagDimensionColors = {
       border: "border-neutral-200 hover:border-neutral-300",
       borderHover: "hover:border-neutral-300",
       shadow: "shadow-neutral-100/50",
-      gradient: "bg-gradient-to-r from-neutral-500/10 to-gray-500/10"
-    }
-  }
+      gradient: "bg-gradient-to-r from-neutral-500/10 to-gray-500/10",
+    },
+  },
 }
 
 // 特殊标签配色（如精选、热门等）
@@ -246,7 +246,7 @@ export const specialTagColors = {
       border: "border-transparent",
       borderHover: "hover:border-transparent",
       shadow: "shadow-purple-500/25",
-      gradient: "bg-gradient-to-r from-purple-500 to-pink-500"
+      gradient: "bg-gradient-to-r from-purple-500 to-pink-500",
     },
     dark: {
       background: "bg-gradient-to-r from-purple-400 to-pink-400",
@@ -256,7 +256,7 @@ export const specialTagColors = {
       border: "border-transparent",
       borderHover: "hover:border-transparent",
       shadow: "shadow-purple-400/25",
-      gradient: "bg-gradient-to-r from-purple-400 to-pink-400"
+      gradient: "bg-gradient-to-r from-purple-400 to-pink-400",
     },
     paper: {
       background: "bg-gradient-to-r from-amber-500 to-orange-500",
@@ -266,7 +266,7 @@ export const specialTagColors = {
       border: "border-transparent",
       borderHover: "hover:border-transparent",
       shadow: "shadow-amber-500/25",
-      gradient: "bg-gradient-to-r from-amber-500 to-orange-500"
+      gradient: "bg-gradient-to-r from-amber-500 to-orange-500",
     },
     eyecare: {
       background: "bg-gradient-to-r from-green-500 to-emerald-500",
@@ -276,8 +276,8 @@ export const specialTagColors = {
       border: "border-transparent",
       borderHover: "hover:border-transparent",
       shadow: "shadow-green-500/25",
-      gradient: "bg-gradient-to-r from-green-500 to-emerald-500"
-    }
+      gradient: "bg-gradient-to-r from-green-500 to-emerald-500",
+    },
   },
   hot: {
     light: {
@@ -288,7 +288,7 @@ export const specialTagColors = {
       border: "border-transparent",
       borderHover: "hover:border-transparent",
       shadow: "shadow-red-500/25",
-      gradient: "bg-gradient-to-r from-red-500 to-orange-500"
+      gradient: "bg-gradient-to-r from-red-500 to-orange-500",
     },
     dark: {
       background: "bg-gradient-to-r from-red-400 to-orange-400",
@@ -298,7 +298,7 @@ export const specialTagColors = {
       border: "border-transparent",
       borderHover: "hover:border-transparent",
       shadow: "shadow-red-400/25",
-      gradient: "bg-gradient-to-r from-red-400 to-orange-400"
+      gradient: "bg-gradient-to-r from-red-400 to-orange-400",
     },
     paper: {
       background: "bg-gradient-to-r from-red-600 to-rose-600",
@@ -308,7 +308,7 @@ export const specialTagColors = {
       border: "border-transparent",
       borderHover: "hover:border-transparent",
       shadow: "shadow-red-600/25",
-      gradient: "bg-gradient-to-r from-red-600 to-rose-600"
+      gradient: "bg-gradient-to-r from-red-600 to-rose-600",
     },
     eyecare: {
       background: "bg-gradient-to-r from-orange-500 to-yellow-500",
@@ -318,93 +318,119 @@ export const specialTagColors = {
       border: "border-transparent",
       borderHover: "hover:border-transparent",
       shadow: "shadow-orange-500/25",
-      gradient: "bg-gradient-to-r from-orange-500 to-yellow-500"
-    }
-  }
+      gradient: "bg-gradient-to-r from-orange-500 to-yellow-500",
+    },
+  },
 }
 
 // 获取标签配色方案
 export function getTagColorScheme(
-  dimension: string = 'default',
-  theme: string = 'light',
-  special?: 'featured' | 'hot'
+  dimension: string = "default",
+  theme: string = "light",
+  special?: "featured" | "hot"
 ): TagColorScheme {
   if (special && specialTagColors[special]) {
-    return specialTagColors[special][theme as keyof typeof specialTagColors.featured] || specialTagColors[special].light
+    return (
+      specialTagColors[special][
+        theme as keyof typeof specialTagColors.featured
+      ] || specialTagColors[special].light
+    )
   }
-  
-  const dimensionColors = tagDimensionColors[dimension as keyof typeof tagDimensionColors] || tagDimensionColors.default
-  return dimensionColors[theme as keyof typeof dimensionColors] || dimensionColors.light
+
+  const dimensionColors =
+    tagDimensionColors[dimension as keyof typeof tagDimensionColors] ||
+    tagDimensionColors.default
+  return (
+    dimensionColors[theme as keyof typeof dimensionColors] ||
+    dimensionColors.light
+  )
 }
 
 // 生成标签类名
 export function generateTagClasses(
-  dimension: string = 'default',
-  theme: string = 'light',
-  size: 'xs' | 'sm' | 'md' | 'lg' = 'sm',
-  variant: 'solid' | 'outline' | 'ghost' | 'gradient' = 'solid',
-  special?: 'featured' | 'hot'
+  dimension: string = "default",
+  theme: string = "light",
+  size: "xs" | "sm" | "md" | "lg" = "sm",
+  variant: "solid" | "outline" | "ghost" | "gradient" = "solid",
+  special?: "featured" | "hot"
 ): string {
   const colorScheme = getTagColorScheme(dimension, theme, special)
-  
+
   const sizeClasses = {
-    xs: 'px-2 py-0.5 text-xs',
-    sm: 'px-2.5 py-1 text-xs',
-    md: 'px-3 py-1.5 text-sm',
-    lg: 'px-4 py-2 text-base'
+    xs: "px-2 py-0.5 text-xs",
+    sm: "px-2.5 py-1 text-xs",
+    md: "px-3 py-1.5 text-sm",
+    lg: "px-4 py-2 text-base",
   }
-  
+
   const baseClasses = `
     inline-flex items-center rounded-full font-medium
     transition-all duration-200 ease-in-out
     focus:outline-none focus:ring-2 focus:ring-offset-2
     ${sizeClasses[size]}
-  `.trim().replace(/\s+/g, ' ')
-  
-  let variantClasses = ''
-  
+  `
+    .trim()
+    .replace(/\s+/g, " ")
+
+  let variantClasses = ""
+
   switch (variant) {
-    case 'solid':
+    case "solid":
       if (special) {
         variantClasses = `${colorScheme.background} ${colorScheme.backgroundHover} ${colorScheme.text} ${colorScheme.textHover} ${colorScheme.shadow}`
       } else {
         variantClasses = `${colorScheme.background} ${colorScheme.text} border ${colorScheme.border} ${colorScheme.borderHover} ${colorScheme.shadow}`
       }
       break
-    case 'outline':
-      variantClasses = `bg-transparent ${colorScheme.text} border-2 ${colorScheme.border} ${colorScheme.borderHover} hover:${colorScheme.background.replace('bg-', 'bg-').replace(' hover:bg-', '')}`
+    case "outline":
+      variantClasses = `bg-transparent ${colorScheme.text} border-2 ${
+        colorScheme.border
+      } ${colorScheme.borderHover} hover:${colorScheme.background
+        .replace("bg-", "bg-")
+        .replace(" hover:bg-", "")}`
       break
-    case 'ghost':
+    case "ghost":
       variantClasses = `bg-transparent ${colorScheme.text} ${colorScheme.backgroundHover} border-transparent`
       break
-    case 'gradient':
-      variantClasses = `${colorScheme.gradient || colorScheme.background} ${colorScheme.text} border-transparent ${colorScheme.shadow}`
+    case "gradient":
+      variantClasses = `${colorScheme.gradient || colorScheme.background} ${
+        colorScheme.text
+      } border-transparent ${colorScheme.shadow}`
       break
   }
-  
-  return `${baseClasses} ${variantClasses}`.trim().replace(/\s+/g, ' ')
+
+  return `${baseClasses} ${variantClasses}`.trim().replace(/\s+/g, " ")
 }
 
 // 检查对比度是否足够
-export function hasGoodContrast(backgroundColor: string, textColor: string): boolean {
+export function hasGoodContrast(
+  backgroundColor: string,
+  textColor: string
+): boolean {
   // 简化的对比度检查，实际项目中可以使用更精确的算法
-  const darkBackgrounds = ['gray-800', 'gray-900', 'slate-800', 'slate-900']
-  const lightTexts = ['white', 'gray-100', 'gray-200']
-  
-  const isDarkBg = darkBackgrounds.some(color => backgroundColor.includes(color))
-  const isLightText = lightTexts.some(color => textColor.includes(color))
-  
+  const darkBackgrounds = ["gray-800", "gray-900", "slate-800", "slate-900"]
+  const lightTexts = ["white", "gray-100", "gray-200"]
+
+  const isDarkBg = darkBackgrounds.some((color) =>
+    backgroundColor.includes(color)
+  )
+  const isLightText = lightTexts.some((color) => textColor.includes(color))
+
   return (isDarkBg && isLightText) || (!isDarkBg && !isLightText)
 }
 
 // 自动选择最佳文本颜色
-export function getOptimalTextColor(backgroundColor: string, theme: string): string {
-  const isDarkTheme = theme === 'dark'
-  const isLightBg = backgroundColor.includes('50') || backgroundColor.includes('100')
-  
+export function getOptimalTextColor(
+  backgroundColor: string,
+  theme: string
+): string {
+  const isDarkTheme = theme === "dark"
+  const isLightBg =
+    backgroundColor.includes("50") || backgroundColor.includes("100")
+
   if (isDarkTheme) {
-    return isLightBg ? 'text-gray-900' : 'text-gray-100'
+    return isLightBg ? "text-gray-900" : "text-gray-100"
   } else {
-    return isLightBg ? 'text-gray-700' : 'text-white'
+    return isLightBg ? "text-gray-700" : "text-white"
   }
 }

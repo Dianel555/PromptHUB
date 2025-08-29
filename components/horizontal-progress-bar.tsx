@@ -192,9 +192,11 @@ export function HorizontalProgressBar({
   // 通用的数值更新函数
   const updateValue = useCallback(
     (clientX: number) => {
-      if (!progressRef.current) return
+      if (!progressRef.current || typeof window === "undefined") return
 
       const rect = progressRef.current.getBoundingClientRect()
+      if (!rect.width) return // 防止在组件未完全渲染时调用
+      
       const newPercentage = Math.max(
         0,
         Math.min(100, ((clientX - rect.left) / rect.width) * 100)

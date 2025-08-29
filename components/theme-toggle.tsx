@@ -42,7 +42,9 @@ export function ThemeToggle() {
       setIsOpen(false)
 
       // 添加过渡动画类
-      document.documentElement.classList.add("theme-transitioning")
+      if (typeof document !== "undefined") {
+        document.documentElement.classList.add("theme-transitioning")
+      }
 
       // 使用 requestAnimationFrame 确保状态更新的时机
       requestAnimationFrame(() => {
@@ -50,7 +52,9 @@ export function ThemeToggle() {
 
         // 移除过渡类和重置状态
         setTimeout(() => {
-          document.documentElement.classList.remove("theme-transitioning")
+          if (typeof document !== "undefined") {
+            document.documentElement.classList.remove("theme-transitioning")
+          }
           setIsChanging(false)
         }, 300)
       })

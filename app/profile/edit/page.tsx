@@ -22,7 +22,7 @@ export default function ProfileEditPage() {
   const { data: session } = useSession()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  
+
   // 表单状态
   const [formData, setFormData] = useState({
     name: session?.user?.name || "",
@@ -33,9 +33,9 @@ export default function ProfileEditPage() {
   })
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }))
   }
 
@@ -45,7 +45,7 @@ export default function ProfileEditPage() {
       // TODO: 实现保存逻辑
       console.log("保存用户信息:", formData)
       // 模拟API调用
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000))
       router.push("/profile")
     } catch (error) {
       console.error("保存失败:", error)
@@ -59,18 +59,12 @@ export default function ProfileEditPage() {
       <div className="container mx-auto max-w-4xl px-4 py-6">
         {/* 页面头部 */}
         <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.back()}
-          >
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
             <ArrowLeft className="size-4" />
           </Button>
           <div>
             <h1 className="text-2xl font-bold">编辑个人资料</h1>
-            <p className="text-muted-foreground">
-              更新您的个人信息和偏好设置
-            </p>
+            <p className="text-muted-foreground">更新您的个人信息和偏好设置</p>
           </div>
         </div>
 
@@ -80,9 +74,7 @@ export default function ProfileEditPage() {
             <Card>
               <CardHeader>
                 <CardTitle>头像</CardTitle>
-                <CardDescription>
-                  点击头像更换您的个人头像
-                </CardDescription>
+                <CardDescription>点击头像更换您的个人头像</CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col items-center space-y-4">
                 <div className="relative">
@@ -115,9 +107,7 @@ export default function ProfileEditPage() {
             <Card>
               <CardHeader>
                 <CardTitle>基本信息</CardTitle>
-                <CardDescription>
-                  更新您的基本个人信息
-                </CardDescription>
+                <CardDescription>更新您的基本个人信息</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -126,7 +116,9 @@ export default function ProfileEditPage() {
                     <Input
                       id="name"
                       value={formData.name}
-                      onChange={(e) => handleInputChange("name", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("name", e.target.value)
+                      }
                       placeholder="输入您的用户名"
                     />
                   </div>
@@ -136,7 +128,9 @@ export default function ProfileEditPage() {
                       id="email"
                       type="email"
                       value={formData.email}
-                      onChange={(e) => handleInputChange("email", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
                       placeholder="输入您的邮箱"
                       disabled
                     />
@@ -160,7 +154,9 @@ export default function ProfileEditPage() {
                     <Input
                       id="website"
                       value={formData.website}
-                      onChange={(e) => handleInputChange("website", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("website", e.target.value)
+                      }
                       placeholder="https://yourwebsite.com"
                     />
                   </div>
@@ -169,23 +165,19 @@ export default function ProfileEditPage() {
                     <Input
                       id="location"
                       value={formData.location}
-                      onChange={(e) => handleInputChange("location", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("location", e.target.value)
+                      }
                       placeholder="城市, 国家"
                     />
                   </div>
                 </div>
 
                 <div className="flex justify-end space-x-4 pt-4">
-                  <Button
-                    variant="outline"
-                    onClick={() => router.back()}
-                  >
+                  <Button variant="outline" onClick={() => router.back()}>
                     取消
                   </Button>
-                  <Button
-                    onClick={handleSave}
-                    disabled={isLoading}
-                  >
+                  <Button onClick={handleSave} disabled={isLoading}>
                     {isLoading ? (
                       <>
                         <div className="mr-2 size-4 animate-spin rounded-full border-b-2 border-white" />

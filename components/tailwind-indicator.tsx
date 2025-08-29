@@ -1,5 +1,15 @@
+"use client"
+
+import { useEffect, useState } from "react"
+
 export function TailwindIndicator() {
-  if (process.env.NODE_ENV === "production") return null
+  const [isDevelopment, setIsDevelopment] = useState(false)
+
+  useEffect(() => {
+    setIsDevelopment(process.env.NODE_ENV !== "production")
+  }, [])
+
+  if (!isDevelopment) return null
 
   return (
     <div className="fixed bottom-1 left-1 z-50 flex size-6 items-center justify-center rounded-full bg-gray-800 p-3 font-mono text-xs text-white">

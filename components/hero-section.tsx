@@ -45,9 +45,9 @@ export function HeroSection() {
             key={i}
             className="particle"
             style={{
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 20}s`,
-              animationDuration: `${15 + Math.random() * 10}s`,
+              left: `${(i * 37) % 100}%`,
+              animationDelay: `${(i * 1.5) % 20}s`,
+              animationDuration: `${15 + (i % 10)}s`,
             }}
           />
         ))}
@@ -108,7 +108,7 @@ export function HeroSection() {
                 />
                 <Button
                   onClick={handleSearch}
-                  className="rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-6 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg transition-all duration-200"
+                  className="rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-6 text-white shadow-lg transition-all duration-200 hover:from-purple-600 hover:to-pink-600"
                 >
                   搜索
                 </Button>

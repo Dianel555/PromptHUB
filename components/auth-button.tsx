@@ -50,21 +50,21 @@ export function AuthButton() {
 
   if (session) {
     return (
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-1">
         <Button
           variant="ghost"
           size="sm"
           onClick={handleProfileClick}
-          className="flex items-center space-x-2 max-w-[200px]"
+          className="flex min-w-0 max-w-[120px] items-center space-x-2 px-2"
         >
           <Image
             src={session.user?.image || ""}
             alt={session.user?.name || "用户头像"}
-            width={24}
-            height={24}
-            className="size-6 rounded-full flex-shrink-0"
+            width={20}
+            height={20}
+            className="size-5 shrink-0 rounded-full"
           />
-          <span className="hidden sm:inline truncate text-sm">
+          <span className="hidden truncate text-xs font-medium sm:inline">
             {session.user?.name}
           </span>
         </Button>
@@ -73,18 +73,17 @@ export function AuthButton() {
           size="sm"
           onClick={handleSignOut}
           disabled={isSigningOut}
-          className="flex-shrink-0"
+          className="shrink-0 px-2"
         >
           {isSigningOut ? (
             <>
-              <Icons.spinner className="mr-2 size-4 animate-spin" />
-              <span className="hidden sm:inline">退出中...</span>
-              <span className="sm:hidden">...</span>
+              <Icons.spinner className="size-4 animate-spin" />
+              <span className="ml-1 hidden text-xs md:inline">退出中</span>
             </>
           ) : (
             <>
-              <span className="hidden sm:inline">退出</span>
-              <span className="sm:hidden">
+              <span className="hidden text-xs md:inline">退出</span>
+              <span className="md:hidden">
                 <Icons.logOut className="size-4" />
               </span>
             </>
