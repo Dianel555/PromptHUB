@@ -1,7 +1,7 @@
 import Link from "next/link"
 
 import { siteConfig } from "@/config/site"
-import { buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { AuthButton } from "@/components/auth-button"
 import { Icons } from "@/components/icons"
 import { MainNav } from "@/components/main-nav"
@@ -20,15 +20,10 @@ export function SiteHeader() {
               target="_blank"
               rel="noreferrer"
             >
-              <div
-                className={buttonVariants({
-                  size: "icon",
-                  variant: "ghost",
-                })}
-              >
+              <Button size="icon" variant="ghost">
                 <Icons.gitHub className="size-5" />
                 <span className="sr-only">GitHub</span>
-              </div>
+              </Button>
             </Link>
             <div className="relative z-[120]">
               <ThemeToggle />

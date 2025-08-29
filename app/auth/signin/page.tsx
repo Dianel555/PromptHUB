@@ -22,7 +22,7 @@ import { Separator } from "@/components/ui/separator"
 export default function SignInPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const callbackUrl = searchParams.get("callbackUrl") || "/"
+  const callbackUrl = searchParams.get("callbackUrl") || "/prompts"
 
   const [providers, setProviders] = useState<any>(null)
   const [email, setEmail] = useState("")
