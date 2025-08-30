@@ -13,7 +13,7 @@ interface PlatformStats {
   githubStars: number
 }
 
-export default function HeroSection() {
+export function HeroSection() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [stats, setStats] = useState<PlatformStats>({

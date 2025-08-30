@@ -24,6 +24,7 @@ const mockPrompts = [
     tags: ["图像", "艺术", "精选"],
     likes: 1250,
     views: 8900,
+    createdAt: new Date("2024-01-15"),
     featured: true,
   },
   {
@@ -38,6 +39,7 @@ const mockPrompts = [
     tags: ["写作", "内容"],
     likes: 890,
     views: 5600,
+    createdAt: new Date("2024-01-20"),
   },
   {
     id: "3",
@@ -51,6 +53,7 @@ const mockPrompts = [
     tags: ["代码", "开发"],
     likes: 2100,
     views: 12000,
+    createdAt: new Date("2024-01-25"),
   },
   {
     id: "4",
@@ -64,6 +67,7 @@ const mockPrompts = [
     tags: ["学术", "研究", "精选"],
     likes: 1450,
     views: 9800,
+    createdAt: new Date("2024-02-01"),
     featured: true,
   },
   {
@@ -78,6 +82,7 @@ const mockPrompts = [
     tags: ["开源", "文档"],
     likes: 980,
     views: 6700,
+    createdAt: new Date("2024-02-05"),
   },
   {
     id: "6",
@@ -91,6 +96,7 @@ const mockPrompts = [
     tags: ["社区", "协作"],
     likes: 750,
     views: 4200,
+    createdAt: new Date("2024-02-10"),
   },
 ]
 

@@ -84,6 +84,10 @@ NEXTAUTH_SECRET=your-secret-key-here  # 生成一个随机密钥
 GITHUB_ID=your-github-client-id
 GITHUB_SECRET=your-github-client-secret
 
+# GitHub集成 (可选，用于获取真实star数)
+GITHUB_REPO="your-username/promptHUB"
+GITHUB_TOKEN="your_github_token"
+
 # 数据库配置
 DATABASE_URL="postgresql://username:password@localhost:5432/prompthub?schema=public"
 ```
@@ -428,6 +432,24 @@ server {
 | **Vercel**     | 零配置、自动扩展、CDN 加速 | 有使用限制   | 个人项目、小型应用 |
 | **Docker**     | 环境一致、易于扩展、容器化 | 需要容器知识 | 企业级应用、微服务 |
 | **传统服务器** | 完全控制、成本可控         | 需要运维知识 | 大型项目、定制需求 |
+
+### 🚀 部署验证
+
+运行以下命令进行部署前检查:
+
+```bash
+# 验证配置
+npm run validate-config
+
+# 部署检查
+npm run deploy-check
+
+# 功能测试
+npm run test-deployment
+
+# 完整预部署检查
+npm run pre-deploy
+```
 
 ### 🔧 部署后优化
 

@@ -38,7 +38,7 @@ interface PromptCardProps {
   onClick?: () => void
 }
 
-export default function PromptCard({
+export function PromptCard({
   id,
   title,
   description,

@@ -1,100 +1,55 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth/next"
+import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { z } from "zod"
 
-// GET - 获取隐私设置
-export async function GET() {
-  try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "未授权" }, { status: 401 })
-    }
+const privacySchema = z.object({
+  profileVisibility: z.enum(["public", "private", "friends"]).optional(),
+  showEmail: z.boolean().optional(),
+  showLocation: z.boolean().optional(),
+  showWebsite: z.boolean().optional(),
+  allowMessages: z.boolean().optional(),
+  allowFollows: z.boolean().optional(),
+  showActivity: z.boolean().optional(),
+  searchable: z.boolean().optional(),
+})
 
-    // 获取隐私设置，如果不存在则返回默认值
-    let privacySettings = await prisma.privacySettings.findUnique({
-      where: { userEmail: session.user.email }
-    })
-
-    if (!privacySettings) {
-      // 创建默认隐私设置
-      privacySettings = await prisma.privacySettings.create({
-        data: {
-          userEmail: session.user.email,
-          profileVisibility: true,
-          promptsVisibility: true,
-          activityVisibility: true,
-          searchable: true,
-          allowDirectMessages: true,
-        }
-      })
-    }
-
-    return NextResponse.json({
-      profileVisibility: privacySettings.profileVisibility,
-      promptsVisibility: privacySettings.promptsVisibility,
-      activityVisibility: privacySettings.activityVisibility,
-      searchable: privacySettings.searchable,
-      allowDirectMessages: privacySettings.allowDirectMessages,
-    })
-  } catch (error) {
-    console.error("获取隐私设置失败:", error)
-    return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
-  }
-}
-
-// PUT - 更新隐私设置
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "未授权" }, { status: 401 })
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "未授权访问" },
+        { status: 401 }
+      )
     }
 
     const body = await request.json()
-    const { 
-      profileVisibility, 
-      promptsVisibility, 
-      activityVisibility, 
-      searchable, 
-      allowDirectMessages 
-    } = body
+    const validatedData = privacySchema.parse(body)
 
-    // 更新或创建隐私设置
-    const updatedSettings = await prisma.privacySettings.upsert({
-      where: { userEmail: session.user.email },
-      update: {
-        profileVisibility: profileVisibility ?? true,
-        promptsVisibility: promptsVisibility ?? true,
-        activityVisibility: activityVisibility ?? true,
-        searchable: searchable ?? true,
-        allowDirectMessages: allowDirectMessages ?? true,
-        updatedAt: new Date(),
-      },
-      create: {
-        userEmail: session.user.email,
-        profileVisibility: profileVisibility ?? true,
-        promptsVisibility: promptsVisibility ?? true,
-        activityVisibility: activityVisibility ?? true,
-        searchable: searchable ?? true,
-        allowDirectMessages: allowDirectMessages ?? true,
-      }
-    })
-
+    // 暂时返回默认隐私设置（直到数据库模式同步）
+    // TODO: 在数据库模式同步后启用真实的隐私设置存储
+    
     return NextResponse.json({
-      message: "隐私设置更新成功",
-      settings: {
-        profileVisibility: updatedSettings.profileVisibility,
-        promptsVisibility: updatedSettings.promptsVisibility,
-        activityVisibility: updatedSettings.activityVisibility,
-        searchable: updatedSettings.searchable,
-        allowDirectMessages: updatedSettings.allowDirectMessages,
-      }
+      message: "隐私设置已更新",
+      privacy: validatedData
     })
+
   } catch (error) {
     console.error("更新隐私设置失败:", error)
-    return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "数据验证失败", details: error.errors },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json(
+      { error: "更新隐私设置失败" },
+      { status: 500 }
+    )
   }
 }

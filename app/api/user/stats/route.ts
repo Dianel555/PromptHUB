@@ -39,42 +39,43 @@ export async function GET() {
         // 用户创建的提示词数量
         prisma.prompt.count({
           where: { 
-            authorEmail: userEmail,
+            authorId: session.user.id,
             isPublic: true 
           }
         }),
         
         // 用户收藏的提示词数量
         prisma.like.count({
-          where: { userEmail: userEmail }
+          where: { userId: session.user.id }
         }),
         
         // 用户获得的总点赞数
         prisma.like.count({
           where: {
             prompt: {
-              authorEmail: userEmail
+              authorId: session.user.id
             }
           }
         }),
         
-        // 用户提示词的总浏览量
-        prisma.promptView.count({
+        // 用户提示词的总浏览量（使用 views 字段求和）
+        prisma.prompt.aggregate({
           where: {
-            prompt: {
-              authorEmail: userEmail
-            }
+            authorId: session.user.id
+          },
+          _sum: {
+            views: true
           }
-        }),
+        }).then((result: { _sum: { views: number | null } }) => result._sum.views || 0),
         
         // 关注者数量
         prisma.follow.count({
-          where: { followingEmail: userEmail }
+          where: { followingId: session.user.id }
         }),
         
         // 关注数量
         prisma.follow.count({
-          where: { followerEmail: userEmail }
+          where: { followerId: session.user.id }
         }),
         
         // 确保用户存在

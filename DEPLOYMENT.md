@@ -25,7 +25,8 @@ NEXTAUTH_SECRET="your-random-secret-key"
 GITHUB_CLIENT_ID="your-github-client-id"
 GITHUB_CLIENT_SECRET="your-github-client-secret"
 
-# GitHub API Token (可选，用于提高API限制)
+# GitHub集成 (可选，用于获取真实star数)
+GITHUB_REPO="your-username/promptHUB"
 GITHUB_TOKEN="your-github-personal-access-token"
 ```
 
@@ -97,6 +98,24 @@ npx prisma db seed
 - [ ] 主页统计数据显示
 - [ ] GitHub star数据获取
 - [ ] 提示词卡片跳转
+
+## 🚀 部署验证
+
+运行以下命令进行部署前检查:
+
+```bash
+# 验证配置
+npm run validate-config
+
+# 部署检查
+npm run deploy-check
+
+# 功能测试
+npm run test-deployment
+
+# 完整预部署检查
+npm run pre-deploy
+```
 
 ## 故障排除
 
