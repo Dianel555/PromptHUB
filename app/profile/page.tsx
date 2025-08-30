@@ -26,47 +26,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { useUser } from "@/hooks/use-user"
+import ProfileStats from "@/components/profile/ProfileStats"
+import ErrorBoundary from "@/components/ErrorBoundary"
 
 export default function ProfilePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
-  const [userStats, setUserStats] = useState({
-    totalLikes: 0,
-    totalViews: 0,
-    totalPrompts: 0,
-    joinDate: new Date().toISOString().split("T")[0],
-    favoritePrompts: 0,
-    followers: 0,
-    following: 0,
-    achievements: ["新用户"],
-  })
-  const [isLoadingStats, setIsLoadingStats] = useState(true)
-
-  // 获取真实用户统计数据
-  useEffect(() => {
-    if (session?.user?.email) {
-      fetchUserStats()
-    }
-  }, [session])
-
-  const fetchUserStats = async () => {
-    try {
-      const response = await fetch("/api/user/stats")
-      if (response.ok) {
-        const data = await response.json()
-        // 确保 achievements 字段存在
-        setUserStats({
-          ...data,
-          achievements: data.achievements || ["新用户"]
-        })
-      }
-    } catch (error) {
-      console.error("获取用户统计数据失败:", error)
-    } finally {
-      setIsLoadingStats(false)
-    }
-  }
+  const { user } = useUser()
 
   if (status === "loading") {
     return (
@@ -113,7 +81,8 @@ export default function ProfilePage() {
   ]
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
+    <ErrorBoundary>
+      <div className="container mx-auto max-w-4xl px-4 py-8">
       {/* 用户信息卡片 */}
       <Card className="mb-8">
         <CardHeader className="pb-4">
@@ -148,49 +117,22 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex items-center text-muted-foreground">
                   <Calendar className="mr-2 size-4" />
-                  加入时间: {userStats.joinDate}
+                  加入时间: {new Date().toISOString().split("T")[0]}
                 </div>
               </div>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="mb-4 grid grid-cols-2 gap-4 md:grid-cols-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">
-                {isLoadingStats ? "..." : userStats.totalLikes}
-              </div>
-              <div className="text-sm text-muted-foreground">获得点赞</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">
-                {isLoadingStats ? "..." : userStats.totalViews}
-              </div>
-              <div className="text-sm text-muted-foreground">总浏览量</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">
-                {isLoadingStats ? "..." : userStats.totalPrompts}
-              </div>
-              <div className="text-sm text-muted-foreground">创建提示词</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">
-                {isLoadingStats ? "..." : userStats.favoritePrompts}
-              </div>
-              <div className="text-sm text-muted-foreground">收藏提示词</div>
-            </div>
+          <div className="mb-4">
+            <ProfileStats />
           </div>
 
           {/* 成就徽章 */}
           <div className="space-y-2">
             <h3 className="text-sm font-medium">成就徽章</h3>
             <div className="flex flex-wrap gap-2">
-              {(userStats.achievements || ["新用户"]).map((achievement, index) => (
-                <Badge key={index} variant="secondary">
-                  {achievement}
-                </Badge>
-              ))}
+              <Badge variant="secondary">新用户</Badge>
             </div>
           </div>
         </CardContent>
@@ -235,6 +177,7 @@ export default function ProfilePage() {
           </Button>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </ErrorBoundary>
   )
 }

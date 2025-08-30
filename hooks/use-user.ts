@@ -1,7 +1,9 @@
 import useSWR from 'swr'
 import { toast } from 'sonner'
 
-interface UserProfile {
+const fetcher = (url: string) => fetch(url).then(res => res.json())
+
+export interface User {
   id: string
   name: string | null
   email: string
@@ -9,182 +11,140 @@ interface UserProfile {
   bio: string | null
   website: string | null
   location: string | null
-  createdAt: string
-  updatedAt: string
+  settings?: any
+  privacy?: any
 }
 
-interface UserSettings {
-  emailNotifications: boolean
-  publicProfile: boolean
-  showActivity: boolean
-  allowComments: boolean
-}
-
-interface PrivacySettings {
-  profileVisibility: boolean
-  promptsVisibility: boolean
-  activityVisibility: boolean
-  searchable: boolean
-  allowDirectMessages: boolean
-}
-
-const fetcher = async (url: string) => {
-  const res = await fetch(url)
-  if (!res.ok) {
-    const error = await res.json()
-    throw new Error(error.error || 'Failed to fetch')
-  }
-  return res.json()
-}
-
-// 用户基本信息hook
 export function useUser() {
-  const { data, error, isLoading, mutate } = useSWR<UserProfile>('/api/user', fetcher, {
+  const { data, error, isLoading, mutate } = useSWR<User>('/api/user', fetcher, {
+    dedupingInterval: 60000,
     revalidateOnFocus: false,
-    revalidateOnReconnect: true,
-    dedupingInterval: 60000, // 1分钟内不重复请求
   })
 
-  const updateUser = async (userData: Partial<UserProfile>) => {
+  const updateUser = async (updates: Partial<User>) => {
     try {
-      // 乐观更新
-      const optimisticData = data ? { ...data, ...userData } : undefined
-      
-      const updatedUser = await mutate(
-        async () => {
-          const res = await fetch('/api/user', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData),
-          })
-          
-          if (!res.ok) {
-            const error = await res.json()
-            throw new Error(error.error || '更新失败')
-          }
-          
-          const result = await res.json()
-          return result.user || result
-        },
-        {
-          optimisticData,
-          rollbackOnError: true,
+      await mutate(async () => {
+        const response = await fetch('/api/user', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updates),
+        })
+        
+        if (!response.ok) {
+          throw new Error('更新失败')
         }
-      )
-      
-      toast.success('个人资料更新成功')
-      return updatedUser
+        
+        const updatedUser = await response.json()
+        toast.success('更新成功')
+        return updatedUser
+      }, { 
+        optimisticData: data ? { ...data, ...updates } : undefined,
+        revalidate: false 
+      })
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : '更新失败，请重试')
+      toast.error('更新失败，请重试')
       throw error
     }
   }
 
-  return {
-    user: data,
-    isLoading,
-    error,
-    updateUser,
-    mutate,
+  return { 
+    user: data, 
+    isLoading, 
+    error, 
+    updateUser 
   }
 }
 
-// 用户设置hook
 export function useUserSettings() {
-  const { data, error, isLoading, mutate } = useSWR<UserSettings>('/api/user/settings', fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: true,
+  const { data, error, isLoading, mutate } = useSWR('/api/user/settings', fetcher, {
     dedupingInterval: 60000,
+    revalidateOnFocus: false,
   })
 
-  const updateSettings = async (settings: Partial<UserSettings>) => {
+  const updateSettings = async (settings: any) => {
     try {
-      const optimisticData = data ? { ...data, ...settings } : undefined
-      
-      const updatedSettings = await mutate(
-        async () => {
-          const res = await fetch('/api/user/settings', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(settings),
-          })
-          
-          if (!res.ok) {
-            const error = await res.json()
-            throw new Error(error.error || '保存失败')
-          }
-          
-          return res.json()
-        },
-        {
-          optimisticData,
-          rollbackOnError: true,
+      await mutate(async () => {
+        const response = await fetch('/api/user/settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(settings),
+        })
+        
+        if (!response.ok) {
+          throw new Error('设置保存失败')
         }
-      )
-      
-      toast.success('设置保存成功')
-      return updatedSettings
+        
+        const result = await response.json()
+        toast.success('设置保存成功')
+        return result
+      }, { 
+        optimisticData: settings,
+        revalidate: false 
+      })
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : '保存失败，请重试')
+      toast.error('设置保存失败，请重试')
       throw error
     }
   }
 
-  return {
-    settings: data,
-    isLoading,
-    error,
-    updateSettings,
-    mutate,
+  return { 
+    settings: data, 
+    isLoading, 
+    error, 
+    updateSettings 
   }
 }
 
-// 隐私设置hook
-export function usePrivacySettings() {
-  const { data, error, isLoading, mutate } = useSWR<PrivacySettings>('/api/user/privacy', fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: true,
+export function useUserPrivacy() {
+  const { data, error, isLoading, mutate } = useSWR('/api/user/privacy', fetcher, {
     dedupingInterval: 60000,
+    revalidateOnFocus: false,
   })
 
-  const updatePrivacySettings = async (settings: Partial<PrivacySettings>) => {
+  const updatePrivacy = async (privacy: any) => {
     try {
-      const optimisticData = data ? { ...data, ...settings } : undefined
-      
-      const updatedSettings = await mutate(
-        async () => {
-          const res = await fetch('/api/user/privacy', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(settings),
-          })
-          
-          if (!res.ok) {
-            const error = await res.json()
-            throw new Error(error.error || '保存失败')
-          }
-          
-          return res.json()
-        },
-        {
-          optimisticData,
-          rollbackOnError: true,
+      await mutate(async () => {
+        const response = await fetch('/api/user/privacy', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(privacy),
+        })
+        
+        if (!response.ok) {
+          throw new Error('隐私设置保存失败')
         }
-      )
-      
-      toast.success('隐私设置保存成功')
-      return updatedSettings
+        
+        const result = await response.json()
+        toast.success('隐私设置保存成功')
+        return result
+      }, { 
+        optimisticData: privacy,
+        revalidate: false 
+      })
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : '保存失败，请重试')
+      toast.error('隐私设置保存失败，请重试')
       throw error
     }
   }
 
-  return {
-    settings: data,
-    isLoading,
-    error,
-    updatePrivacySettings,
-    mutate,
+  return { 
+    privacy: data, 
+    isLoading, 
+    error, 
+    updatePrivacy 
+  }
+}
+
+export function useStats() {
+  const { data, error, isLoading } = useSWR('/api/stats', fetcher, {
+    dedupingInterval: 300000, // 5分钟缓存
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  })
+
+  return { 
+    stats: data, 
+    isLoading, 
+    error 
   }
 }

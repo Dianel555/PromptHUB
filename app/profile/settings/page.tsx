@@ -59,8 +59,10 @@ export default function SettingsPage() {
     setIsSaving(true)
     try {
       await updateSettings(localSettings)
+      // 成功提示已在hook中处理
     } catch (error) {
-      // 错误已在hook中处理
+      // 错误已在hook中处理，这里可以添加额外的错误处理逻辑
+      console.error('Settings update failed:', error)
     } finally {
       setIsSaving(false)
     }

@@ -82,13 +82,24 @@ export default function EditProfilePage() {
         website: profile.website || undefined,
         location: profile.location || undefined,
       })
-      router.push("/profile")
+      
+      // 显示成功提示，不自动跳转
+      toast.success("个人资料已保存", {
+        description: "您的更改已成功保存",
+        duration: 3000,
+      })
     } catch (error) {
       // 错误已在hook中处理
+      toast.error("保存失败", {
+        description: "请检查网络连接后重试",
+        duration: 4000,
+      })
     } finally {
       setIsSaving(false)
     }
   }
+
+
 
   if (status === "loading" || isLoading) {
     return (

@@ -10,27 +10,25 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
 import { ArrowLeft, Save, Loader2, Shield, Eye, EyeOff } from "lucide-react"
-import { usePrivacySettings } from "@/hooks/use-user"
+import { useUserPrivacy } from "@/hooks/use-user"
 
 interface PrivacySettings {
-  profileVisibility: boolean
-  promptsVisibility: boolean
-  activityVisibility: boolean
-  searchable: boolean
-  allowDirectMessages: boolean
+  profileVisibility: string
+  showEmail: boolean
+  showStats: boolean
+  allowMessages: boolean
 }
 
 export default function PrivacyPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const { settings, isLoading, updatePrivacySettings } = usePrivacySettings()
+  const { privacy, isLoading, updatePrivacy } = useUserPrivacy()
   const [isSaving, setIsSaving] = useState(false)
   const [localSettings, setLocalSettings] = useState<PrivacySettings>({
-    profileVisibility: true,
-    promptsVisibility: true,
-    activityVisibility: true,
-    searchable: true,
-    allowDirectMessages: true,
+    profileVisibility: "public",
+    showEmail: false,
+    showStats: true,
+    allowMessages: true,
   })
 
   // 检查认证状态
@@ -45,12 +43,12 @@ export default function PrivacyPage() {
 
   // 同步设置数据到本地状态
   useEffect(() => {
-    if (settings) {
-      setLocalSettings(settings)
+    if (privacy) {
+      setLocalSettings(privacy)
     }
-  }, [settings])
+  }, [privacy])
 
-  const handleSettingChange = (key: keyof PrivacySettings, value: boolean) => {
+  const handleSettingChange = (key: keyof PrivacySettings, value: any) => {
     setLocalSettings(prev => ({
       ...prev,
       [key]: value
@@ -60,9 +58,11 @@ export default function PrivacyPage() {
   const handleSave = async () => {
     setIsSaving(true)
     try {
-      await updatePrivacySettings(localSettings)
+      await updatePrivacy(localSettings)
+      // 成功提示已在hook中处理
     } catch (error) {
-      // 错误已在hook中处理
+      // 错误已在hook中处理，这里可以添加额外的错误处理逻辑
+      console.error('Privacy update failed:', error)
     } finally {
       setIsSaving(false)
     }
@@ -117,29 +117,34 @@ export default function PrivacyPage() {
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>公开个人资料</Label>
+                <Label>个人资料可见性</Label>
                 <p className="text-sm text-muted-foreground">
-                  允许其他用户查看您的基本个人资料信息
+                  控制您的个人资料对其他用户的可见性
                 </p>
               </div>
-              <Switch
-                checked={localSettings.profileVisibility}
-                onCheckedChange={(checked) => handleSettingChange("profileVisibility", checked)}
-              />
+              <select
+                value={localSettings.profileVisibility}
+                onChange={(e) => handleSettingChange("profileVisibility", e.target.value)}
+                className="rounded border px-3 py-1"
+              >
+                <option value="public">公开</option>
+                <option value="private">私密</option>
+                <option value="friends">仅好友</option>
+              </select>
             </div>
 
             <Separator />
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>在搜索中显示</Label>
+                <Label>显示邮箱地址</Label>
                 <p className="text-sm text-muted-foreground">
-                  允许其他用户通过搜索找到您的个人资料
+                  在个人资料中显示您的邮箱地址
                 </p>
               </div>
               <Switch
-                checked={localSettings.searchable}
-                onCheckedChange={(checked) => handleSettingChange("searchable", checked)}
+                checked={localSettings.showEmail}
+                onCheckedChange={(checked) => handleSettingChange("showEmail", checked)}
               />
             </div>
           </CardContent>
@@ -159,29 +164,14 @@ export default function PrivacyPage() {
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>公开提示词</Label>
+                <Label>显示统计数据</Label>
                 <p className="text-sm text-muted-foreground">
-                  允许其他用户查看和使用您创建的提示词
+                  在个人资料中显示您的统计信息
                 </p>
               </div>
               <Switch
-                checked={localSettings.promptsVisibility}
-                onCheckedChange={(checked) => handleSettingChange("promptsVisibility", checked)}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>显示活动记录</Label>
-                <p className="text-sm text-muted-foreground">
-                  在个人资料中显示您的最近活动和互动记录
-                </p>
-              </div>
-              <Switch
-                checked={localSettings.activityVisibility}
-                onCheckedChange={(checked) => handleSettingChange("activityVisibility", checked)}
+                checked={localSettings.showStats}
+                onCheckedChange={(checked) => handleSettingChange("showStats", checked)}
               />
             </div>
           </CardContent>
@@ -204,8 +194,8 @@ export default function PrivacyPage() {
                 </p>
               </div>
               <Switch
-                checked={localSettings.allowDirectMessages}
-                onCheckedChange={(checked) => handleSettingChange("allowDirectMessages", checked)}
+                checked={localSettings.allowMessages}
+                onCheckedChange={(checked) => handleSettingChange("allowMessages", checked)}
               />
             </div>
           </CardContent>
