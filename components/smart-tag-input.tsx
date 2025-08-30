@@ -1,7 +1,7 @@
 "use client"
 
 import React, { KeyboardEvent, useState, useRef, useEffect } from "react"
-import { Plus, X, Hash, Sparkles } from "lucide-react"
+import { Plus, X, Hash, Star } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 import { cn } from "@/lib/utils"
@@ -195,8 +195,8 @@ export function SmartTagInput({
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <Sparkles className="size-3 text-primary" />
-                    <span>创建自定义标签: "{inputValue.trim()}"</span>
+                    <Star className="size-3 text-primary" />
+                    <span>创建自定义标签: &quot;{inputValue.trim()}&quot;</span>
                   </motion.button>
                 )}
               </div>
@@ -225,7 +225,7 @@ export function SmartTagInput({
                   onRemove={() => removeTag(index)}
                   className={tag.isCustom ? "ring-1 ring-primary/30" : ""}
                 >
-                  {tag.isCustom && <Sparkles className="size-3 mr-1" />}
+                  {tag.isCustom && <Star className="size-3 mr-1" />}
                   {tag.name}
                 </EnhancedTag>
               </motion.div>

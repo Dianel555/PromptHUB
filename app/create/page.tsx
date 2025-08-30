@@ -27,12 +27,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { SmartTagInput } from "@/components/smart-tag-input"
 import { MarkdownEditor } from "@/components/markdown-editor"
+import { type TagType } from "@/lib/enhanced-tag-system"
 
 // 智能标签类型定义
 interface SmartTag {
   id: string
   name: string
-  type?: string
+  type?: TagType
   isCustom?: boolean
 }
 
