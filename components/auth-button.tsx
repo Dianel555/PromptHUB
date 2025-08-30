@@ -50,46 +50,23 @@ export function AuthButton() {
 
   if (session) {
     return (
-      <div className="flex items-center space-x-1">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleProfileClick}
-          className="flex min-w-0 max-w-[120px] items-center space-x-2 px-2"
-        >
-          <Image
-            src={session.user?.image || ""}
-            alt={session.user?.name || "用户头像"}
-            width={20}
-            height={20}
-            className="size-5 shrink-0 rounded-full"
-          />
-          <span className="hidden truncate text-xs font-medium sm:inline">
-            {session.user?.name}
-          </span>
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleSignOut}
-          disabled={isSigningOut}
-          className="shrink-0 px-2"
-        >
-          {isSigningOut ? (
-            <>
-              <Icons.spinner className="size-4 animate-spin" />
-              <span className="ml-1 hidden text-xs md:inline">退出中</span>
-            </>
-          ) : (
-            <>
-              <span className="hidden text-xs md:inline">退出</span>
-              <span className="md:hidden">
-                <Icons.logOut className="size-4" />
-              </span>
-            </>
-          )}
-        </Button>
-      </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleProfileClick}
+        className="flex min-w-0 max-w-[140px] items-center space-x-2 px-3"
+      >
+        <Image
+          src={session.user?.image || ""}
+          alt={session.user?.name || "用户头像"}
+          width={20}
+          height={20}
+          className="size-5 shrink-0 rounded-full"
+        />
+        <span className="hidden truncate text-sm font-medium sm:inline">
+          {session.user?.name}
+        </span>
+      </Button>
     )
   }
 

@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { redirect, useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import {
   Calendar,
   Camera,
@@ -26,207 +26,207 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { UserStats } from "@/components/user-stats"
 
 export default function ProfilePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
+  const [userStats, setUserStats] = useState({
+    totalLikes: 0,
+    totalViews: 0,
+    totalPrompts: 0,
+    joinDate: new Date().toISOString().split('T')[0],
+    favoritePrompts: 0,
+    followers: 0,
+    following: 0,
+    achievements: ["新用户"],
+  })
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
 
-  // 模拟用户统计数据
-  const userStats = {
-    totalLikes: 156,
-    totalViews: 2340,
-    totalPrompts: 12,
-    joinDate: "2024-01-15",
-    favoritePrompts: 28,
-    followers: 45,
-    following: 23,
-    achievements: ["活跃用户", "创作达人", "社区贡献者"],
+  // 获取真实用户统计数据
+  useEffect(() => {
+    if (session?.user?.email) {
+      fetchUserStats()
+    }
+  }, [session])
+
+  const fetchUserStats = async () => {
+    try {
+      const response = await fetch('/api/user/stats')
+      if (response.ok) {
+        const data = await response.json()
+        setUserStats(data)
+      }
+    } catch (error) {
+      console.error("获取用户统计数据失败:", error)
+    } finally {
+      setIsLoadingStats(false)
+    }
   }
 
   if (status === "loading") {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="size-32 animate-spin rounded-full border-b-2 border-primary"></div>
-      </div>
-    )
+    return <div className="flex justify-center items-center min-h-screen">加载中...</div>
   }
 
-  if (!session) {
-    redirect("/auth/signin")
+  if (status === "unauthenticated") {
+    router.push("/auth/signin")
+    return null
+  }
+
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: "/" })
   }
 
   const menuItems = [
     {
-      icon: User,
-      title: "个人资料",
-      description: "管理您的基本信息",
+      icon: Edit,
+      label: "编辑资料",
       href: "/profile/edit",
+      description: "更新您的个人信息",
     },
     {
       icon: Settings,
-      title: "账户设置",
-      description: "密码、隐私等设置",
+      label: "账户设置",
       href: "/profile/settings",
+      description: "管理您的账户偏好",
     },
     {
       icon: Shield,
-      title: "隐私设置",
-      description: "控制您的隐私偏好",
+      label: "隐私设置",
       href: "/profile/privacy",
+      description: "控制您的隐私选项",
     },
     {
       icon: HelpCircle,
-      title: "帮助中心",
-      description: "获取帮助和支持",
+      label: "帮助中心",
       href: "/help",
+      description: "获取帮助和支持",
     },
   ]
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-7xl px-4 py-6 sm:py-8">
-        {/* 页面头部 */}
-        <div className="mb-6 flex flex-col justify-between gap-4 sm:mb-8 sm:flex-row sm:items-center">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              个人中心
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground sm:mt-2 sm:text-base">
-              管理您的账户信息和偏好设置
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            size="icon"
-            className="self-start sm:self-auto"
-          >
-            <Settings className="size-4" />
-          </Button>
-        </div>
-
-        <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
-          {/* 左侧用户信息卡片 */}
-          <div className="lg:col-span-1">
-            <Card className="relative">
-              <CardHeader className="pb-4 text-center">
-                <div className="relative mx-auto">
-                  <Avatar className="mx-auto size-20 sm:size-24">
-                    <AvatarImage
-                      src={session.user?.image || ""}
-                      alt={session.user?.name || "用户头像"}
-                    />
-                    <AvatarFallback className="text-base sm:text-lg">
-                      {session.user?.name?.charAt(0) || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <Button
-                    size="icon"
-                    variant="secondary"
-                    className="absolute -bottom-1 -right-1 size-7 rounded-full sm:-bottom-2 sm:-right-2 sm:size-8"
-                    onClick={() => {
-                      /* TODO: 实现头像上传 */
-                    }}
-                  >
-                    <Camera className="size-3 sm:size-4" />
-                  </Button>
-                </div>
-                <div className="mt-4 space-y-2">
-                  <CardTitle className="text-xl">
-                    {session.user?.name || "未设置用户名"}
-                  </CardTitle>
-                  <CardDescription className="flex items-center justify-center gap-2">
-                    <Mail className="size-4" />
-                    {session.user?.email}
-                  </CardDescription>
-                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="size-4" />
-                    <span>加入时间: 2024年1月</span>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex flex-wrap justify-center gap-2">
-                  <Badge variant="secondary">活跃用户</Badge>
-                  <Badge variant="outline">GitHub认证</Badge>
-                </div>
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      {/* 用户信息卡片 */}
+      <Card className="mb-8">
+        <CardHeader className="pb-4">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage
+                    src={session?.user?.image || ""}
+                    alt={session?.user?.name || "用户头像"}
+                  />
+                  <AvatarFallback className="text-lg">
+                    {session?.user?.name?.charAt(0) || "U"}
+                  </AvatarFallback>
+                </Avatar>
                 <Button
-                  className="mt-4 w-full"
+                  size="sm"
                   variant="outline"
-                  onClick={() => router.push("/profile/edit")}
+                  className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0"
+                  onClick={() => setIsEditing(!isEditing)}
                 >
-                  <Edit className="mr-2 size-4" />
-                  编辑资料
+                  <Camera className="h-4 w-4" />
                 </Button>
-              </CardContent>
-            </Card>
-
-            {/* 统计信息组件 */}
-            <div className="mt-6">
-              <UserStats stats={userStats} />
+              </div>
+              <div className="space-y-1">
+                <h1 className="text-2xl font-bold">
+                  {session?.user?.name || "未知用户"}
+                </h1>
+                <div className="flex items-center text-muted-foreground">
+                  <Mail className="mr-2 h-4 w-4" />
+                  {session?.user?.email}
+                </div>
+                <div className="flex items-center text-muted-foreground">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  加入时间: {userStats.joinDate}
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* 右侧功能菜单 */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>功能菜单</CardTitle>
-                <CardDescription>管理您的账户设置和偏好</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {menuItems.map((item, index) => (
-                  <div
-                    key={index}
-                    className="group flex cursor-pointer touch-manipulation items-center justify-between rounded-lg border p-3 transition-colors hover:bg-accent hover:text-accent-foreground active:scale-[0.98] sm:p-4"
-                    onClick={() => {
-                      router.push(item.href)
-                    }}
-                  >
-                    <div className="flex min-w-0 flex-1 items-center space-x-3 sm:space-x-4">
-                      <div className="shrink-0 rounded-md bg-primary/10 p-2">
-                        <item.icon className="size-4 text-primary sm:size-5" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="truncate text-sm font-medium sm:text-base">
-                          {item.title}
-                        </h3>
-                        <p className="line-clamp-1 text-xs text-muted-foreground sm:text-sm">
-                          {item.description}
-                        </p>
-                      </div>
-                    </div>
-                    <ChevronRight className="ml-2 size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground sm:size-5" />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* 危险操作区域 */}
-            <Card className="mt-6 border-destructive/20">
-              <CardHeader>
-                <CardTitle className="text-destructive">危险操作</CardTitle>
-                <CardDescription>
-                  这些操作可能会影响您的账户安全
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  variant="destructive"
-                  className="w-full"
-                  onClick={() => {
-                    signOut({ callbackUrl: "/" })
-                  }}
-                >
-                  <LogOut className="mr-2 size-4" />
-                  退出登录
-                </Button>
-              </CardContent>
-            </Card>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">
+                {isLoadingStats ? "..." : userStats.totalLikes}
+              </div>
+              <div className="text-sm text-muted-foreground">获得点赞</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">
+                {isLoadingStats ? "..." : userStats.totalViews}
+              </div>
+              <div className="text-sm text-muted-foreground">总浏览量</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">
+                {isLoadingStats ? "..." : userStats.totalPrompts}
+              </div>
+              <div className="text-sm text-muted-foreground">创建提示词</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">
+                {isLoadingStats ? "..." : userStats.favoritePrompts}
+              </div>
+              <div className="text-sm text-muted-foreground">收藏提示词</div>
+            </div>
           </div>
-        </div>
+          
+          {/* 成就徽章 */}
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium">成就徽章</h3>
+            <div className="flex flex-wrap gap-2">
+              {userStats.achievements.map((achievement, index) => (
+                <Badge key={index} variant="secondary">
+                  {achievement}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 菜单选项 */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {menuItems.map((item, index) => (
+          <Card
+            key={index}
+            className="cursor-pointer transition-colors hover:bg-muted/50"
+            onClick={() => router.push(item.href)}
+          >
+            <CardContent className="flex items-center justify-between p-6">
+              <div className="flex items-center space-x-4">
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <item.icon className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-medium">{item.label}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </CardContent>
+          </Card>
+        ))}
       </div>
+
+      {/* 退出登录按钮 */}
+      <Card className="mt-6">
+        <CardContent className="p-6">
+          <Button
+            variant="outline"
+            className="w-full justify-start text-destructive hover:text-destructive"
+            onClick={handleSignOut}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            退出登录
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   )
 }

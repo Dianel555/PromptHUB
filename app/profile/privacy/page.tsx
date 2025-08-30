@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Eye, EyeOff, Globe, Lock, Users } from "lucide-react"
+import { ArrowLeft, Save, Shield } from "lucide-react"
+import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -14,271 +15,243 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 
 export default function PrivacyPage() {
+  const { data: session, status } = useSession()
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [privacySettings, setPrivacySettings] = useState({
     profileVisibility: "public",
-    promptsVisibility: "public",
-    activityVisibility: "friends",
-    searchable: true,
-    showOnlineStatus: true,
-    allowFollowers: true,
-    requireApproval: false,
+    showEmail: false,
+    showActivity: true,
+    allowMessages: true,
+    dataCollection: false,
+    analyticsTracking: true,
+    thirdPartySharing: false,
   })
 
-  const handleSettingChange = (key: string, value: string | boolean) => {
-    setPrivacySettings((prev) => ({
-      ...prev,
-      [key]: value,
-    }))
-  }
+  useEffect(() => {
+    if (session?.user?.email) {
+      fetchPrivacySettings()
+    }
+  }, [session])
 
-  const handleSave = async () => {
-    setIsLoading(true)
+  const fetchPrivacySettings = async () => {
     try {
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // 这里应该调用实际的API来保存隐私设置
-      console.log("保存隐私设置:", privacySettings)
-
-      toast.success("隐私设置已保存", {
-        description: "您的隐私设置已成功更新。",
-      })
+      const response = await fetch('/api/user/privacy')
+      if (response.ok) {
+        const data = await response.json()
+        setPrivacySettings(data)
+      }
     } catch (error) {
-      toast.error("保存失败", {
-        description: "保存隐私设置时出现错误，请重试。",
-      })
+      console.error("获取隐私设置失败:", error)
+      toast.error("获取隐私设置失败")
     } finally {
       setIsLoading(false)
     }
   }
 
+  const handleSave = async () => {
+    setIsSaving(true)
+    try {
+      const response = await fetch('/api/user/privacy', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(privacySettings),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        toast.success(result.message || "隐私设置已保存")
+      } else {
+        const error = await response.json()
+        toast.error(error.error || "保存失败")
+      }
+    } catch (error) {
+      console.error("保存隐私设置失败:", error)
+      toast.error("保存失败，请重试")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleSettingChange = (field: string, value: string | boolean) => {
+    setPrivacySettings(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  if (status === "loading" || isLoading) {
+    return <div className="flex justify-center items-center min-h-screen">加载中...</div>
+  }
+
+  if (status === "unauthenticated") {
+    router.push("/auth/signin")
+    return null
+  }
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-4xl px-4 py-6">
-        {/* 页面头部 */}
-        <div className="mb-6 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="size-4" />
-          </Button>
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => router.back()}
+          className="mb-4"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          返回
+        </Button>
+        <div className="flex items-center space-x-2">
+          <Shield className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-2xl font-bold">隐私设置</h1>
+            <h1 className="text-3xl font-bold">隐私设置</h1>
             <p className="text-muted-foreground">
-              控制您的信息可见性和隐私偏好
+              控制您的隐私和数据使用偏好
             </p>
           </div>
         </div>
+      </div>
 
-        <div className="space-y-6">
-          {/* 个人资料可见性 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="size-5" />
-                个人资料可见性
-              </CardTitle>
-              <CardDescription>控制谁可以查看您的个人资料信息</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RadioGroup
+      <div className="space-y-6">
+        {/* 个人资料隐私 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>个人资料隐私</CardTitle>
+            <CardDescription>
+              控制其他用户如何查看您的个人资料
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>个人资料可见性</Label>
+              <Select
                 value={privacySettings.profileVisibility}
-                onValueChange={(value: string) =>
-                  handleSettingChange("profileVisibility", value)
-                }
-                className="space-y-3"
+                onValueChange={(value) => handleSettingChange("profileVisibility", value)}
               >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="public" id="profile-public" />
-                  <Label
-                    htmlFor="profile-public"
-                    className="flex items-center gap-2"
-                  >
-                    <Globe className="size-4" />
-                    公开 - 所有人都可以查看
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="friends" id="profile-friends" />
-                  <Label
-                    htmlFor="profile-friends"
-                    className="flex items-center gap-2"
-                  >
-                    <Users className="size-4" />
-                    好友 - 仅关注者可以查看
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="private" id="profile-private" />
-                  <Label
-                    htmlFor="profile-private"
-                    className="flex items-center gap-2"
-                  >
-                    <Lock className="size-4" />
-                    私密 - 仅自己可以查看
-                  </Label>
-                </div>
-              </RadioGroup>
-            </CardContent>
-          </Card>
-
-          {/* 提示词可见性 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <EyeOff className="size-5" />
-                提示词可见性
-              </CardTitle>
-              <CardDescription>控制您创建的提示词的可见范围</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RadioGroup
-                value={privacySettings.promptsVisibility}
-                onValueChange={(value: string) =>
-                  handleSettingChange("promptsVisibility", value)
-                }
-                className="space-y-3"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="public" id="prompts-public" />
-                  <Label
-                    htmlFor="prompts-public"
-                    className="flex items-center gap-2"
-                  >
-                    <Globe className="size-4" />
-                    公开 - 在社区中展示
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="unlisted" id="prompts-unlisted" />
-                  <Label
-                    htmlFor="prompts-unlisted"
-                    className="flex items-center gap-2"
-                  >
-                    <Eye className="size-4" />
-                    不公开 - 仅通过链接访问
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="private" id="prompts-private" />
-                  <Label
-                    htmlFor="prompts-private"
-                    className="flex items-center gap-2"
-                  >
-                    <Lock className="size-4" />
-                    私密 - 仅自己可见
-                  </Label>
-                </div>
-              </RadioGroup>
-            </CardContent>
-          </Card>
-
-          {/* 活动可见性 */}
-          <Card>
-            <CardHeader>
-              <CardTitle>活动可见性</CardTitle>
-              <CardDescription>控制您的活动记录的可见性</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RadioGroup
-                value={privacySettings.activityVisibility}
-                onValueChange={(value: string) =>
-                  handleSettingChange("activityVisibility", value)
-                }
-                className="space-y-3"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="public" id="activity-public" />
-                  <Label htmlFor="activity-public">公开显示活动</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="friends" id="activity-friends" />
-                  <Label htmlFor="activity-friends">仅关注者可见</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="private" id="activity-private" />
-                  <Label htmlFor="activity-private">隐藏活动记录</Label>
-                </div>
-              </RadioGroup>
-            </CardContent>
-          </Card>
-
-          {/* 其他隐私选项 */}
-          <Card>
-            <CardHeader>
-              <CardTitle>其他隐私选项</CardTitle>
-              <CardDescription>更多隐私控制选项</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>允许搜索</Label>
-                  <p className="text-sm text-muted-foreground">
-                    允许其他用户通过搜索找到您
-                  </p>
-                </div>
-                <Switch
-                  checked={privacySettings.searchable}
-                  onCheckedChange={(checked) =>
-                    handleSettingChange("searchable", checked)
-                  }
-                />
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="public">公开</SelectItem>
+                  <SelectItem value="friends">仅好友</SelectItem>
+                  <SelectItem value="private">私密</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>显示邮箱地址</Label>
+                <p className="text-sm text-muted-foreground">
+                  允许其他用户查看您的邮箱地址
+                </p>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>显示在线状态</Label>
-                  <p className="text-sm text-muted-foreground">
-                    让其他用户知道您是否在线
-                  </p>
-                </div>
-                <Switch
-                  checked={privacySettings.showOnlineStatus}
-                  onCheckedChange={(checked) =>
-                    handleSettingChange("showOnlineStatus", checked)
-                  }
-                />
+              <Switch
+                checked={privacySettings.showEmail}
+                onCheckedChange={(checked) => handleSettingChange("showEmail", checked)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>显示活动状态</Label>
+                <p className="text-sm text-muted-foreground">
+                  显示您的在线状态和最近活动
+                </p>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>允许关注</Label>
-                  <p className="text-sm text-muted-foreground">
-                    允许其他用户关注您
-                  </p>
-                </div>
-                <Switch
-                  checked={privacySettings.allowFollowers}
-                  onCheckedChange={(checked) =>
-                    handleSettingChange("allowFollowers", checked)
-                  }
-                />
+              <Switch
+                checked={privacySettings.showActivity}
+                onCheckedChange={(checked) => handleSettingChange("showActivity", checked)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>允许私信</Label>
+                <p className="text-sm text-muted-foreground">
+                  允许其他用户向您发送私信
+                </p>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>关注需要批准</Label>
-                  <p className="text-sm text-muted-foreground">
-                    新的关注者需要您的批准
-                  </p>
-                </div>
-                <Switch
-                  checked={privacySettings.requireApproval}
-                  onCheckedChange={(checked) =>
-                    handleSettingChange("requireApproval", checked)
-                  }
-                />
-              </div>
-            </CardContent>
-          </Card>
+              <Switch
+                checked={privacySettings.allowMessages}
+                onCheckedChange={(checked) => handleSettingChange("allowMessages", checked)}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* 保存按钮 */}
-          <div className="flex justify-end">
-            <Button onClick={handleSave} disabled={isLoading}>
-              {isLoading ? "保存中..." : "保存隐私设置"}
-            </Button>
-          </div>
+        {/* 数据和分析 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>数据和分析</CardTitle>
+            <CardDescription>
+              管理我们如何收集和使用您的数据
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>数据收集</Label>
+                <p className="text-sm text-muted-foreground">
+                  允许收集使用数据以改善服务
+                </p>
+              </div>
+              <Switch
+                checked={privacySettings.dataCollection}
+                onCheckedChange={(checked) => handleSettingChange("dataCollection", checked)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>分析跟踪</Label>
+                <p className="text-sm text-muted-foreground">
+                  允许分析工具跟踪您的使用情况
+                </p>
+              </div>
+              <Switch
+                checked={privacySettings.analyticsTracking}
+                onCheckedChange={(checked) => handleSettingChange("analyticsTracking", checked)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>第三方数据共享</Label>
+                <p className="text-sm text-muted-foreground">
+                  允许与合作伙伴共享匿名数据
+                </p>
+              </div>
+              <Switch
+                checked={privacySettings.thirdPartySharing}
+                onCheckedChange={(checked) => handleSettingChange("thirdPartySharing", checked)}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 保存按钮 */}
+        <div className="flex justify-end">
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? (
+              <>
+                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                保存中...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                保存设置
+              </>
+            )}
+          </Button>
         </div>
       </div>
     </div>

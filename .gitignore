@@ -24,6 +24,7 @@ build/
 *.swo
 *~
 .codebuddy/
+.serena/
 
 # 系统生成文件
 .DS_Store

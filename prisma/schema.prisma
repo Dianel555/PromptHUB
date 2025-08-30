@@ -12,10 +12,13 @@ model Prompt {
   title     String
   content   String   @db.Text
   tags      String?
+  likes     Int      @default(0)
+  views     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   author    User     @relation(fields: [authorId], references: [id])
   authorId  String
+  likedBy   Like[]
 }
 
 model Account {
@@ -51,9 +54,33 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  createdAt     DateTime  @default(now())
   accounts      Account[]
   sessions      Session[]
   prompts       Prompt[]
+  likes         Like[]
+  followers     Follow[]  @relation("UserFollowers")
+  following     Follow[]  @relation("UserFollowing")
+}
+
+model Like {
+  id       String @id @default(cuid())
+  userId   String
+  promptId String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt   Prompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, promptId])
+}
+
+model Follow {
+  id          String @id @default(cuid())
+  followerId  String
+  followingId String
+  follower    User   @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User   @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+  
+  @@unique([followerId, followingId])
 }
 
 model VerificationToken {
