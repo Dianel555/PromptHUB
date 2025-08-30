@@ -31,19 +31,19 @@ export function useUser() {
         })
         
         if (!response.ok) {
-          throw new Error('更新失败')
+          const errorData = await response.json()
+          throw new Error(errorData.error || '更新失败')
         }
         
-        const updatedUser = await response.json()
-        toast.success('更新成功')
-        return updatedUser
+        const result = await response.json()
+        // API返回 { message, user } 结构，我们需要返回user对象
+        return result.user || result
       }, { 
         optimisticData: data ? { ...data, ...updates } : undefined,
         revalidate: false 
       })
     } catch (error) {
-      toast.error('更新失败，请重试')
-      throw error
+      throw error // 不在这里显示toast，让页面组件处理
     }
   }
 
@@ -71,19 +71,19 @@ export function useUserSettings() {
         })
         
         if (!response.ok) {
-          throw new Error('设置保存失败')
+          const errorData = await response.json()
+          throw new Error(errorData.error || '设置保存失败')
         }
         
         const result = await response.json()
-        toast.success('设置保存成功')
-        return result
+        // API返回 { message, settings } 结构，我们需要返回settings对象
+        return result.settings || settings
       }, { 
         optimisticData: settings,
         revalidate: false 
       })
     } catch (error) {
-      toast.error('设置保存失败，请重试')
-      throw error
+      throw error // 不在这里显示toast，让页面组件处理
     }
   }
 
@@ -111,19 +111,19 @@ export function useUserPrivacy() {
         })
         
         if (!response.ok) {
-          throw new Error('隐私设置保存失败')
+          const errorData = await response.json()
+          throw new Error(errorData.error || '隐私设置保存失败')
         }
         
         const result = await response.json()
-        toast.success('隐私设置保存成功')
-        return result
+        // API返回 { message, privacy } 结构，我们需要返回privacy对象
+        return result.privacy || privacy
       }, { 
         optimisticData: privacy,
         revalidate: false 
       })
     } catch (error) {
-      toast.error('隐私设置保存失败，请重试')
-      throw error
+      throw error // 不在这里显示toast，让页面组件处理
     }
   }
 

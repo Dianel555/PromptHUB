@@ -89,9 +89,10 @@ export default function EditProfilePage() {
         duration: 3000,
       })
     } catch (error) {
-      // 错误已在hook中处理
+      // 处理具体错误信息
+      const errorMessage = error instanceof Error ? error.message : "保存失败"
       toast.error("保存失败", {
-        description: "请检查网络连接后重试",
+        description: errorMessage,
         duration: 4000,
       })
     } finally {

@@ -59,10 +59,16 @@ export default function PrivacyPage() {
     setIsSaving(true)
     try {
       await updatePrivacy(localSettings)
-      // 成功提示已在hook中处理
+      toast.success("隐私设置已保存", {
+        description: "您的隐私设置已成功更新",
+        duration: 3000,
+      })
     } catch (error) {
-      // 错误已在hook中处理，这里可以添加额外的错误处理逻辑
-      console.error('Privacy update failed:', error)
+      const errorMessage = error instanceof Error ? error.message : "隐私设置保存失败"
+      toast.error("保存失败", {
+        description: errorMessage,
+        duration: 4000,
+      })
     } finally {
       setIsSaving(false)
     }
