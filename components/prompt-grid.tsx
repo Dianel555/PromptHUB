@@ -8,7 +8,7 @@ import { useTheme } from "next-themes"
 
 import { TagType, getTagThemeClasses } from "@/lib/enhanced-tag-system"
 
-import { PromptCard } from "./prompt-card"
+import { HomepagePromptCard } from "./homepage-prompt-card"
 
 // 模拟数据
 const mockPrompts = [
@@ -222,33 +222,14 @@ export function PromptGrid({
         </motion.div>
 
         {/* 提示词网格 */}
-        <motion.div
-          className="grid auto-rows-fr grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {displayedPrompts.map((prompt, index) => (
-            <motion.div
+            <HomepagePromptCard
               key={prompt.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.5,
-                delay: index * 0.1,
-                ease: "easeOut",
-              }}
-              className="h-full"
-            >
-              <PromptCard
-                {...prompt}
-                content={`这是 ${prompt.title} 的示例内容。${prompt.description.substring(0, 80)}...`}
-                showPreview={true}
-                isOwner={false}
-              />
-            </motion.div>
+              {...prompt}
+            />
           ))}
-        </motion.div>
+        </div>
 
         {/* 加载更多按钮 */}
         {displayCount < filteredPrompts.length && (
