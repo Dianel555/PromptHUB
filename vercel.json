@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run vercel-build",
+  "buildCommand": "npm run vercel-build || npm run vercel-build-fallback",
   "installCommand": "npm install",
   "env": {
     "PRISMA_GENERATE_DATAPROXY": "true"

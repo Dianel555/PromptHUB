@@ -22,8 +22,9 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:reset": "prisma migrate reset",
-    "vercel-build": "prisma generate && prisma migrate resolve --applied 20250830_init_database && prisma migrate deploy && next build",
-    "vercel-build-fallback": "node scripts/vercel-build-fallback.js"
+    "vercel-build": "node scripts/vercel-build.js",
+    "vercel-build-fallback": "node scripts/vercel-build-fallback.js",
+    "simple-build": "node scripts/simple-build.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
