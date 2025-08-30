@@ -16,7 +16,8 @@
     "deploy-check": "node scripts/deploy-check.js",
     "validate-config": "node scripts/validate-config.js",
     "test-deployment": "node scripts/test-deployment.js",
-    "pre-deploy": "npm run validate-config && npm run deploy-check && npm run test-deployment"
+    "pre-deploy": "npm run validate-config && npm run deploy-check && npm run test-deployment",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
