@@ -42,13 +42,32 @@ export default function ProfileEditPage() {
   const handleSave = async () => {
     setIsLoading(true)
     try {
-      // TODO: 实现保存逻辑
-      console.log("保存用户信息:", formData)
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      router.push("/profile")
+      const response = await fetch("/api/user/settings", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          displayName: formData.name,
+          email: formData.email,
+          bio: formData.bio,
+          website: formData.website,
+          location: formData.location,
+        }),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log("保存成功:", result.message)
+        router.push("/profile")
+      } else {
+        const error = await response.json()
+        console.error("保存失败:", error.error)
+        alert("保存失败: " + error.error)
+      }
     } catch (error) {
       console.error("保存失败:", error)
+      alert("保存失败，请重试")
     } finally {
       setIsLoading(false)
     }

@@ -25,11 +25,6 @@ export function HeroSection() {
     router.push("/prompts")
   }
 
-  const handleContribute = () => {
-    // 跳转到创建提示词页面
-    router.push("/create")
-  }
-
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleSearch()
@@ -130,15 +125,6 @@ export function HeroSection() {
             >
               开始探索
               <ArrowRight className="ml-2 size-5" />
-            </Button>
-
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={handleContribute}
-              className="rounded-full border-border px-8 py-3 text-lg text-foreground backdrop-blur-sm hover:bg-accent"
-            >
-              贡献提示词
             </Button>
           </motion.div>
 

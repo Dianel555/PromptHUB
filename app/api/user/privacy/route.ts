@@ -39,16 +39,38 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json()
 
+    // 验证输入数据
+    const {
+      profileVisibility,
+      showEmail,
+      showActivity,
+      allowMessages,
+      dataCollection,
+      analyticsTracking,
+      thirdPartySharing,
+    } = body
+
+    // 验证profileVisibility值
+    const validVisibilityOptions = ["public", "friends", "private"]
+    if (profileVisibility && !validVisibilityOptions.includes(profileVisibility)) {
+      return NextResponse.json({ error: "无效的可见性选项" }, { status: 400 })
+    }
+
     // 在实际项目中，这里应该更新数据库
-    // 现在我们只是模拟保存成功
-    console.log("保存隐私设置:", body)
+    // 现在我们模拟保存成功并存储到内存中（仅用于演示）
+    console.log("保存隐私设置:", {
+      userEmail: session.user.email,
+      settings: body,
+      timestamp: new Date().toISOString(),
+    })
 
     // 模拟保存延迟
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     return NextResponse.json({
       success: true,
       message: "隐私设置已成功保存",
+      data: body,
     })
   } catch (error) {
     console.error("保存隐私设置失败:", error)
