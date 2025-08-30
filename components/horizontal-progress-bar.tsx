@@ -196,7 +196,7 @@ export function HorizontalProgressBar({
 
       const rect = progressRef.current.getBoundingClientRect()
       if (!rect.width) return // 防止在组件未完全渲染时调用
-      
+
       const newPercentage = Math.max(
         0,
         Math.min(100, ((clientX - rect.left) / rect.width) * 100)

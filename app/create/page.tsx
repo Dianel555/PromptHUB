@@ -270,7 +270,6 @@ export default function CreatePageWrapper() {
         </div>
       }
     >
-
       <CreatePage />
     </Suspense>
   )

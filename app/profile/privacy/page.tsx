@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Save, Shield } from "lucide-react"
 import { useSession } from "next-auth/react"
@@ -47,7 +47,7 @@ export default function PrivacyPage() {
 
   const fetchPrivacySettings = async () => {
     try {
-      const response = await fetch('/api/user/privacy')
+      const response = await fetch("/api/user/privacy")
       if (response.ok) {
         const data = await response.json()
         setPrivacySettings(data)
@@ -63,10 +63,10 @@ export default function PrivacyPage() {
   const handleSave = async () => {
     setIsSaving(true)
     try {
-      const response = await fetch('/api/user/privacy', {
-        method: 'PUT',
+      const response = await fetch("/api/user/privacy", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(privacySettings),
       })
@@ -87,14 +87,18 @@ export default function PrivacyPage() {
   }
 
   const handleSettingChange = (field: string, value: string | boolean) => {
-    setPrivacySettings(prev => ({
+    setPrivacySettings((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }))
   }
 
   if (status === "loading" || isLoading) {
-    return <div className="flex justify-center items-center min-h-screen">加载中...</div>
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        加载中...
+      </div>
+    )
   }
 
   if (status === "unauthenticated") {
@@ -103,23 +107,17 @@ export default function PrivacyPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
+    <div className="container mx-auto max-w-2xl px-4 py-8">
       <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => router.back()}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
+        <Button variant="ghost" onClick={() => router.back()} className="mb-4">
+          <ArrowLeft className="mr-2 size-4" />
           返回
         </Button>
         <div className="flex items-center space-x-2">
-          <Shield className="h-8 w-8 text-primary" />
+          <Shield className="size-8 text-primary" />
           <div>
             <h1 className="text-3xl font-bold">隐私设置</h1>
-            <p className="text-muted-foreground">
-              控制您的隐私和数据使用偏好
-            </p>
+            <p className="text-muted-foreground">控制您的隐私和数据使用偏好</p>
           </div>
         </div>
       </div>
@@ -129,16 +127,16 @@ export default function PrivacyPage() {
         <Card>
           <CardHeader>
             <CardTitle>个人资料隐私</CardTitle>
-            <CardDescription>
-              控制其他用户如何查看您的个人资料
-            </CardDescription>
+            <CardDescription>控制其他用户如何查看您的个人资料</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>个人资料可见性</Label>
               <Select
                 value={privacySettings.profileVisibility}
-                onValueChange={(value) => handleSettingChange("profileVisibility", value)}
+                onValueChange={(value) =>
+                  handleSettingChange("profileVisibility", value)
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -159,7 +157,9 @@ export default function PrivacyPage() {
               </div>
               <Switch
                 checked={privacySettings.showEmail}
-                onCheckedChange={(checked) => handleSettingChange("showEmail", checked)}
+                onCheckedChange={(checked) =>
+                  handleSettingChange("showEmail", checked)
+                }
               />
             </div>
             <div className="flex items-center justify-between">
@@ -171,7 +171,9 @@ export default function PrivacyPage() {
               </div>
               <Switch
                 checked={privacySettings.showActivity}
-                onCheckedChange={(checked) => handleSettingChange("showActivity", checked)}
+                onCheckedChange={(checked) =>
+                  handleSettingChange("showActivity", checked)
+                }
               />
             </div>
             <div className="flex items-center justify-between">
@@ -183,7 +185,9 @@ export default function PrivacyPage() {
               </div>
               <Switch
                 checked={privacySettings.allowMessages}
-                onCheckedChange={(checked) => handleSettingChange("allowMessages", checked)}
+                onCheckedChange={(checked) =>
+                  handleSettingChange("allowMessages", checked)
+                }
               />
             </div>
           </CardContent>
@@ -193,9 +197,7 @@ export default function PrivacyPage() {
         <Card>
           <CardHeader>
             <CardTitle>数据和分析</CardTitle>
-            <CardDescription>
-              管理我们如何收集和使用您的数据
-            </CardDescription>
+            <CardDescription>管理我们如何收集和使用您的数据</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
@@ -207,7 +209,9 @@ export default function PrivacyPage() {
               </div>
               <Switch
                 checked={privacySettings.dataCollection}
-                onCheckedChange={(checked) => handleSettingChange("dataCollection", checked)}
+                onCheckedChange={(checked) =>
+                  handleSettingChange("dataCollection", checked)
+                }
               />
             </div>
             <div className="flex items-center justify-between">
@@ -219,7 +223,9 @@ export default function PrivacyPage() {
               </div>
               <Switch
                 checked={privacySettings.analyticsTracking}
-                onCheckedChange={(checked) => handleSettingChange("analyticsTracking", checked)}
+                onCheckedChange={(checked) =>
+                  handleSettingChange("analyticsTracking", checked)
+                }
               />
             </div>
             <div className="flex items-center justify-between">
@@ -231,7 +237,9 @@ export default function PrivacyPage() {
               </div>
               <Switch
                 checked={privacySettings.thirdPartySharing}
-                onCheckedChange={(checked) => handleSettingChange("thirdPartySharing", checked)}
+                onCheckedChange={(checked) =>
+                  handleSettingChange("thirdPartySharing", checked)
+                }
               />
             </div>
           </CardContent>
@@ -242,12 +250,12 @@ export default function PrivacyPage() {
           <Button onClick={handleSave} disabled={isSaving}>
             {isSaving ? (
               <>
-                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                <div className="mr-2 size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                 保存中...
               </>
             ) : (
               <>
-                <Save className="mr-2 h-4 w-4" />
+                <Save className="mr-2 size-4" />
                 保存设置
               </>
             )}

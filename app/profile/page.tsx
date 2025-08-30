@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
   Calendar,
@@ -35,7 +35,7 @@ export default function ProfilePage() {
     totalLikes: 0,
     totalViews: 0,
     totalPrompts: 0,
-    joinDate: new Date().toISOString().split('T')[0],
+    joinDate: new Date().toISOString().split("T")[0],
     favoritePrompts: 0,
     followers: 0,
     following: 0,
@@ -52,7 +52,7 @@ export default function ProfilePage() {
 
   const fetchUserStats = async () => {
     try {
-      const response = await fetch('/api/user/stats')
+      const response = await fetch("/api/user/stats")
       if (response.ok) {
         const data = await response.json()
         setUserStats(data)
@@ -65,7 +65,11 @@ export default function ProfilePage() {
   }
 
   if (status === "loading") {
-    return <div className="flex justify-center items-center min-h-screen">加载中...</div>
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        加载中...
+      </div>
+    )
   }
 
   if (status === "unauthenticated") {
@@ -105,14 +109,14 @@ export default function ProfilePage() {
   ]
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto max-w-4xl px-4 py-8">
       {/* 用户信息卡片 */}
       <Card className="mb-8">
         <CardHeader className="pb-4">
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-4">
               <div className="relative">
-                <Avatar className="h-20 w-20">
+                <Avatar className="size-20">
                   <AvatarImage
                     src={session?.user?.image || ""}
                     alt={session?.user?.name || "用户头像"}
@@ -124,10 +128,10 @@ export default function ProfilePage() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0"
+                  className="absolute -bottom-2 -right-2 size-8 rounded-full p-0"
                   onClick={() => setIsEditing(!isEditing)}
                 >
-                  <Camera className="h-4 w-4" />
+                  <Camera className="size-4" />
                 </Button>
               </div>
               <div className="space-y-1">
@@ -135,11 +139,11 @@ export default function ProfilePage() {
                   {session?.user?.name || "未知用户"}
                 </h1>
                 <div className="flex items-center text-muted-foreground">
-                  <Mail className="mr-2 h-4 w-4" />
+                  <Mail className="mr-2 size-4" />
                   {session?.user?.email}
                 </div>
                 <div className="flex items-center text-muted-foreground">
-                  <Calendar className="mr-2 h-4 w-4" />
+                  <Calendar className="mr-2 size-4" />
                   加入时间: {userStats.joinDate}
                 </div>
               </div>
@@ -147,7 +151,7 @@ export default function ProfilePage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <div className="mb-4 grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-primary">
                 {isLoadingStats ? "..." : userStats.totalLikes}
@@ -173,7 +177,7 @@ export default function ProfilePage() {
               <div className="text-sm text-muted-foreground">收藏提示词</div>
             </div>
           </div>
-          
+
           {/* 成就徽章 */}
           <div className="space-y-2">
             <h3 className="text-sm font-medium">成就徽章</h3>
@@ -199,7 +203,7 @@ export default function ProfilePage() {
             <CardContent className="flex items-center justify-between p-6">
               <div className="flex items-center space-x-4">
                 <div className="rounded-lg bg-primary/10 p-2">
-                  <item.icon className="h-5 w-5 text-primary" />
+                  <item.icon className="size-5 text-primary" />
                 </div>
                 <div>
                   <h3 className="font-medium">{item.label}</h3>
@@ -208,7 +212,7 @@ export default function ProfilePage() {
                   </p>
                 </div>
               </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              <ChevronRight className="size-5 text-muted-foreground" />
             </CardContent>
           </Card>
         ))}
@@ -222,7 +226,7 @@ export default function ProfilePage() {
             className="w-full justify-start text-destructive hover:text-destructive"
             onClick={handleSignOut}
           >
-            <LogOut className="mr-2 h-4 w-4" />
+            <LogOut className="mr-2 size-4" />
             退出登录
           </Button>
         </CardContent>

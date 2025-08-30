@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Save } from "lucide-react"
 import { useSession } from "next-auth/react"
@@ -43,7 +43,7 @@ export default function SettingsPage() {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch('/api/user/settings')
+      const response = await fetch("/api/user/settings")
       if (response.ok) {
         const data = await response.json()
         setSettings(data)
@@ -59,10 +59,10 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setIsSaving(true)
     try {
-      const response = await fetch('/api/user/settings', {
-        method: 'PUT',
+      const response = await fetch("/api/user/settings", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(settings),
       })
@@ -83,14 +83,18 @@ export default function SettingsPage() {
   }
 
   const handleInputChange = (field: string, value: string | boolean) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }))
   }
 
   if (status === "loading" || isLoading) {
-    return <div className="flex justify-center items-center min-h-screen">加载中...</div>
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        加载中...
+      </div>
+    )
   }
 
   if (status === "unauthenticated") {
@@ -99,20 +103,14 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
+    <div className="container mx-auto max-w-2xl px-4 py-8">
       <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => router.back()}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
+        <Button variant="ghost" onClick={() => router.back()} className="mb-4">
+          <ArrowLeft className="mr-2 size-4" />
           返回
         </Button>
         <h1 className="text-3xl font-bold">账户设置</h1>
-        <p className="text-muted-foreground">
-          管理您的账户信息和偏好设置
-        </p>
+        <p className="text-muted-foreground">管理您的账户信息和偏好设置</p>
       </div>
 
       <div className="space-y-6">
@@ -120,9 +118,7 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle>基本信息</CardTitle>
-            <CardDescription>
-              更新您的个人资料信息
-            </CardDescription>
+            <CardDescription>更新您的个人资料信息</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -130,7 +126,9 @@ export default function SettingsPage() {
               <Input
                 id="displayName"
                 value={settings.displayName}
-                onChange={(e) => handleInputChange("displayName", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("displayName", e.target.value)
+                }
                 placeholder="输入您的显示名称"
               />
             </div>
@@ -180,9 +178,7 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle>通知设置</CardTitle>
-            <CardDescription>
-              选择您希望接收的通知类型
-            </CardDescription>
+            <CardDescription>选择您希望接收的通知类型</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
@@ -194,7 +190,9 @@ export default function SettingsPage() {
               </div>
               <Switch
                 checked={settings.emailNotifications}
-                onCheckedChange={(checked) => handleInputChange("emailNotifications", checked)}
+                onCheckedChange={(checked) =>
+                  handleInputChange("emailNotifications", checked)
+                }
               />
             </div>
             <div className="flex items-center justify-between">
@@ -206,7 +204,9 @@ export default function SettingsPage() {
               </div>
               <Switch
                 checked={settings.pushNotifications}
-                onCheckedChange={(checked) => handleInputChange("pushNotifications", checked)}
+                onCheckedChange={(checked) =>
+                  handleInputChange("pushNotifications", checked)
+                }
               />
             </div>
             <div className="flex items-center justify-between">
@@ -218,7 +218,9 @@ export default function SettingsPage() {
               </div>
               <Switch
                 checked={settings.marketingEmails}
-                onCheckedChange={(checked) => handleInputChange("marketingEmails", checked)}
+                onCheckedChange={(checked) =>
+                  handleInputChange("marketingEmails", checked)
+                }
               />
             </div>
           </CardContent>
@@ -229,12 +231,12 @@ export default function SettingsPage() {
           <Button onClick={handleSave} disabled={isSaving}>
             {isSaving ? (
               <>
-                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                <div className="mr-2 size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                 保存中...
               </>
             ) : (
               <>
-                <Save className="mr-2 h-4 w-4" />
+                <Save className="mr-2 size-4" />
                 保存设置
               </>
             )}
