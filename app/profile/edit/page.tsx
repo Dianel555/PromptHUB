@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
-import { ArrowLeft, Save, Loader2 } from "lucide-react"
+import { ArrowLeft, Save, Loader2, Check, Clock } from "lucide-react"
 import { useUser } from "@/hooks/use-user"
 
 interface UserProfile {
@@ -29,6 +29,10 @@ export default function EditProfilePage() {
   const router = useRouter()
   const { user, isLoading, updateUser } = useUser()
   const [isSaving, setIsSaving] = useState(false)
+  const [isAutoSaving, setIsAutoSaving] = useState(false)
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [profile, setProfile] = useState<UserProfile>({
     id: "",
     name: "",
@@ -64,16 +68,62 @@ export default function EditProfilePage() {
     }
   }, [user])
 
+  // 防抖自动保存功能
+  const debouncedAutoSave = useCallback(async (profileData: UserProfile) => {
+    if (!user) return
+
+    setIsAutoSaving(true)
+    try {
+      await updateUser({
+        name: profileData.name || undefined,
+        bio: profileData.bio || undefined,
+        website: profileData.website || undefined,
+        location: profileData.location || undefined,
+      })
+
+      setLastSaved(new Date())
+      setHasUnsavedChanges(false)
+
+      // 显示轻量级保存提示
+      toast.success("已自动保存", {
+        duration: 2000,
+      })
+    } catch (error) {
+      console.error("自动保存失败:", error)
+      // 自动保存失败时不显示错误提示，避免打扰用户
+    } finally {
+      setIsAutoSaving(false)
+    }
+  }, [user, updateUser])
+
   const handleInputChange = (field: keyof UserProfile, value: string) => {
     setProfile(prev => ({
       ...prev,
       [field]: value
     }))
+
+    setHasUnsavedChanges(true)
+
+    // 清除之前的自动保存定时器
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current)
+    }
+
+    // 设置新的自动保存定时器（3秒后自动保存）
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      const updatedProfile = { ...profile, [field]: value }
+      debouncedAutoSave(updatedProfile)
+    }, 3000)
   }
 
   const handleSave = async () => {
     if (!user) return
-    
+
+    // 清除自动保存定时器
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current)
+    }
+
     setIsSaving(true)
     try {
       await updateUser({
@@ -82,7 +132,10 @@ export default function EditProfilePage() {
         website: profile.website || undefined,
         location: profile.location || undefined,
       })
-      
+
+      setLastSaved(new Date())
+      setHasUnsavedChanges(false)
+
       // 显示成功提示，不自动跳转
       toast.success("个人资料已保存", {
         description: "您的更改已成功保存",
@@ -99,6 +152,15 @@ export default function EditProfilePage() {
       setIsSaving(false)
     }
   }
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current)
+      }
+    }
+  }, [])
 
 
 
@@ -127,10 +189,36 @@ export default function EditProfilePage() {
           <ArrowLeft className="mr-2 size-4" />
           返回
         </Button>
-        <h1 className="text-3xl font-bold">编辑个人资料</h1>
-        <p className="text-muted-foreground mt-2">
-          更新您的个人信息和偏好设置
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">编辑个人资料</h1>
+            <p className="text-muted-foreground mt-2">
+              更新您的个人信息和偏好设置
+            </p>
+          </div>
+
+          {/* 保存状态指示器 */}
+          <div className="flex items-center space-x-2 text-sm">
+            {isAutoSaving && (
+              <div className="flex items-center text-blue-600">
+                <Loader2 className="mr-1 size-4 animate-spin" />
+                自动保存中...
+              </div>
+            )}
+            {!isAutoSaving && hasUnsavedChanges && (
+              <div className="flex items-center text-orange-600">
+                <Clock className="mr-1 size-4" />
+                有未保存的更改
+              </div>
+            )}
+            {!isAutoSaving && !hasUnsavedChanges && lastSaved && (
+              <div className="flex items-center text-green-600">
+                <Check className="mr-1 size-4" />
+                已保存 {lastSaved.toLocaleTimeString()}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="space-y-6">
@@ -220,17 +308,23 @@ export default function EditProfilePage() {
           </Button>
           <Button
             onClick={handleSave}
-            disabled={isSaving}
+            disabled={isSaving || isAutoSaving || !hasUnsavedChanges}
+            variant={hasUnsavedChanges ? "default" : "outline"}
           >
             {isSaving ? (
               <>
                 <Loader2 className="mr-2 size-4 animate-spin" />
                 保存中...
               </>
-            ) : (
+            ) : hasUnsavedChanges ? (
               <>
                 <Save className="mr-2 size-4" />
                 保存更改
+              </>
+            ) : (
+              <>
+                <Check className="mr-2 size-4" />
+                已保存
               </>
             )}
           </Button>

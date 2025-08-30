@@ -104,11 +104,11 @@ export function HeroSection() {
 
           {/* 主标题 */}
           <h1 className="text-4xl font-bold leading-relaxed md:text-6xl lg:text-7xl">
-            <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 bg-clip-text text-transparent animate-pulse">
               PromptHUB
             </span>
             <br />
-            <span className="mt-4 block bg-gradient-to-r from-foreground/90 via-foreground/80 to-foreground/90 bg-clip-text text-transparent">
+            <span className="mt-4 block bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 bg-clip-text text-transparent">
               开放提示词社区
             </span>
           </h1>

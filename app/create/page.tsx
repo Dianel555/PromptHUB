@@ -25,27 +25,22 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+import { SmartTagInput } from "@/components/smart-tag-input"
+import { MarkdownEditor } from "@/components/markdown-editor"
 
-// 简化的标签组件
-function SimpleTag({ children, onRemove }: { children: React.ReactNode; onRemove?: () => void }) {
-  return (
-    <Badge variant="secondary" className="flex items-center gap-1">
-      {children}
-      {onRemove && (
-        <button onClick={onRemove} className="ml-1 hover:bg-gray-200 rounded-full p-0.5">
-          <X className="size-3" />
-        </button>
-      )}
-    </Badge>
-  )
+// 智能标签类型定义
+interface SmartTag {
+  id: string
+  name: string
+  type?: string
+  isCustom?: boolean
 }
 
 export default function CreatePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  const [tags, setTags] = useState<string[]>([])
-  const [tagInput, setTagInput] = useState("")
+  const [tags, setTags] = useState<SmartTag[]>([])
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -73,22 +68,30 @@ export default function CreatePage() {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const addTag = () => {
-    if (tagInput.trim() && !tags.includes(tagInput.trim()) && tags.length < 10) {
-      setTags(prev => [...prev, tagInput.trim()])
-      setTagInput("")
+  const handleCreateCustomTag = (tagName: string): SmartTag => {
+    return {
+      id: `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: tagName,
+      type: "default",
+      isCustom: true
     }
-  }
-
-  const removeTag = (tagToRemove: string) => {
-    setTags(prev => prev.filter(tag => tag !== tagToRemove))
   }
 
   const handleSubmit = async () => {
     setIsLoading(true)
     try {
-      // 模拟提交
-      console.log("提交提示词:", { ...formData, tags })
+      // 准备提交数据，包含智能标签信息
+      const submitData = {
+        ...formData,
+        tags: tags.map(tag => ({
+          id: tag.id,
+          name: tag.name,
+          type: tag.type,
+          isCustom: tag.isCustom
+        }))
+      }
+
+      console.log("提交提示词:", submitData)
       await new Promise(resolve => setTimeout(resolve, 1000))
       router.push("/prompts")
     } catch (error) {
@@ -161,33 +164,15 @@ export default function CreatePage() {
               </div>
 
               <div className="space-y-2">
-                <Label>标签</Label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="输入标签..."
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault()
-                        addTag()
-                      }
-                    }}
-                    className="flex-1"
-                  />
-                  <Button onClick={addTag} disabled={!tagInput.trim() || tags.length >= 10}>
-                    <Plus className="size-4" />
-                  </Button>
-                </div>
-                {tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {tags.map((tag) => (
-                      <SimpleTag key={tag} onRemove={() => removeTag(tag)}>
-                        {tag}
-                      </SimpleTag>
-                    ))}
-                  </div>
-                )}
+                <Label>智能标签</Label>
+                <SmartTagInput
+                  tags={tags}
+                  onTagsChange={setTags}
+                  placeholder="输入标签名称，支持自定义创建..."
+                  maxTags={10}
+                  allowCustomTags={true}
+                  onCreateCustomTag={handleCreateCustomTag}
+                />
               </div>
             </CardContent>
           </Card>
@@ -196,29 +181,27 @@ export default function CreatePage() {
             <CardHeader>
               <CardTitle>提示词内容</CardTitle>
               <CardDescription>
-                输入你的提示词内容和使用示例
+                使用Markdown格式编写你的提示词内容，支持实时预览
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="prompt">提示词 *</Label>
-                <Textarea
-                  id="prompt"
-                  placeholder="在这里输入你的提示词内容..."
+                <Label htmlFor="prompt">提示词内容 * (支持Markdown)</Label>
+                <MarkdownEditor
                   value={formData.prompt}
-                  onChange={(e) => handleInputChange("prompt", e.target.value)}
-                  className="min-h-[200px] font-mono"
+                  onChange={(value) => handleInputChange("prompt", value)}
+                  placeholder="在这里输入你的提示词内容，支持Markdown格式..."
+                  height="400px"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="example">使用示例</Label>
-                <Textarea
-                  id="example"
-                  placeholder="提供一个使用示例，帮助其他用户更好地理解"
+                <Label htmlFor="example">使用示例 (支持Markdown)</Label>
+                <MarkdownEditor
                   value={formData.example}
-                  onChange={(e) => handleInputChange("example", e.target.value)}
-                  className="min-h-[100px]"
+                  onChange={(value) => handleInputChange("example", value)}
+                  placeholder="提供一个使用示例，帮助其他用户更好地理解..."
+                  height="300px"
                 />
               </div>
             </CardContent>
@@ -282,7 +265,13 @@ export default function CreatePage() {
                   <div className="flex flex-wrap gap-2">
                     {tags.length > 0 ? (
                       tags.map(tag => (
-                        <Badge key={tag} variant="secondary">{tag}</Badge>
+                        <Badge
+                          key={tag.id}
+                          variant="secondary"
+                          className={tag.isCustom ? "ring-1 ring-primary/30" : ""}
+                        >
+                          {tag.name}
+                        </Badge>
                       ))
                     ) : (
                       <Badge variant="outline">示例标签</Badge>

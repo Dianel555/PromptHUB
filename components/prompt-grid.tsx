@@ -240,7 +240,12 @@ export function PromptGrid({
               }}
               className="h-full"
             >
-              <PromptCard {...prompt} />
+              <PromptCard
+                {...prompt}
+                content={`这是 ${prompt.title} 的示例内容。${prompt.description.substring(0, 80)}...`}
+                showPreview={true}
+                isOwner={false}
+              />
             </motion.div>
           ))}
         </motion.div>

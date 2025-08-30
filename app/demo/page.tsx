@@ -13,8 +13,10 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ColorfulTag, TagList } from "@/components/colorful-tag"
+import { EnhancedTag, EnhancedTagList } from "@/components/enhanced-tag"
 import { MarkdownEditor } from "@/components/markdown-editor"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { type TagType } from "@/lib/enhanced-tag-system"
 
 const sampleTags = [
   "React",
@@ -31,6 +33,19 @@ const sampleTags = [
   "Frontend",
   "Backend",
   "Full Stack",
+]
+
+// 智能标签系统示例数据
+const enhancedSampleTags = [
+  { id: "1", name: "内容创作", type: "content" as TagType },
+  { id: "2", name: "社区讨论", type: "community" as TagType },
+  { id: "3", name: "技术分享", type: "category" as TagType },
+  { id: "4", name: "AI技能", type: "skill" as TagType },
+  { id: "5", name: "高难度", type: "difficulty" as TagType },
+  { id: "6", name: "精选推荐", type: "featured" as TagType },
+  { id: "7", name: "热门话题", type: "hot" as TagType },
+  { id: "8", name: "最新发布", type: "new" as TagType },
+  { id: "9", name: "默认标签", type: "default" as TagType },
 ]
 
 const sampleMarkdown = String.raw`# PromptHUB 功能演示
@@ -180,6 +195,63 @@ export default function DemoPage() {
               <p className="text-sm text-muted-foreground">
                 💡
                 提示：相同内容的标签会显示相同颜色，不同内容会自动分配不同颜色，确保视觉层次清晰。
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 智能标签系统演示 */}
+        <Card className="glass-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              ✨ 智能标签系统演示
+            </CardTitle>
+            <CardDescription>
+              增强的标签系统，支持类型分类、主题适配和更好的可访问性
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <h3 className="mb-3 font-semibold text-green-600 dark:text-green-400">
+                🎯 智能类型标签：
+              </h3>
+              <EnhancedTagList
+                tags={enhancedSampleTags}
+                variant="solid"
+                size="md"
+                animated={true}
+                onTagClick={(id) => console.log("点击标签:", id)}
+              />
+            </div>
+
+            <div>
+              <h3 className="mb-3 font-semibold">不同变体演示：</h3>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="mb-2 text-sm font-medium text-muted-foreground">实心变体 (Solid)</h4>
+                  <div className="flex flex-wrap gap-2">
+                    <EnhancedTag type="content" variant="solid">内容创作</EnhancedTag>
+                    <EnhancedTag type="community" variant="solid">社区讨论</EnhancedTag>
+                    <EnhancedTag type="featured" variant="solid">精选推荐</EnhancedTag>
+                    <EnhancedTag type="hot" variant="solid">热门话题</EnhancedTag>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="mb-2 text-sm font-medium text-muted-foreground">轮廓变体 (Outline)</h4>
+                  <div className="flex flex-wrap gap-2">
+                    <EnhancedTag type="content" variant="outline">内容创作</EnhancedTag>
+                    <EnhancedTag type="community" variant="outline">社区讨论</EnhancedTag>
+                    <EnhancedTag type="featured" variant="outline">精选推荐</EnhancedTag>
+                    <EnhancedTag type="hot" variant="outline">热门话题</EnhancedTag>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-lg bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-4 border border-green-200 dark:border-green-800">
+              <p className="text-sm text-muted-foreground">
+                🚀 <strong>新功能：</strong>智能标签系统解决了深色主题下标签可见性问题，提供更好的用户体验和可访问性支持。
               </p>
             </div>
           </CardContent>

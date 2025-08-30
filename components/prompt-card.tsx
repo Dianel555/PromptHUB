@@ -7,14 +7,16 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { 
-  Heart, 
-  MessageCircle, 
-  Copy, 
-  ExternalLink, 
+import {
+  Heart,
+  MessageCircle,
+  Copy,
+  ExternalLink,
   User,
   Calendar,
-  Eye
+  Eye,
+  Edit,
+  FileText
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -34,8 +36,11 @@ interface PromptCardProps {
   views?: number
   createdAt: Date | string
   isLiked?: boolean
+  isOwner?: boolean
   className?: string
   onClick?: () => void
+  onEdit?: () => void
+  showPreview?: boolean
 }
 
 export function PromptCard({
@@ -50,8 +55,11 @@ export function PromptCard({
   views = 0,
   createdAt,
   isLiked = false,
+  isOwner = false,
   className = "",
-  onClick
+  onClick,
+  onEdit,
+  showPreview = true
 }: PromptCardProps) {
   const router = useRouter()
   const [liked, setLiked] = useState(isLiked)
@@ -100,6 +108,16 @@ export function PromptCard({
     }
   }
 
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (onEdit) {
+      onEdit()
+    } else {
+      // 默认跳转到编辑页面
+      router.push(`/prompts/${id}/edit`)
+    }
+  }
+
   const formatDate = (date: Date | string) => {
     const d = new Date(date)
     return d.toLocaleDateString('zh-CN', {
@@ -128,21 +146,49 @@ export function PromptCard({
             <p className="line-clamp-3 text-sm text-muted-foreground leading-relaxed">
               {description}
             </p>
+
+            {/* 内容预览 */}
+            {showPreview && content && (
+              <div className="mt-3 rounded-md bg-muted/30 p-3 border-l-2 border-primary/30">
+                <div className="flex items-center gap-2 mb-2">
+                  <FileText className="size-3 text-primary" />
+                  <span className="text-xs font-medium text-primary">内容预览</span>
+                </div>
+                <p className="line-clamp-2 text-xs text-muted-foreground font-mono leading-relaxed">
+                  {content.length > 100 ? `${content.substring(0, 100)}...` : content}
+                </p>
+              </div>
+            )}
           </div>
 
-          {/* 标签 */}
+          {/* 智能标签 */}
           <div className="mb-4 flex flex-wrap gap-2">
-            {tags.slice(0, 3).map((tag, index) => (
-              <Badge 
-                key={index} 
-                variant="secondary" 
-                className="text-xs hover:bg-primary/20 transition-colors"
-              >
-                {tag}
-              </Badge>
-            ))}
+            {tags.slice(0, 3).map((tag, index) => {
+              // 智能标签颜色分配
+              const getTagColor = (tagName: string) => {
+                const colors = [
+                  "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+                  "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+                  "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+                  "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+                  "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
+                  "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300"
+                ]
+                const hash = tagName.split('').reduce((a, b) => a + b.charCodeAt(0), 0)
+                return colors[hash % colors.length]
+              }
+
+              return (
+                <Badge
+                  key={index}
+                  className={`text-xs border-0 hover:scale-105 transition-all cursor-pointer ${getTagColor(tag)}`}
+                >
+                  {tag}
+                </Badge>
+              )
+            })}
             {tags.length > 3 && (
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs hover:bg-muted/50 transition-colors">
                 +{tags.length - 3}
               </Badge>
             )}
@@ -208,16 +254,30 @@ export function PromptCard({
                   variant="ghost"
                   onClick={handleCopy}
                   className="size-8 p-0 hover:bg-primary/20"
+                  title="复制内容"
                 >
                   <Copy className="size-4" />
                 </Button>
               )}
-              
+
+              {isOwner && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleEdit}
+                  className="size-8 p-0 hover:bg-green-500/20 text-green-600 dark:text-green-400"
+                  title="编辑提示词"
+                >
+                  <Edit className="size-4" />
+                </Button>
+              )}
+
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={handleCardClick}
                 className="size-8 p-0 hover:bg-primary/20"
+                title="查看详情"
               >
                 <ExternalLink className="size-4" />
               </Button>

@@ -25,6 +25,7 @@ build/
 *~
 .codebuddy/
 .serena/
+project_document/
 
 # 系统生成文件
 .DS_Store
@@ -77,6 +78,7 @@ tmp/
 temp/
 问题
 logs_result.json
+server-memory/
 
 # Vercel 部署缓存
 .vercel
