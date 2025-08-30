@@ -38,6 +38,7 @@
     "next-auth": "^4.24.11",
     "next-themes": "^0.2.1",
     "prisma": "^6.15.0",
+    "prismjs": "^1.30.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.62.0",
