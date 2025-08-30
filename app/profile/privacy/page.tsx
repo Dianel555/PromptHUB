@@ -1,63 +1,68 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { ArrowLeft, Save, Shield } from "lucide-react"
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
-import { toast } from "sonner"
-
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
+import { toast } from "sonner"
+import { ArrowLeft, Save, Loader2, Shield, Eye, EyeOff } from "lucide-react"
+
+interface PrivacySettings {
+  profileVisibility: boolean
+  promptsVisibility: boolean
+  activityVisibility: boolean
+  searchable: boolean
+  allowDirectMessages: boolean
+}
 
 export default function PrivacyPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [privacySettings, setPrivacySettings] = useState({
-    profileVisibility: "public",
-    showEmail: false,
-    showActivity: true,
-    allowMessages: true,
-    dataCollection: false,
-    analyticsTracking: true,
-    thirdPartySharing: false,
+  const [settings, setSettings] = useState<PrivacySettings>({
+    profileVisibility: true,
+    promptsVisibility: true,
+    activityVisibility: true,
+    searchable: true,
+    allowDirectMessages: true,
   })
 
   useEffect(() => {
-    if (session?.user?.email) {
-      fetchPrivacySettings()
+    if (status === "loading") return
+    
+    if (!session) {
+      router.push("/auth/signin")
+      return
     }
-  }, [session])
+
+    fetchPrivacySettings()
+  }, [session, status, router])
 
   const fetchPrivacySettings = async () => {
+    setIsLoading(true)
     try {
       const response = await fetch("/api/user/privacy")
       if (response.ok) {
         const data = await response.json()
-        setPrivacySettings(data)
+        setSettings(data)
       }
     } catch (error) {
       console.error("获取隐私设置失败:", error)
-      toast.error("获取隐私设置失败")
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleSettingChange = (key: keyof PrivacySettings, value: boolean) => {
+    setSettings(prev => ({
+      ...prev,
+      [key]: value
+    }))
   }
 
   const handleSave = async () => {
@@ -68,15 +73,14 @@ export default function PrivacyPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(privacySettings),
+        body: JSON.stringify(settings),
       })
 
       if (response.ok) {
-        const result = await response.json()
-        toast.success(result.message || "隐私设置已保存")
+        toast.success("隐私设置保存成功")
       } else {
-        const error = await response.json()
-        toast.error(error.error || "保存失败")
+        const data = await response.json()
+        toast.error(data.error || "保存失败")
       }
     } catch (error) {
       console.error("保存隐私设置失败:", error)
@@ -86,160 +90,144 @@ export default function PrivacyPage() {
     }
   }
 
-  const handleSettingChange = (field: string, value: string | boolean) => {
-    setPrivacySettings((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
-  }
-
   if (status === "loading" || isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        加载中...
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="size-8 animate-spin" />
+        </div>
       </div>
     )
   }
 
-  if (status === "unauthenticated") {
-    router.push("/auth/signin")
+  if (!session) {
     return null
   }
 
   return (
-    <div className="container mx-auto max-w-2xl px-4 py-8">
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
       <div className="mb-6">
-        <Button variant="ghost" onClick={() => router.back()} className="mb-4">
+        <Button
+          variant="ghost"
+          onClick={() => router.back()}
+          className="mb-4"
+        >
           <ArrowLeft className="mr-2 size-4" />
           返回
         </Button>
-        <div className="flex items-center space-x-2">
-          <Shield className="size-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold">隐私设置</h1>
-            <p className="text-muted-foreground">控制您的隐私和数据使用偏好</p>
-          </div>
+        <div className="flex items-center space-x-2 mb-2">
+          <Shield className="size-6 text-primary" />
+          <h1 className="text-3xl font-bold">隐私设置</h1>
         </div>
+        <p className="text-muted-foreground">
+          控制您的个人信息和内容的可见性
+        </p>
       </div>
 
       <div className="space-y-6">
-        {/* 个人资料隐私 */}
+        {/* 个人资料可见性 */}
         <Card>
           <CardHeader>
-            <CardTitle>个人资料隐私</CardTitle>
-            <CardDescription>控制其他用户如何查看您的个人资料</CardDescription>
+            <CardTitle className="flex items-center space-x-2">
+              <Eye className="size-5" />
+              <span>个人资料可见性</span>
+            </CardTitle>
+            <CardDescription>
+              控制其他用户是否可以查看您的个人资料信息
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>个人资料可见性</Label>
-              <Select
-                value={privacySettings.profileVisibility}
-                onValueChange={(value) =>
-                  handleSettingChange("profileVisibility", value)
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="public">公开</SelectItem>
-                  <SelectItem value="friends">仅好友</SelectItem>
-                  <SelectItem value="private">私密</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>显示邮箱地址</Label>
+                <Label>公开个人资料</Label>
                 <p className="text-sm text-muted-foreground">
-                  允许其他用户查看您的邮箱地址
+                  允许其他用户查看您的基本个人资料信息
                 </p>
               </div>
               <Switch
-                checked={privacySettings.showEmail}
-                onCheckedChange={(checked) =>
-                  handleSettingChange("showEmail", checked)
-                }
+                checked={settings.profileVisibility}
+                onCheckedChange={(checked) => handleSettingChange("profileVisibility", checked)}
               />
             </div>
+
+            <Separator />
+
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>显示活动状态</Label>
+                <Label>在搜索中显示</Label>
                 <p className="text-sm text-muted-foreground">
-                  显示您的在线状态和最近活动
+                  允许其他用户通过搜索找到您的个人资料
                 </p>
               </div>
               <Switch
-                checked={privacySettings.showActivity}
-                onCheckedChange={(checked) =>
-                  handleSettingChange("showActivity", checked)
-                }
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>允许私信</Label>
-                <p className="text-sm text-muted-foreground">
-                  允许其他用户向您发送私信
-                </p>
-              </div>
-              <Switch
-                checked={privacySettings.allowMessages}
-                onCheckedChange={(checked) =>
-                  handleSettingChange("allowMessages", checked)
-                }
+                checked={settings.searchable}
+                onCheckedChange={(checked) => handleSettingChange("searchable", checked)}
               />
             </div>
           </CardContent>
         </Card>
 
-        {/* 数据和分析 */}
+        {/* 内容可见性 */}
         <Card>
           <CardHeader>
-            <CardTitle>数据和分析</CardTitle>
-            <CardDescription>管理我们如何收集和使用您的数据</CardDescription>
+            <CardTitle className="flex items-center space-x-2">
+              <EyeOff className="size-5" />
+              <span>内容可见性</span>
+            </CardTitle>
+            <CardDescription>
+              控制您创建的内容对其他用户的可见性
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>数据收集</Label>
+                <Label>公开提示词</Label>
                 <p className="text-sm text-muted-foreground">
-                  允许收集使用数据以改善服务
+                  允许其他用户查看和使用您创建的提示词
                 </p>
               </div>
               <Switch
-                checked={privacySettings.dataCollection}
-                onCheckedChange={(checked) =>
-                  handleSettingChange("dataCollection", checked)
-                }
+                checked={settings.promptsVisibility}
+                onCheckedChange={(checked) => handleSettingChange("promptsVisibility", checked)}
               />
             </div>
+
+            <Separator />
+
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>分析跟踪</Label>
+                <Label>显示活动记录</Label>
                 <p className="text-sm text-muted-foreground">
-                  允许分析工具跟踪您的使用情况
+                  在个人资料中显示您的最近活动和互动记录
                 </p>
               </div>
               <Switch
-                checked={privacySettings.analyticsTracking}
-                onCheckedChange={(checked) =>
-                  handleSettingChange("analyticsTracking", checked)
-                }
+                checked={settings.activityVisibility}
+                onCheckedChange={(checked) => handleSettingChange("activityVisibility", checked)}
               />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* 交互设置 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>交互权限</CardTitle>
+            <CardDescription>
+              控制其他用户与您的交互方式
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>第三方数据共享</Label>
+                <Label>允许私信</Label>
                 <p className="text-sm text-muted-foreground">
-                  允许与合作伙伴共享匿名数据
+                  允许其他用户向您发送私人消息
                 </p>
               </div>
               <Switch
-                checked={privacySettings.thirdPartySharing}
-                onCheckedChange={(checked) =>
-                  handleSettingChange("thirdPartySharing", checked)
-                }
+                checked={settings.allowDirectMessages}
+                onCheckedChange={(checked) => handleSettingChange("allowDirectMessages", checked)}
               />
             </div>
           </CardContent>
@@ -247,10 +235,13 @@ export default function PrivacyPage() {
 
         {/* 保存按钮 */}
         <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={isSaving}>
+          <Button
+            onClick={handleSave}
+            disabled={isSaving}
+          >
             {isSaving ? (
               <>
-                <div className="mr-2 size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                <Loader2 className="mr-2 size-4 animate-spin" />
                 保存中...
               </>
             ) : (

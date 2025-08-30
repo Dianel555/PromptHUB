@@ -11,7 +11,11 @@
     "preview": "next build && next start",
     "typecheck": "tsc --noEmit",
     "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache",
-    "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache"
+    "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache",
+    "check": "node scripts/check-project.js",
+    "deploy-check": "node scripts/deploy-check.js",
+    "validate-config": "node scripts/validate-config.js",
+    "pre-deploy": "npm run validate-config && npm run deploy-check"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

@@ -1,22 +1,66 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { ArrowRight, Search, Star } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Search, Star, Users, BookOpen, TrendingUp } from "lucide-react"
 
-export function HeroSection() {
-  const [searchQuery, setSearchQuery] = useState("")
+interface PlatformStats {
+  totalPrompts: number
+  totalUsers: number
+  githubStars: number
+}
+
+export default function HeroSection() {
   const router = useRouter()
+  const [searchQuery, setSearchQuery] = useState("")
+  const [stats, setStats] = useState<PlatformStats>({
+    totalPrompts: 0,
+    totalUsers: 0,
+    githubStars: 0
+  })
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
+
+  // 获取统计数据
+  useEffect(() => {
+    fetchStats()
+  }, [])
+
+  const fetchStats = async () => {
+    try {
+      // 并行获取平台统计和GitHub统计
+      const [platformResponse, githubResponse] = await Promise.all([
+        fetch("/api/stats"),
+        fetch("/api/github/stats")
+      ])
+
+      const platformData = await platformResponse.json()
+      const githubData = await githubResponse.json()
+
+      setStats({
+        totalPrompts: platformData.totalPrompts || 0,
+        totalUsers: platformData.totalUsers || 0,
+        githubStars: githubData.stars || 0
+      })
+    } catch (error) {
+      console.error("获取统计数据失败:", error)
+      // 保持默认值
+    } finally {
+      setIsLoadingStats(false)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      handleSearch()
+    }
+  }
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      // TODO: 实现搜索功能，跳转到搜索结果页面
-      console.log("搜索:", searchQuery)
-      // router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
+      router.push(`/prompts?search=${encodeURIComponent(searchQuery.trim())}`)
     }
   }
 
@@ -25,135 +69,152 @@ export function HeroSection() {
     router.push("/prompts")
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch()
+  // 格式化数字显示
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + "M+"
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + "K+"
     }
+    return num.toString()
   }
 
   return (
-    <section className="relative overflow-hidden px-4 py-20">
-      {/* 背景粒子效果 */}
-      <div className="particles">
-        {Array.from({ length: 50 }).map((_, i) => (
-          <div
-            key={i}
-            className="particle"
-            style={{
-              left: `${(i * 37) % 100}%`,
-              animationDelay: `${(i * 1.5) % 20}s`,
-              animationDuration: `${15 + (i % 10)}s`,
-            }}
-          />
-        ))}
-      </div>
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
+      {/* 背景装饰 */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+      <div className="absolute top-1/4 left-1/4 size-64 bg-primary/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 right-1/4 size-96 bg-secondary/10 rounded-full blur-3xl" />
 
-      {/* 渐变背景 */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-cyan-900/20" />
+      <div className="container relative z-10 mx-auto px-4 py-20 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="mx-auto max-w-4xl"
+        >
+          {/* 标签 */}
+          <motion.div
+            className="mb-8 inline-flex items-center space-x-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary backdrop-blur-sm"
+            whileHover={{ scale: 1.05 }}
+          >
+            <Star className="size-4 text-primary dark:text-primary/90" />
+            发现最佳AI提示词
+          </motion.div>
 
-      <div className="container relative z-10 mx-auto max-w-6xl">
-        <div className="space-y-8 text-center">
           {/* 主标题 */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="space-y-4"
-          >
-            <motion.div
-              className="glass-effect mb-6 inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/20 px-4 py-2 text-sm text-foreground/90 dark:border-border/80 dark:bg-background/40 dark:text-foreground/95"
-              whileHover={{ scale: 1.05 }}
-            >
-              <Star className="size-4 text-primary dark:text-primary/90" />
-              发现最佳AI提示词
-            </motion.div>
+          <h1 className="text-4xl font-bold leading-relaxed md:text-6xl lg:text-7xl">
+            <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+              PromptHUB
+            </span>
+            <br />
+            <span className="mt-4 block bg-gradient-to-r from-foreground/90 via-foreground/80 to-foreground/90 bg-clip-text text-transparent">
+              开放提示词社区
+            </span>
+          </h1>
 
-            <h1 className="text-4xl font-bold leading-relaxed md:text-6xl lg:text-7xl">
-              <span className="paper:from-amber-600 paper:via-orange-500 paper:to-red-500 eyecare:from-green-500 eyecare:via-emerald-400 eyecare:to-teal-400 bg-gradient-to-r from-primary via-purple-500 to-cyan-500 bg-clip-text text-transparent dark:from-purple-400 dark:via-pink-400 dark:to-cyan-400">
-                PromptHUB
-              </span>
-              <br />
-              <span className="mt-4 block bg-gradient-to-r from-foreground/90 via-foreground/80 to-foreground/90 bg-clip-text text-transparent">
-                开放提示词社区
-              </span>
-            </h1>
+          <p className="mx-auto max-w-3xl text-xl leading-relaxed text-muted-foreground md:text-2xl">
+            开源的提示词分享平台，让创作者自由交流和协作。
+          </p>
+        </motion.div>
 
-            <p className="mx-auto max-w-3xl text-xl leading-relaxed text-muted-foreground md:text-2xl">
-              开源的提示词分享平台，让创作者自由交流和协作。
-            </p>
-          </motion.div>
-
-          {/* 搜索框 */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="mx-auto max-w-2xl"
-          >
-            <div className="group relative">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/20 to-cyan-500/20 blur-xl transition-all duration-300 group-hover:blur-2xl" />
-              <div className="glass-effect relative flex items-center rounded-full p-2">
-                <Search className="ml-4 size-5 text-gray-400" />
-                <Input
-                  placeholder="搜索提示词..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="flex-1 border-0 bg-transparent px-4 text-lg text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-                <Button
-                  onClick={handleSearch}
-                  className="rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-6 text-white shadow-lg transition-all duration-200 hover:from-purple-600 hover:to-pink-600"
-                >
-                  搜索
-                </Button>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* CTA按钮 */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex flex-col items-center justify-center gap-4 sm:flex-row"
-          >
+        {/* 搜索框 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="mx-auto mt-12 max-w-2xl"
+        >
+          <div className="glass-effect relative flex items-center rounded-full p-2">
+            <Search className="ml-4 size-5 text-gray-400" />
+            <Input
+              placeholder="搜索提示词..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={handleKeyPress}
+              className="border-0 bg-transparent text-lg placeholder:text-gray-400 focus-visible:ring-0"
+            />
             <Button
-              size="lg"
-              onClick={handleExplore}
-              className="rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 px-8 py-3 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:from-purple-600 hover:to-cyan-600 hover:shadow-xl"
+              onClick={handleSearch}
+              className="mr-2 rounded-full"
+              disabled={!searchQuery.trim()}
             >
-              开始探索
-              <ArrowRight className="ml-2 size-5" />
+              搜索
             </Button>
-          </motion.div>
+          </div>
+        </motion.div>
 
-          {/* 统计数据 */}
+        {/* 行动按钮 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="mt-12 flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
+        >
+          <Button size="lg" onClick={handleExplore} className="min-w-[200px]">
+            <BookOpen className="mr-2 size-5" />
+            探索提示词
+          </Button>
+        </motion.div>
+
+        {/* 统计数据 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="mx-auto mt-16 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-3"
+        >
+          {[
+            { 
+              label: "提示词数量", 
+              value: isLoadingStats ? "..." : formatNumber(stats.totalPrompts),
+              icon: BookOpen,
+              color: "text-blue-500"
+            },
+            { 
+              label: "社区贡献者", 
+              value: isLoadingStats ? "..." : formatNumber(stats.totalUsers),
+              icon: Users,
+              color: "text-green-500"
+            },
+            { 
+              label: "GitHub Stars", 
+              value: isLoadingStats ? "..." : formatNumber(stats.githubStars),
+              icon: Star,
+              color: "text-yellow-500"
+            },
+          ].map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              className="glass-effect rounded-2xl p-8 text-center backdrop-blur-sm"
+              whileHover={{ scale: 1.05, y: -5 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className={`mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-background/50 ${stat.color}`}>
+                <stat.icon className="size-6" />
+              </div>
+              <div className="text-3xl font-bold text-foreground">
+                {stat.value}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {stat.label}
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* 实时更新提示 */}
+        {!isLoadingStats && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="mx-auto mt-16 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 1 }}
+            className="mt-8 flex items-center justify-center space-x-2 text-sm text-muted-foreground"
           >
-            {[
-              { label: "提示词数量", value: "10,000+" },
-              { label: "社区贡献者", value: "1,000+" },
-              { label: "GitHub Stars", value: "5,000+" },
-            ].map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                className="glass-effect rounded-2xl p-6 text-center"
-                whileHover={{ scale: 1.05, y: -5 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="gradient-text mb-2 text-3xl font-bold">
-                  {stat.value}
-                </div>
-                <div className="text-muted-foreground">{stat.label}</div>
-              </motion.div>
-            ))}
+            <TrendingUp className="size-4" />
+            <span>数据实时更新</span>
           </motion.div>
-        </div>
+        )}
       </div>
     </section>
   )

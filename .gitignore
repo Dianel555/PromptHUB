@@ -75,6 +75,7 @@ coverage/
 # 临时文件夹
 tmp/
 temp/
+问题
 
 # Vercel 部署缓存
 .vercel

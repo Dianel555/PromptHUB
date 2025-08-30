@@ -1,218 +1,244 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { ArrowLeft, Camera, Save } from "lucide-react"
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Separator } from "@/components/ui/separator"
+import { toast } from "sonner"
+import { ArrowLeft, Save, Loader2 } from "lucide-react"
 
-export default function ProfileEditPage() {
-  const { data: session } = useSession()
+interface UserProfile {
+  id: string
+  name: string
+  email: string
+  image: string
+  bio: string
+  website: string
+  location: string
+}
+
+export default function EditProfilePage() {
+  const { data: session, status } = useSession()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-
-  // 表单状态
-  const [formData, setFormData] = useState({
-    name: session?.user?.name || "",
-    email: session?.user?.email || "",
+  const [isSaving, setIsSaving] = useState(false)
+  const [profile, setProfile] = useState<UserProfile>({
+    id: "",
+    name: "",
+    email: "",
+    image: "",
     bio: "",
     website: "",
     location: "",
   })
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
-  }
+  // 获取用户信息
+  useEffect(() => {
+    if (status === "loading") return
+    
+    if (!session) {
+      router.push("/auth/signin")
+      return
+    }
 
-  const handleSave = async () => {
+    fetchUserProfile()
+  }, [session, status, router])
+
+  const fetchUserProfile = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch("/api/user/settings", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          displayName: formData.name,
-          email: formData.email,
-          bio: formData.bio,
-          website: formData.website,
-          location: formData.location,
-        }),
-      })
-
+      const response = await fetch("/api/user")
       if (response.ok) {
-        const result = await response.json()
-        console.log("保存成功:", result.message)
-        router.push("/profile")
+        const userData = await response.json()
+        setProfile(userData)
       } else {
-        const error = await response.json()
-        console.error("保存失败:", error.error)
-        alert("保存失败: " + error.error)
+        toast.error("获取用户信息失败")
       }
     } catch (error) {
-      console.error("保存失败:", error)
-      alert("保存失败，请重试")
+      console.error("获取用户信息失败:", error)
+      toast.error("获取用户信息失败")
     } finally {
       setIsLoading(false)
     }
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-4xl px-4 py-6">
-        {/* 页面头部 */}
-        <div className="mb-6 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="size-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">编辑个人资料</h1>
-            <p className="text-muted-foreground">更新您的个人信息和偏好设置</p>
-          </div>
+  const handleInputChange = (field: keyof UserProfile, value: string) => {
+    setProfile(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  const handleSave = async () => {
+    setIsSaving(true)
+    try {
+      const response = await fetch("/api/user", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: profile.name,
+          bio: profile.bio,
+          website: profile.website,
+          location: profile.location,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        toast.success("个人资料更新成功")
+        router.push("/profile")
+      } else {
+        toast.error(data.error || "更新失败")
+      }
+    } catch (error) {
+      console.error("更新个人资料失败:", error)
+      toast.error("更新失败，请重试")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  if (status === "loading" || isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="size-8 animate-spin" />
         </div>
+      </div>
+    )
+  }
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* 头像编辑 */}
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle>头像</CardTitle>
-                <CardDescription>点击头像更换您的个人头像</CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col items-center space-y-4">
-                <div className="relative">
-                  <Avatar className="size-24">
-                    <AvatarImage
-                      src={session?.user?.image || ""}
-                      alt="用户头像"
-                    />
-                    <AvatarFallback className="text-lg">
-                      {session?.user?.name?.charAt(0) || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <Button
-                    size="icon"
-                    variant="secondary"
-                    className="absolute -bottom-2 -right-2 size-8 rounded-full"
-                  >
-                    <Camera className="size-4" />
-                  </Button>
-                </div>
-                <Button variant="outline" className="w-full">
-                  上传新头像
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+  if (!session) {
+    return null
+  }
 
-          {/* 基本信息编辑 */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>基本信息</CardTitle>
-                <CardDescription>更新您的基本个人信息</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">用户名</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) =>
-                        handleInputChange("name", e.target.value)
-                      }
-                      placeholder="输入您的用户名"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">邮箱地址</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) =>
-                        handleInputChange("email", e.target.value)
-                      }
-                      placeholder="输入您的邮箱"
-                      disabled
-                    />
-                  </div>
-                </div>
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => router.back()}
+          className="mb-4"
+        >
+          <ArrowLeft className="mr-2 size-4" />
+          返回
+        </Button>
+        <h1 className="text-3xl font-bold">编辑个人资料</h1>
+        <p className="text-muted-foreground mt-2">
+          更新您的个人信息和偏好设置
+        </p>
+      </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="bio">个人简介</Label>
-                  <Textarea
-                    id="bio"
-                    value={formData.bio}
-                    onChange={(e) => handleInputChange("bio", e.target.value)}
-                    placeholder="介绍一下您自己..."
-                    rows={3}
-                  />
-                </div>
+      <div className="space-y-6">
+        {/* 头像和基本信息 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>基本信息</CardTitle>
+            <CardDescription>
+              您的公开个人资料信息
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center space-x-4">
+              <Avatar className="size-20">
+                <AvatarImage src={profile.image} alt={profile.name} />
+                <AvatarFallback className="text-lg">
+                  {profile.name?.charAt(0)?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h3 className="font-medium">{profile.name || "未设置姓名"}</h3>
+                <p className="text-sm text-muted-foreground">{profile.email}</p>
+              </div>
+            </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="website">个人网站</Label>
-                    <Input
-                      id="website"
-                      value={formData.website}
-                      onChange={(e) =>
-                        handleInputChange("website", e.target.value)
-                      }
-                      placeholder="https://yourwebsite.com"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="location">所在地</Label>
-                    <Input
-                      id="location"
-                      value={formData.location}
-                      onChange={(e) =>
-                        handleInputChange("location", e.target.value)
-                      }
-                      placeholder="城市, 国家"
-                    />
-                  </div>
-                </div>
+            <Separator />
 
-                <div className="flex justify-end space-x-4 pt-4">
-                  <Button variant="outline" onClick={() => router.back()}>
-                    取消
-                  </Button>
-                  <Button onClick={handleSave} disabled={isLoading}>
-                    {isLoading ? (
-                      <>
-                        <div className="mr-2 size-4 animate-spin rounded-full border-b-2 border-white" />
-                        保存中...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="mr-2 size-4" />
-                        保存更改
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">姓名</Label>
+                <Input
+                  id="name"
+                  placeholder="输入您的姓名"
+                  value={profile.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  maxLength={50}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bio">个人简介</Label>
+                <Textarea
+                  id="bio"
+                  placeholder="简单介绍一下自己..."
+                  value={profile.bio}
+                  onChange={(e) => handleInputChange("bio", e.target.value)}
+                  maxLength={500}
+                  className="min-h-[100px]"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {profile.bio.length}/500 字符
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="website">个人网站</Label>
+                <Input
+                  id="website"
+                  type="url"
+                  placeholder="https://example.com"
+                  value={profile.website}
+                  onChange={(e) => handleInputChange("website", e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="location">所在地</Label>
+                <Input
+                  id="location"
+                  placeholder="城市, 国家"
+                  value={profile.location}
+                  onChange={(e) => handleInputChange("location", e.target.value)}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 保存按钮 */}
+        <div className="flex justify-end space-x-4">
+          <Button
+            variant="outline"
+            onClick={() => router.back()}
+            disabled={isSaving}
+          >
+            取消
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                保存中...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 size-4" />
+                保存更改
+              </>
+            )}
+          </Button>
         </div>
       </div>
     </div>

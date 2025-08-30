@@ -1,84 +1,89 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-
+import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 
-export async function GET(request: NextRequest) {
+// GET - 获取用户设置
+export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-
+    
     if (!session?.user?.email) {
       return NextResponse.json({ error: "未授权" }, { status: 401 })
     }
 
-    // 模拟获取用户设置数据
-    const settings = {
-      displayName: session.user.name || "",
-      email: session.user.email,
-      bio: "这是一个简短的个人介绍...",
-      website: "",
-      location: "",
-      emailNotifications: true,
-      pushNotifications: false,
-      marketingEmails: false,
+    // 获取用户设置，如果不存在则返回默认值
+    let userSettings = await prisma.userSettings.findUnique({
+      where: { userEmail: session.user.email }
+    })
+
+    if (!userSettings) {
+      // 创建默认设置
+      userSettings = await prisma.userSettings.create({
+        data: {
+          userEmail: session.user.email,
+          emailNotifications: true,
+          publicProfile: true,
+          showActivity: true,
+          allowComments: true,
+        }
+      })
     }
 
-    return NextResponse.json(settings)
+    return NextResponse.json({
+      emailNotifications: userSettings.emailNotifications,
+      publicProfile: userSettings.publicProfile,
+      showActivity: userSettings.showActivity,
+      allowComments: userSettings.allowComments,
+    })
   } catch (error) {
     console.error("获取用户设置失败:", error)
     return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
   }
 }
 
+// PUT - 更新用户设置
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-
+    
     if (!session?.user?.email) {
       return NextResponse.json({ error: "未授权" }, { status: 401 })
     }
 
     const body = await request.json()
+    const { emailNotifications, publicProfile, showActivity, allowComments } = body
 
-    // 验证输入数据
-    const {
-      displayName,
-      email,
-      bio,
-      website,
-      location,
-      emailNotifications,
-      pushNotifications,
-      marketingEmails,
-    } = body
-
-    // 基本验证
-    if (displayName && displayName.length > 100) {
-      return NextResponse.json({ error: "显示名称过长" }, { status: 400 })
-    }
-
-    if (bio && bio.length > 500) {
-      return NextResponse.json({ error: "个人简介过长" }, { status: 400 })
-    }
-
-    // 在实际项目中，这里应该更新数据库
-    // 现在我们模拟保存成功并存储到内存中（仅用于演示）
-    console.log("保存用户设置:", {
-      userEmail: session.user.email,
-      settings: body,
-      timestamp: new Date().toISOString(),
+    // 更新或创建用户设置
+    const updatedSettings = await prisma.userSettings.upsert({
+      where: { userEmail: session.user.email },
+      update: {
+        emailNotifications: emailNotifications ?? true,
+        publicProfile: publicProfile ?? true,
+        showActivity: showActivity ?? true,
+        allowComments: allowComments ?? true,
+        updatedAt: new Date(),
+      },
+      create: {
+        userEmail: session.user.email,
+        emailNotifications: emailNotifications ?? true,
+        publicProfile: publicProfile ?? true,
+        showActivity: showActivity ?? true,
+        allowComments: allowComments ?? true,
+      }
     })
-
-    // 模拟保存延迟
-    await new Promise((resolve) => setTimeout(resolve, 500))
 
     return NextResponse.json({
-      success: true,
-      message: "设置已成功保存",
-      data: body,
+      message: "设置更新成功",
+      settings: {
+        emailNotifications: updatedSettings.emailNotifications,
+        publicProfile: updatedSettings.publicProfile,
+        showActivity: updatedSettings.showActivity,
+        allowComments: updatedSettings.allowComments,
+      }
     })
   } catch (error) {
-    console.error("保存用户设置失败:", error)
-    return NextResponse.json({ error: "保存失败，请重试" }, { status: 500 })
+    console.error("更新用户设置失败:", error)
+    return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
   }
 }
