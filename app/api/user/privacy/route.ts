@@ -1,14 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "未授权" }, { status: 401 })
     }
 
     const user = await prisma.user.findUnique({
@@ -16,10 +16,21 @@ export async function GET() {
       select: { privacy: true }
     })
 
-    return NextResponse.json(user?.privacy || {})
+    const defaultPrivacy = {
+      profileVisibility: "public",
+      showEmail: false,
+      showStats: true,
+      allowMessages: true,
+    }
+
+    const privacy = user?.privacy ? 
+      { ...defaultPrivacy, ...(user.privacy as object) } : 
+      defaultPrivacy
+
+    return NextResponse.json(privacy)
   } catch (error) {
-    console.error('Privacy fetch error:', error)
-    return NextResponse.json({ error: 'Failed to fetch privacy settings' }, { status: 500 })
+    console.error("获取隐私设置失败:", error)
+    return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
   }
 }
 
@@ -28,20 +39,25 @@ export async function PUT(request: NextRequest) {
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "未授权" }, { status: 401 })
     }
 
     const privacy = await request.json()
-    
-    const updatedUser = await prisma.user.update({
+
+    await prisma.user.upsert({
       where: { email: session.user.email },
-      data: { privacy: privacy },
-      select: { privacy: true }
+      update: { privacy },
+      create: {
+        email: session.user.email,
+        name: session.user.name || "",
+        image: session.user.image || "",
+        privacy
+      }
     })
 
-    return NextResponse.json(updatedUser.privacy)
+    return NextResponse.json({ message: "隐私设置保存成功", privacy })
   } catch (error) {
-    console.error('Privacy update error:', error)
-    return NextResponse.json({ error: 'Failed to update privacy settings' }, { status: 500 })
+    console.error("保存隐私设置失败:", error)
+    return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
   }
 }

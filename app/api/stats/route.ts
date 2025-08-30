@@ -19,7 +19,6 @@ export async function GET() {
           select: {
             prompts: true,
             likes: true,
-            comments: true,
           }
         }
       }
@@ -32,7 +31,6 @@ export async function GET() {
     const stats = {
       promptsCount: user._count.prompts,
       likesCount: user._count.likes,
-      commentsCount: user._count.comments,
       joinedAt: user.createdAt,
     }
 

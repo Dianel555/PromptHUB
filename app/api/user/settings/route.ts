@@ -1,14 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "未授权" }, { status: 401 })
     }
 
     const user = await prisma.user.findUnique({
@@ -16,10 +16,21 @@ export async function GET() {
       select: { settings: true }
     })
 
-    return NextResponse.json(user?.settings || {})
+    const defaultSettings = {
+      emailNotifications: true,
+      publicProfile: true,
+      showActivity: true,
+      allowComments: true,
+    }
+
+    const settings = user?.settings ? 
+      { ...defaultSettings, ...(user.settings as object) } : 
+      defaultSettings
+
+    return NextResponse.json(settings)
   } catch (error) {
-    console.error('Settings fetch error:', error)
-    return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 })
+    console.error("获取设置失败:", error)
+    return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
   }
 }
 
@@ -28,20 +39,25 @@ export async function PUT(request: NextRequest) {
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "未授权" }, { status: 401 })
     }
 
     const settings = await request.json()
-    
-    const updatedUser = await prisma.user.update({
+
+    await prisma.user.upsert({
       where: { email: session.user.email },
-      data: { settings: settings },
-      select: { settings: true }
+      update: { settings },
+      create: {
+        email: session.user.email,
+        name: session.user.name || "",
+        image: session.user.image || "",
+        settings
+      }
     })
 
-    return NextResponse.json(updatedUser.settings)
+    return NextResponse.json({ message: "设置保存成功", settings })
   } catch (error) {
-    console.error('Settings update error:', error)
-    return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 })
+    console.error("保存设置失败:", error)
+    return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
   }
 }

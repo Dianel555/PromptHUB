@@ -25,14 +25,7 @@ export async function GET() {
         location: true,
         createdAt: true,
         updatedAt: true,
-        emailNotifications: true,
-        publicProfile: true,
-        showActivity: true,
-        allowComments: true,
-        profileVisibility: true,
-        showEmail: true,
-        showStats: true,
-        allowMessages: true,
+
       }
     })
 
@@ -57,14 +50,7 @@ export async function GET() {
           location: true,
           createdAt: true,
           updatedAt: true,
-          emailNotifications: true,
-          publicProfile: true,
-          showActivity: true,
-          allowComments: true,
-          profileVisibility: true,
-          showEmail: true,
-          showStats: true,
-          allowMessages: true,
+
         }
       })
     }

@@ -36,46 +36,83 @@ export async function GET() {
         followingCount,
         user
       ] = await Promise.all([
-        // 用户创建的提示词数量
-        prisma.prompt.count({
-          where: { 
-            authorId: session.user.id,
-            isPublic: true 
-          }
+        // 获取用户ID
+        prisma.user.findUnique({
+          where: { email: userEmail },
+          select: { id: true }
+        }).then(async (user) => {
+          if (!user) return 0;
+          return prisma.prompt.count({
+            where: { 
+              authorId: user.id,
+              isPublic: true 
+            }
+          });
         }),
         
         // 用户收藏的提示词数量
-        prisma.like.count({
-          where: { userId: session.user.id }
+        prisma.user.findUnique({
+          where: { email: userEmail },
+          select: { id: true }
+        }).then(async (user) => {
+          if (!user) return 0;
+          return prisma.like.count({
+            where: { userId: user.id }
+          });
         }),
         
         // 用户获得的总点赞数
-        prisma.like.count({
-          where: {
-            prompt: {
-              authorId: session.user.id
+        prisma.user.findUnique({
+          where: { email: userEmail },
+          select: { id: true }
+        }).then(async (user) => {
+          if (!user) return 0;
+          return prisma.like.count({
+            where: {
+              prompt: {
+                authorId: user.id
+              }
             }
-          }
+          });
         }),
         
-        // 用户提示词的总浏览量（使用 views 字段求和）
-        prisma.prompt.aggregate({
-          where: {
-            authorId: session.user.id
-          },
-          _sum: {
-            views: true
-          }
-        }).then((result: { _sum: { views: number | null } }) => result._sum.views || 0),
+        // 用户提示词的总浏览量
+        prisma.user.findUnique({
+          where: { email: userEmail },
+          select: { id: true }
+        }).then(async (user) => {
+          if (!user) return 0;
+          const result = await prisma.prompt.aggregate({
+            where: {
+              authorId: user.id
+            },
+            _sum: {
+              views: true
+            }
+          });
+          return result._sum.views || 0;
+        }),
         
         // 关注者数量
-        prisma.follow.count({
-          where: { followingId: session.user.id }
+        prisma.user.findUnique({
+          where: { email: userEmail },
+          select: { id: true }
+        }).then(async (user) => {
+          if (!user) return 0;
+          return prisma.follow.count({
+            where: { followingId: user.id }
+          });
         }),
         
         // 关注数量
-        prisma.follow.count({
-          where: { followerId: session.user.id }
+        prisma.user.findUnique({
+          where: { email: userEmail },
+          select: { id: true }
+        }).then(async (user) => {
+          if (!user) return 0;
+          return prisma.follow.count({
+            where: { followerId: user.id }
+          });
         }),
         
         // 确保用户存在
