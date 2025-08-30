@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
 import { ArrowLeft, Save, Loader2, Shield, Eye, EyeOff } from "lucide-react"
+import { usePrivacySettings } from "@/hooks/use-user"
 
 interface PrivacySettings {
   profileVisibility: boolean
@@ -22,9 +23,9 @@ interface PrivacySettings {
 export default function PrivacyPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
+  const { settings, isLoading, updatePrivacySettings } = usePrivacySettings()
   const [isSaving, setIsSaving] = useState(false)
-  const [settings, setSettings] = useState<PrivacySettings>({
+  const [localSettings, setLocalSettings] = useState<PrivacySettings>({
     profileVisibility: true,
     promptsVisibility: true,
     activityVisibility: true,
@@ -32,6 +33,7 @@ export default function PrivacyPage() {
     allowDirectMessages: true,
   })
 
+  // 检查认证状态
   useEffect(() => {
     if (status === "loading") return
     
@@ -39,27 +41,17 @@ export default function PrivacyPage() {
       router.push("/auth/signin")
       return
     }
-
-    fetchPrivacySettings()
   }, [session, status, router])
 
-  const fetchPrivacySettings = async () => {
-    setIsLoading(true)
-    try {
-      const response = await fetch("/api/user/privacy")
-      if (response.ok) {
-        const data = await response.json()
-        setSettings(data)
-      }
-    } catch (error) {
-      console.error("获取隐私设置失败:", error)
-    } finally {
-      setIsLoading(false)
+  // 同步设置数据到本地状态
+  useEffect(() => {
+    if (settings) {
+      setLocalSettings(settings)
     }
-  }
+  }, [settings])
 
   const handleSettingChange = (key: keyof PrivacySettings, value: boolean) => {
-    setSettings(prev => ({
+    setLocalSettings(prev => ({
       ...prev,
       [key]: value
     }))
@@ -68,23 +60,9 @@ export default function PrivacyPage() {
   const handleSave = async () => {
     setIsSaving(true)
     try {
-      const response = await fetch("/api/user/privacy", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(settings),
-      })
-
-      if (response.ok) {
-        toast.success("隐私设置保存成功")
-      } else {
-        const data = await response.json()
-        toast.error(data.error || "保存失败")
-      }
+      await updatePrivacySettings(localSettings)
     } catch (error) {
-      console.error("保存隐私设置失败:", error)
-      toast.error("保存失败，请重试")
+      // 错误已在hook中处理
     } finally {
       setIsSaving(false)
     }
@@ -145,7 +123,7 @@ export default function PrivacyPage() {
                 </p>
               </div>
               <Switch
-                checked={settings.profileVisibility}
+                checked={localSettings.profileVisibility}
                 onCheckedChange={(checked) => handleSettingChange("profileVisibility", checked)}
               />
             </div>
@@ -160,7 +138,7 @@ export default function PrivacyPage() {
                 </p>
               </div>
               <Switch
-                checked={settings.searchable}
+                checked={localSettings.searchable}
                 onCheckedChange={(checked) => handleSettingChange("searchable", checked)}
               />
             </div>
@@ -187,7 +165,7 @@ export default function PrivacyPage() {
                 </p>
               </div>
               <Switch
-                checked={settings.promptsVisibility}
+                checked={localSettings.promptsVisibility}
                 onCheckedChange={(checked) => handleSettingChange("promptsVisibility", checked)}
               />
             </div>
@@ -202,7 +180,7 @@ export default function PrivacyPage() {
                 </p>
               </div>
               <Switch
-                checked={settings.activityVisibility}
+                checked={localSettings.activityVisibility}
                 onCheckedChange={(checked) => handleSettingChange("activityVisibility", checked)}
               />
             </div>
@@ -226,7 +204,7 @@ export default function PrivacyPage() {
                 </p>
               </div>
               <Switch
-                checked={settings.allowDirectMessages}
+                checked={localSettings.allowDirectMessages}
                 onCheckedChange={(checked) => handleSettingChange("allowDirectMessages", checked)}
               />
             </div>

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
 import { ArrowLeft, Save, Loader2 } from "lucide-react"
+import { useUserSettings } from "@/hooks/use-user"
 
 interface UserSettings {
   emailNotifications: boolean
@@ -21,15 +22,16 @@ interface UserSettings {
 export default function SettingsPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
+  const { settings, isLoading, updateSettings } = useUserSettings()
   const [isSaving, setIsSaving] = useState(false)
-  const [settings, setSettings] = useState<UserSettings>({
+  const [localSettings, setLocalSettings] = useState<UserSettings>({
     emailNotifications: true,
     publicProfile: true,
     showActivity: true,
     allowComments: true,
   })
 
+  // 检查认证状态
   useEffect(() => {
     if (status === "loading") return
     
@@ -37,27 +39,17 @@ export default function SettingsPage() {
       router.push("/auth/signin")
       return
     }
-
-    fetchUserSettings()
   }, [session, status, router])
 
-  const fetchUserSettings = async () => {
-    setIsLoading(true)
-    try {
-      const response = await fetch("/api/user/settings")
-      if (response.ok) {
-        const data = await response.json()
-        setSettings(data)
-      }
-    } catch (error) {
-      console.error("获取设置失败:", error)
-    } finally {
-      setIsLoading(false)
+  // 同步设置数据到本地状态
+  useEffect(() => {
+    if (settings) {
+      setLocalSettings(settings)
     }
-  }
+  }, [settings])
 
   const handleSettingChange = (key: keyof UserSettings, value: boolean) => {
-    setSettings(prev => ({
+    setLocalSettings(prev => ({
       ...prev,
       [key]: value
     }))
@@ -66,23 +58,9 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setIsSaving(true)
     try {
-      const response = await fetch("/api/user/settings", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(settings),
-      })
-
-      if (response.ok) {
-        toast.success("设置保存成功")
-      } else {
-        const data = await response.json()
-        toast.error(data.error || "保存失败")
-      }
+      await updateSettings(localSettings)
     } catch (error) {
-      console.error("保存设置失败:", error)
-      toast.error("保存失败，请重试")
+      // 错误已在hook中处理
     } finally {
       setIsSaving(false)
     }
@@ -137,7 +115,7 @@ export default function SettingsPage() {
                 </p>
               </div>
               <Switch
-                checked={settings.emailNotifications}
+                checked={localSettings.emailNotifications}
                 onCheckedChange={(checked) => handleSettingChange("emailNotifications", checked)}
               />
             </div>
@@ -161,7 +139,7 @@ export default function SettingsPage() {
                 </p>
               </div>
               <Switch
-                checked={settings.publicProfile}
+                checked={localSettings.publicProfile}
                 onCheckedChange={(checked) => handleSettingChange("publicProfile", checked)}
               />
             </div>
@@ -176,7 +154,7 @@ export default function SettingsPage() {
                 </p>
               </div>
               <Switch
-                checked={settings.showActivity}
+                checked={localSettings.showActivity}
                 onCheckedChange={(checked) => handleSettingChange("showActivity", checked)}
               />
             </div>
@@ -200,7 +178,7 @@ export default function SettingsPage() {
                 </p>
               </div>
               <Switch
-                checked={settings.allowComments}
+                checked={localSettings.allowComments}
                 onCheckedChange={(checked) => handleSettingChange("allowComments", checked)}
               />
             </div>

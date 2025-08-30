@@ -6,8 +6,10 @@ import { fontSans } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
 import { SessionProvider } from "@/components/session-provider"
 import { SiteHeader } from "@/components/site-header"
+import { SWRProvider } from "@/components/swr-provider"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "sonner"
 
 export const metadata: Metadata = {
   title: {
@@ -44,13 +46,16 @@ export default function RootLayout({ children }: RootLayoutProps) {
           )}
         >
           <SessionProvider>
-            <ThemeProvider defaultTheme="system">
-              <div className="relative flex min-h-screen flex-col">
-                <SiteHeader />
-                <div className="flex-1 pt-16">{children}</div>
-              </div>
-              <TailwindIndicator />
-            </ThemeProvider>
+            <SWRProvider>
+              <ThemeProvider defaultTheme="system">
+                <div className="relative flex min-h-screen flex-col">
+                  <SiteHeader />
+                  <div className="flex-1 pt-16">{children}</div>
+                </div>
+                <TailwindIndicator />
+                <Toaster />
+              </ThemeProvider>
+            </SWRProvider>
           </SessionProvider>
         </body>
       </html>

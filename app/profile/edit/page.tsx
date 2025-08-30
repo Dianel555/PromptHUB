@@ -12,21 +12,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
 import { ArrowLeft, Save, Loader2 } from "lucide-react"
+import { useUser } from "@/hooks/use-user"
 
 interface UserProfile {
   id: string
-  name: string
+  name: string | null
   email: string
-  image: string
-  bio: string
-  website: string
-  location: string
+  image: string | null
+  bio: string | null
+  website: string | null
+  location: string | null
 }
 
 export default function EditProfilePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
+  const { user, isLoading, updateUser } = useUser()
   const [isSaving, setIsSaving] = useState(false)
   const [profile, setProfile] = useState<UserProfile>({
     id: "",
@@ -38,7 +39,7 @@ export default function EditProfilePage() {
     location: "",
   })
 
-  // 获取用户信息
+  // 检查认证状态
   useEffect(() => {
     if (status === "loading") return
     
@@ -46,27 +47,22 @@ export default function EditProfilePage() {
       router.push("/auth/signin")
       return
     }
-
-    fetchUserProfile()
   }, [session, status, router])
 
-  const fetchUserProfile = async () => {
-    setIsLoading(true)
-    try {
-      const response = await fetch("/api/user")
-      if (response.ok) {
-        const userData = await response.json()
-        setProfile(userData)
-      } else {
-        toast.error("获取用户信息失败")
-      }
-    } catch (error) {
-      console.error("获取用户信息失败:", error)
-      toast.error("获取用户信息失败")
-    } finally {
-      setIsLoading(false)
+  // 同步用户数据到本地状态
+  useEffect(() => {
+    if (user) {
+      setProfile({
+        id: user.id,
+        name: user.name || "",
+        email: user.email,
+        image: user.image || "",
+        bio: user.bio || "",
+        website: user.website || "",
+        location: user.location || "",
+      })
     }
-  }
+  }, [user])
 
   const handleInputChange = (field: keyof UserProfile, value: string) => {
     setProfile(prev => ({
@@ -76,32 +72,19 @@ export default function EditProfilePage() {
   }
 
   const handleSave = async () => {
+    if (!user) return
+    
     setIsSaving(true)
     try {
-      const response = await fetch("/api/user", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: profile.name,
-          bio: profile.bio,
-          website: profile.website,
-          location: profile.location,
-        }),
+      await updateUser({
+        name: profile.name || undefined,
+        bio: profile.bio || undefined,
+        website: profile.website || undefined,
+        location: profile.location || undefined,
       })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        toast.success("个人资料更新成功")
-        router.push("/profile")
-      } else {
-        toast.error(data.error || "更新失败")
-      }
+      router.push("/profile")
     } catch (error) {
-      console.error("更新个人资料失败:", error)
-      toast.error("更新失败，请重试")
+      // 错误已在hook中处理
     } finally {
       setIsSaving(false)
     }
@@ -117,7 +100,7 @@ export default function EditProfilePage() {
     )
   }
 
-  if (!session) {
+  if (!session || !user) {
     return null
   }
 
@@ -150,9 +133,9 @@ export default function EditProfilePage() {
           <CardContent className="space-y-6">
             <div className="flex items-center space-x-4">
               <Avatar className="size-20">
-                <AvatarImage src={profile.image} alt={profile.name} />
+                <AvatarImage src={profile.image || ""} alt={profile.name || "用户头像"} />
                 <AvatarFallback className="text-lg">
-                  {profile.name?.charAt(0)?.toUpperCase() || "U"}
+                  {(profile.name && profile.name.charAt(0)?.toUpperCase()) || "U"}
                 </AvatarFallback>
               </Avatar>
               <div>
@@ -169,7 +152,7 @@ export default function EditProfilePage() {
                 <Input
                   id="name"
                   placeholder="输入您的姓名"
-                  value={profile.name}
+                  value={profile.name ?? ""}
                   onChange={(e) => handleInputChange("name", e.target.value)}
                   maxLength={50}
                 />
@@ -180,13 +163,13 @@ export default function EditProfilePage() {
                 <Textarea
                   id="bio"
                   placeholder="简单介绍一下自己..."
-                  value={profile.bio}
+                  value={profile.bio ?? ""}
                   onChange={(e) => handleInputChange("bio", e.target.value)}
                   maxLength={500}
                   className="min-h-[100px]"
                 />
                 <p className="text-xs text-muted-foreground">
-                  {profile.bio.length}/500 字符
+                  {(profile.bio ?? "").length}/500 字符
                 </p>
               </div>
 
@@ -196,7 +179,7 @@ export default function EditProfilePage() {
                   id="website"
                   type="url"
                   placeholder="https://example.com"
-                  value={profile.website}
+                  value={profile.website ?? ""}
                   onChange={(e) => handleInputChange("website", e.target.value)}
                 />
               </div>
@@ -206,7 +189,7 @@ export default function EditProfilePage() {
                 <Input
                   id="location"
                   placeholder="城市, 国家"
-                  value={profile.location}
+                  value={profile.location ?? ""}
                   onChange={(e) => handleInputChange("location", e.target.value)}
                 />
               </div>
