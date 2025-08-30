@@ -41,4 +41,4 @@ dist
 Thumbs.db
 
 # Prisma
-prisma/migrations
+# prisma/migrations  # 注释掉，部署时需要迁移文件
