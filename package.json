@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && prisma db push && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
@@ -17,7 +17,8 @@
     "validate-config": "node scripts/validate-config.js",
     "test-deployment": "node scripts/test-deployment.js",
     "pre-deploy": "npm run validate-config && npm run deploy-check && npm run test-deployment",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "vercel-build": "prisma generate && prisma db push && next build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

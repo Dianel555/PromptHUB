@@ -76,6 +76,7 @@ coverage/
 tmp/
 temp/
 问题
+logs_result.json
 
 # Vercel 部署缓存
 .vercel
