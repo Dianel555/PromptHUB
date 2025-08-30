@@ -97,6 +97,7 @@ export async function GET() {
         totalViews,
         followersCount,
         followingCount,
+        achievements: ["新用户"], // 添加默认成就
       }
 
       return NextResponse.json(stats)
@@ -113,6 +114,7 @@ export async function GET() {
         totalViews: Math.abs((userHash * 5) % 1000) + 100,
         followersCount: Math.abs((userHash * 7) % 100) + 5,
         followingCount: Math.abs((userHash * 11) % 80) + 3,
+        achievements: ["新用户"], // 添加默认成就
       }
 
       return NextResponse.json(fallbackStats)

@@ -55,7 +55,11 @@ export default function ProfilePage() {
       const response = await fetch("/api/user/stats")
       if (response.ok) {
         const data = await response.json()
-        setUserStats(data)
+        // 确保 achievements 字段存在
+        setUserStats({
+          ...data,
+          achievements: data.achievements || ["新用户"]
+        })
       }
     } catch (error) {
       console.error("获取用户统计数据失败:", error)
@@ -182,7 +186,7 @@ export default function ProfilePage() {
           <div className="space-y-2">
             <h3 className="text-sm font-medium">成就徽章</h3>
             <div className="flex flex-wrap gap-2">
-              {userStats.achievements.map((achievement, index) => (
+              {(userStats.achievements || ["新用户"]).map((achievement, index) => (
                 <Badge key={index} variant="secondary">
                   {achievement}
                 </Badge>
