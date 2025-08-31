@@ -147,16 +147,14 @@ export function PromptCard({
               {description}
             </p>
 
-            {/* 内容预览 */}
+            {/* 内容预览 - 重构UI，移除冗余标签 */}
             {showPreview && content && (
-              <div className="mt-3 rounded-md bg-muted/30 p-3 border-l-2 border-primary/30">
-                <div className="flex items-center gap-2 mb-2">
-                  <FileText className="size-3 text-primary" />
-                  <span className="text-xs font-medium text-primary">内容预览</span>
+              <div className="mt-3 rounded-lg bg-gradient-to-r from-muted/20 to-muted/10 p-4 border border-border/30">
+                <div className="prose prose-sm max-w-none">
+                  <p className="line-clamp-3 text-sm text-muted-foreground leading-relaxed mb-0 font-mono">
+                    {content.length > 150 ? `${content.substring(0, 150)}...` : content}
+                  </p>
                 </div>
-                <p className="line-clamp-2 text-xs text-muted-foreground font-mono leading-relaxed">
-                  {content.length > 100 ? `${content.substring(0, 100)}...` : content}
-                </p>
               </div>
             )}
           </div>
