@@ -19,7 +19,7 @@ const mockPrompts = [
       "创建令人惊叹的详细图像，包含风格修饰符、构图指南和高级参数控制。适用于各种AI图像生成工具。",
     author: {
       name: "Alex Chen",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=alex`,
     },
     tags: ["图像", "艺术", "精选"],
     likes: 1250,
@@ -34,7 +34,7 @@ const mockPrompts = [
       "简化您的内容创作流程，适用于博客、文章和社交媒体帖子的多功能写作提示词。",
     author: {
       name: "Sarah Kim",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=sarah`,
     },
     tags: ["写作", "内容"],
     likes: 890,
@@ -48,7 +48,7 @@ const mockPrompts = [
       "高效识别和修复代码中的错误，支持多种编程语言的结构化调试提示词。",
     author: {
       name: "Mike Johnson",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=mike`,
     },
     tags: ["代码", "开发"],
     likes: 2100,
@@ -62,7 +62,7 @@ const mockPrompts = [
       "通过结构化的文献综述、方法论建议和引用格式来增强您的研究过程。",
     author: {
       name: "Dr. Brown",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=brown`,
     },
     tags: ["学术", "研究", "精选"],
     likes: 1450,
@@ -77,7 +77,7 @@ const mockPrompts = [
       "为开源项目创建清晰、全面的README和技术文档，提升项目可读性。包括安装指南、使用说明、API文档和贡献指南，让开发者快速上手。",
     author: {
       name: "Emma Davis",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=emma`,
     },
     tags: ["开源", "文档"],
     likes: 980,
@@ -91,7 +91,7 @@ const mockPrompts = [
       "专业引导和促进技术社区讨论，创建包容性的交流环境。帮助维护社区秩序，鼓励建设性对话，解决冲突，提升整体讨论质量和参与度。",
     author: {
       name: "Community Team",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=community`,
     },
     tags: ["社区", "协作"],
     likes: 750,

@@ -134,7 +134,7 @@ export default function PromptsPage() {
               <Card className="border-0 bg-gradient-to-r from-purple-500/10 to-purple-600/10 backdrop-blur-sm">
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                    {stats.totalViews.toLocaleString()}
+                    {(stats.totalViews || 0).toLocaleString()}
                   </div>
                   <div className="text-sm text-muted-foreground">总浏览量</div>
                 </CardContent>

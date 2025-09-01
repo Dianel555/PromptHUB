@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
+import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -213,7 +214,7 @@ export function PromptCard({
               onClick={handleAuthorClick}
             >
               <AvatarImage 
-                src={author.avatar || "/placeholder.svg?height=24&width=24"} 
+                src={author.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${author.name}`} 
                 alt={author.name}
                 onError={(e) => {
                   // 头像加载失败时的处理

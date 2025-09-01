@@ -3,6 +3,7 @@
 import React from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
+import Image from "next/image"
 import { 
   Heart, 
   MessageCircle, 
@@ -176,56 +177,51 @@ export function HomepagePromptCard({
             )}
           </div>
 
-          {/* 底部信息 - 修复截断问题 */}
-          <div className="space-y-3 pt-4 mt-4 border-t border-border/30">
+          {/* 底部信息 - 修复截断问题，确保有足够空间 */}
+          <div className="space-y-3 pt-4 mt-auto border-t border-border/30">
             {/* 作者和统计信息 - 修复头像显示和布局 */}
-            <div className="flex items-center justify-between text-sm min-h-[20px]">
+            <div className="flex items-center justify-between text-sm min-h-[24px]">
               <button
                 onClick={handleAuthorClick}
                 className="flex min-w-0 flex-1 items-center space-x-2 text-muted-foreground hover:text-primary transition-colors mr-4"
               >
-                {author.avatar ? (
-                  <img 
-                    src={author.avatar} 
-                    alt={author.name}
-                    className="size-5 rounded-full shrink-0 object-cover"
-                    onError={(e) => {
-                      // 头像加载失败时显示默认图标
-                      const target = e.target as HTMLImageElement
-                      target.style.display = 'none'
-                      const parent = target.parentElement
-                      if (parent) {
-                        const icon = document.createElement('div')
-                        icon.className = 'size-5 shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-xs text-primary'
-                        icon.textContent = author.name.charAt(0).toUpperCase()
-                        parent.insertBefore(icon, target)
-                      }
-                    }}
-                  />
+                {author.avatar && !author.avatar.includes('placeholder.svg') ? (
+                  <div className="size-5 shrink-0 rounded-full overflow-hidden">
+                    <Image 
+                      src={author.avatar} 
+                      alt={author.name}
+                      width={20}
+                      height={20}
+                      className="size-full object-cover"
+                      onError={() => {
+                        // 头像加载失败时的处理将由fallback处理
+                      }}
+                    />
+                  </div>
                 ) : (
                   <div className="size-5 shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-xs text-primary">
                     {author.name.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <span className="truncate text-sm">{author.name}</span>
+                <span className="truncate text-sm leading-5">{author.name}</span>
               </button>
               
               <div className="flex shrink-0 items-center space-x-4 text-muted-foreground">
                 <div className="flex items-center space-x-1">
                   <Heart className={cn("size-4", isLiked && "fill-red-500 text-red-500")} />
-                  <span className="text-xs">{likes}</span>
+                  <span className="text-xs leading-5">{likes}</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Eye className="size-4" />
-                  <span className="text-xs">{views}</span>
+                  <span className="text-xs leading-5">{views}</span>
                 </div>
               </div>
             </div>
 
             {/* 创建时间 */}
-            <div className="flex items-center space-x-1 text-xs text-muted-foreground pb-2">
+            <div className="flex items-center space-x-1 text-xs text-muted-foreground pb-1">
               <Calendar className="size-3" />
-              <span>{formatDate(createdAt)}</span>
+              <span className="leading-4">{formatDate(createdAt)}</span>
             </div>
           </div>
         </CardContent>
