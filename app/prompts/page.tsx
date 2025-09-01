@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { PromptCard } from "@/components/prompt-card"
 import { getUserPrompts, getUserStats, type Prompt } from "@/lib/prompt-storage"
+import { dataSyncChecker } from "@/lib/data-sync-checker"
 
 export default function PromptsPage() {
   const router = useRouter()
@@ -21,6 +22,18 @@ export default function PromptsPage() {
   const [stats, setStats] = useState({ totalPrompts: 0, totalLikes: 0, totalViews: 0 })
 
   useEffect(() => {
+    // 数据同步检测
+    const syncCheck = dataSyncChecker.checkDataIntegrity()
+    if (!syncCheck.isValid) {
+      console.warn('检测到数据不一致问题:', syncCheck.issues)
+      console.log('诊断报告:', dataSyncChecker.generateDiagnosticReport())
+      
+      // 尝试修复
+      if (dataSyncChecker.repairDataInconsistency()) {
+        console.log('数据修复成功')
+      }
+    }
+
     // 加载用户的提示词和统计数据
     const userPrompts = getUserPrompts()
     const userStats = getUserStats()

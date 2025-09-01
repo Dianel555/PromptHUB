@@ -121,16 +121,32 @@ export default function CreatePromptPage() {
     setSaving(true)
     try {
       // 保存到本地存储
+      // 获取用户信息（模拟从用户状态获取）
+      const getUserInfo = () => {
+        // 尝试从localStorage获取用户信息
+        try {
+          const userInfo = localStorage.getItem('user_info')
+          if (userInfo) {
+            return JSON.parse(userInfo)
+          }
+        } catch (error) {
+          console.error("获取用户信息失败:", error)
+        }
+        
+        // 默认用户信息
+        return {
+          id: getCurrentUserId(),
+          name: "当前用户",
+          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${getCurrentUserId()}`
+        }
+      }
+
       const promptData = {
         title: form.title.trim(),
         description: form.description.trim(),
         content: form.content.trim(),
         tags: form.tags,
-        author: {
-          id: getCurrentUserId(),
-          name: "当前用户", // 这里应该从用户状态获取
-          avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
-        },
+        author: getUserInfo(),
         isPublic: form.isPublic
       }
       

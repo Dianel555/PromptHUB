@@ -98,11 +98,21 @@ export function PromptCard({
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation()
     
-    setLiked(!liked)
-    setLikeCount((prev) => (liked ? prev - 1 : prev + 1))
-
-    // TODO: 调用API更新点赞状态
-    console.log(`${liked ? "取消点赞" : "点赞"} 提示词:`, id)
+    const newLikedState = !liked
+    setLiked(newLikedState)
+    
+    // 调用存储系统更新点赞状态
+    try {
+      const { toggleLike } = require("@/lib/prompt-storage")
+      const newLikeCount = toggleLike(id.toString(), newLikedState)
+      setLikeCount(newLikeCount)
+      
+      console.log(`${newLikedState ? "点赞" : "取消点赞"} 提示词:`, id, "新点赞数:", newLikeCount)
+    } catch (error) {
+      console.error("更新点赞状态失败:", error)
+      // 回滚状态
+      setLiked(liked)
+    }
   }
 
   const handleAuthorClick = (e: React.MouseEvent) => {

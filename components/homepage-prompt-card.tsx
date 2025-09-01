@@ -176,8 +176,8 @@ export function HomepagePromptCard({
             )}
           </div>
 
-          {/* 底部信息 */}
-          <div className="space-y-3 pt-3 mt-3 border-t border-border/20 bg-background/50 -mx-6 px-6 pb-0">
+          {/* 底部信息 - 修复杂色问题 */}
+          <div className="space-y-3 pt-4 mt-4 border-t border-border/30">
             {/* 作者和统计信息 */}
             <div className="flex items-center justify-between text-sm">
               <button
@@ -201,7 +201,7 @@ export function HomepagePromptCard({
             </div>
 
             {/* 创建时间 */}
-            <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+            <div className="flex items-center space-x-1 text-xs text-muted-foreground pb-2">
               <Calendar className="size-3" />
               <span>{formatDate(createdAt)}</span>
             </div>
