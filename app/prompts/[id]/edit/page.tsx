@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
 import { getPromptById, updatePrompt, deletePrompt } from "@/lib/prompt-storage"
+import { countEffectiveCharacters, formatCharacterStats } from "@/lib/character-counter"
 
 interface EditPromptForm {
   title: string
@@ -280,103 +281,49 @@ export default function EditPromptPage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
-          {/* 头部 */}
+          {/* 头部 - 居中显示标题 */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <Button 
-                  variant="ghost" 
-                  onClick={() => router.back()}
-                  className="hover:bg-muted/50"
-                >
-                  <ArrowLeft className="size-4 mr-2" />
-                  返回
-                </Button>
-                <div>
-                  <h1 className="text-3xl font-bold text-foreground flex items-center">
-                    <FileText className="size-8 mr-3 text-primary" />
-                    编辑提示词
-                  </h1>
-                  <p className="text-muted-foreground mt-1">
-                    修改和完善你的AI提示词
-                  </p>
-                </div>
+              <Button 
+                variant="ghost" 
+                onClick={() => router.back()}
+                className="hover:bg-muted/50"
+              >
+                <ArrowLeft className="size-4 mr-2" />
+                返回
+              </Button>
+              
+              <div className="text-center">
+                <h1 className="text-3xl font-bold text-foreground flex items-center justify-center">
+                  <FileText className="size-8 mr-3 text-primary" />
+                  编辑提示词
+                </h1>
+                <p className="text-muted-foreground mt-1">
+                  修改和完善你的AI提示词
+                </p>
               </div>
               
-              <div className="flex items-center space-x-3">
-                <Button
-                  variant="outline"
-                  onClick={handlePreviewToggle}
-                  className="hover:bg-muted/50"
-                >
-                  {showPreview ? (
-                    <>
-                      <EyeOff className="size-4 mr-2" />
-                      隐藏预览
-                    </>
-                  ) : (
-                    <>
-                      <Eye className="size-4 mr-2" />
-                      显示预览
-                    </>
-                  )}
-                </Button>
-
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-950"
-                    >
-                      <Trash2 className="size-4 mr-2" />
-                      删除
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="flex items-center">
-                        <AlertTriangle className="size-5 mr-2 text-red-500" />
-                        确认删除
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        此操作无法撤销。这将永久删除你的提示词。
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>取消</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleDelete}
-                        disabled={deleting}
-                        className="bg-red-500 hover:bg-red-600"
-                      >
-                        {deleting ? "删除中..." : "确认删除"}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-                
-                <Button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="bg-primary hover:bg-primary/90"
-                >
-                  {saving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      保存中...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="size-4 mr-2" />
-                      保存更改
-                    </>
-                  )}
-                </Button>
-              </div>
+              <Button
+                variant="outline"
+                onClick={handlePreviewToggle}
+                className="hover:bg-muted/50"
+              >
+                {showPreview ? (
+                  <>
+                    <EyeOff className="size-4 mr-2" />
+                    隐藏预览
+                  </>
+                ) : (
+                  <>
+                    <Eye className="size-4 mr-2" />
+                    显示预览
+                  </>
+                )}
+              </Button>
             </div>
           </motion.div>
 
@@ -412,7 +359,10 @@ export default function EditPromptPage() {
                       maxLength={100}
                     />
                     <div className="text-xs text-muted-foreground text-right">
-                      {form.title.length}/100
+                      {(() => {
+                        const stats = countEffectiveCharacters(form.title)
+                        return `${stats.effectiveChars}/${100} (${stats.totalChars} 总计)`
+                      })()}
                     </div>
                   </div>
 
@@ -430,7 +380,10 @@ export default function EditPromptPage() {
                       maxLength={500}
                     />
                     <div className="text-xs text-muted-foreground text-right">
-                      {form.description.length}/500
+                      {(() => {
+                        const stats = countEffectiveCharacters(form.description)
+                        return `${stats.effectiveChars}/${500} (${stats.totalChars} 总计)`
+                      })()}
                     </div>
                   </div>
                 </CardContent>
@@ -502,19 +455,86 @@ export default function EditPromptPage() {
                   </h2>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    <Label htmlFor="content" className="text-sm font-medium">
-                      内容 <span className="text-red-500">*</span>
-                    </Label>
-                    <Textarea
-                      id="content"
-                      value={form.content}
-                      onChange={(e) => handleInputChange("content", e.target.value)}
-                      className="bg-background/50 border-border/50 focus:border-primary/50 min-h-[400px] font-mono text-sm leading-relaxed resize-none"
-                      maxLength={10000}
-                    />
-                    <div className="text-xs text-muted-foreground text-right">
-                      {form.content.length}/10,000
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="content" className="text-sm font-medium">
+                        内容 <span className="text-red-500">*</span>
+                      </Label>
+                      <Textarea
+                        id="content"
+                        value={form.content}
+                        onChange={(e) => handleInputChange("content", e.target.value)}
+                        className="bg-background/50 border-border/50 focus:border-primary/50 min-h-[400px] font-mono text-sm leading-relaxed resize-none"
+                        maxLength={10000}
+                      />
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <div className="text-right">
+                          {(() => {
+                            const stats = countEffectiveCharacters(form.content)
+                            return `${stats.effectiveChars}/${10000} 有效字符`
+                          })()}
+                        </div>
+                        <div className="text-right text-xs opacity-75">
+                          {(() => {
+                            const stats = countEffectiveCharacters(form.content)
+                            return formatCharacterStats(stats, true)
+                          })()}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* 操作按钮移至内容框底部 */}
+                    <div className="flex items-center justify-center space-x-4 pt-4 border-t border-border/30">
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-950"
+                          >
+                            <Trash2 className="size-4 mr-2" />
+                            删除
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="flex items-center">
+                              <AlertTriangle className="size-5 mr-2 text-red-500" />
+                              确认删除
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              此操作无法撤销。这将永久删除你的提示词。
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>取消</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={handleDelete}
+                              disabled={deleting}
+                              className="bg-red-500 hover:bg-red-600"
+                            >
+                              {deleting ? "删除中..." : "确认删除"}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                      
+                      <Button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="bg-primary hover:bg-primary/90"
+                      >
+                        {saving ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            保存中...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="size-4 mr-2" />
+                            保存更改
+                          </>
+                        )}
+                      </Button>
                     </div>
                   </div>
                 </CardContent>

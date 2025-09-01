@@ -152,9 +152,9 @@ export function HomepagePromptCard({
         </CardHeader>
 
         <CardContent className="relative flex h-full flex-col justify-between space-y-4 pt-0">
-          {/* 描述 */}
+          {/* 描述 - 缩小高度确保底部信息可见 */}
           <div className="flex-1">
-            <p className="line-clamp-3 text-sm text-muted-foreground leading-relaxed">
+            <p className="line-clamp-2 text-sm text-muted-foreground leading-relaxed">
               {description}
             </p>
           </div>
@@ -178,13 +178,35 @@ export function HomepagePromptCard({
 
           {/* 底部信息 - 修复杂色问题 */}
           <div className="space-y-3 pt-4 mt-4 border-t border-border/30">
-            {/* 作者和统计信息 */}
+            {/* 作者和统计信息 - 修复头像显示 */}
             <div className="flex items-center justify-between text-sm">
               <button
                 onClick={handleAuthorClick}
                 className="flex min-w-0 items-center space-x-2 text-muted-foreground hover:text-primary transition-colors"
               >
-                <User className="size-4 shrink-0" />
+                {author.avatar ? (
+                  <img 
+                    src={author.avatar} 
+                    alt={author.name}
+                    className="size-4 rounded-full shrink-0 object-cover"
+                    onError={(e) => {
+                      // 头像加载失败时显示默认图标
+                      const target = e.target as HTMLImageElement
+                      target.style.display = 'none'
+                      const parent = target.parentElement
+                      if (parent) {
+                        const icon = document.createElement('div')
+                        icon.className = 'size-4 shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-xs text-primary'
+                        icon.textContent = author.name.charAt(0).toUpperCase()
+                        parent.insertBefore(icon, target)
+                      }
+                    }}
+                  />
+                ) : (
+                  <div className="size-4 shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-xs text-primary">
+                    {author.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <span className="truncate">{author.name}</span>
               </button>
               

@@ -24,6 +24,29 @@ const STATS_KEY = 'user_stats'
 // 获取当前用户ID（模拟）
 export const getCurrentUserId = () => 'current_user'
 
+// 获取当前用户信息（包含真实头像）
+export const getCurrentUserInfo = () => {
+  // 在实际应用中，这里应该从认证系统获取用户信息
+  if (typeof window !== 'undefined') {
+    // 尝试从session storage获取用户信息
+    const userInfo = sessionStorage.getItem('user_info')
+    if (userInfo) {
+      try {
+        return JSON.parse(userInfo)
+      } catch (error) {
+        console.error('解析用户信息失败:', error)
+      }
+    }
+  }
+  
+  // 默认用户信息
+  return {
+    id: 'current_user',
+    name: '当前用户',
+    avatar: null
+  }
+}
+
 // 获取用户的所有提示词
 export const getUserPrompts = (): Prompt[] => {
   if (typeof window === 'undefined') return []
@@ -41,10 +64,15 @@ export const getUserPrompts = (): Prompt[] => {
 export const savePrompt = (promptData: Omit<Prompt, 'id' | 'createdAt' | 'updatedAt' | 'likes' | 'comments' | 'views'>): Prompt => {
   const prompts = getUserPrompts()
   const now = new Date().toISOString()
+  const currentUser = getCurrentUserInfo()
   
   const newPrompt: Prompt = {
     ...promptData,
     id: `prompt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    author: {
+      ...promptData.author,
+      avatar: promptData.author.avatar || currentUser.avatar
+    },
     createdAt: now,
     updatedAt: now,
     likes: 0,

@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { PromptCard } from "@/components/prompt-card"
 import { getUserPrompts, getUserStats, type Prompt } from "@/lib/prompt-storage"
 import { dataSyncChecker } from "@/lib/data-sync-checker"
+import { useStats } from "@/hooks/use-stats"
 
 export default function PromptsPage() {
   const router = useRouter()
@@ -20,6 +21,18 @@ export default function PromptsPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [prompts, setPrompts] = useState<Prompt[]>([])
   const [stats, setStats] = useState({ totalPrompts: 0, totalLikes: 0, totalViews: 0 })
+  const { stats: syncedStats, mutate: refreshStats } = useStats()
+  
+  // 当同步统计数据更新时，更新本地状态
+  useEffect(() => {
+    if (syncedStats) {
+      setStats({
+        totalPrompts: syncedStats.totalPrompts,
+        totalLikes: syncedStats.totalLikes,
+        totalViews: syncedStats.totalViews
+      })
+    }
+  }, [syncedStats])
 
   useEffect(() => {
     // 数据同步检测
@@ -34,11 +47,10 @@ export default function PromptsPage() {
       }
     }
 
-    // 加载用户的提示词和统计数据
+    // 加载用户的提示词和刷新统计数据
     const userPrompts = getUserPrompts()
-    const userStats = getUserStats()
     setPrompts(userPrompts)
-    setStats(userStats)
+    refreshStats() // 刷新同步的统计数据
   }, [])
 
   // 获取所有标签

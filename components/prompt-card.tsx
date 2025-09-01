@@ -161,12 +161,12 @@ export function PromptCard({
               {description}
             </p>
 
-            {/* 内容预览 - 重构UI，移除冗余标签 */}
+            {/* 内容预览 - 缩小高度确保底部信息可见 */}
             {showPreview && content && (
-              <div className="mt-3 rounded-lg bg-gradient-to-r from-muted/20 to-muted/10 p-4 border border-border/30">
+              <div className="mt-3 rounded-lg bg-gradient-to-r from-muted/20 to-muted/10 p-3 border border-border/30">
                 <div className="prose prose-sm max-w-none">
-                  <p className="line-clamp-3 text-sm text-muted-foreground leading-relaxed mb-0 font-mono">
-                    {content.length > 150 ? `${content.substring(0, 150)}...` : content}
+                  <p className="line-clamp-2 text-sm text-muted-foreground leading-relaxed mb-0 font-mono">
+                    {content.length > 100 ? `${content.substring(0, 100)}...` : content}
                   </p>
                 </div>
               </div>
@@ -206,14 +206,22 @@ export function PromptCard({
             )}
           </div>
 
-          {/* 作者信息 */}
+          {/* 作者信息 - 修复头像显示 */}
           <div className="mb-4 flex items-center space-x-2">
             <Avatar 
               className="size-6 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
               onClick={handleAuthorClick}
             >
-              <AvatarImage src={author.avatar} alt={author.name} />
-              <AvatarFallback className="text-xs">
+              <AvatarImage 
+                src={author.avatar || "/placeholder.svg?height=24&width=24"} 
+                alt={author.name}
+                onError={(e) => {
+                  // 头像加载失败时的处理
+                  const target = e.target as HTMLImageElement
+                  target.style.display = 'none'
+                }}
+              />
+              <AvatarFallback className="text-xs bg-primary/10 text-primary">
                 {author.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>

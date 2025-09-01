@@ -1,14 +1,14 @@
 "use client"
 
 import { Suspense } from "react"
-import { useStats } from "@/hooks/use-stats"
+import { useStatsSync } from "@/lib/stats-sync-manager"
 
 interface ProfileStatsProps {
   className?: string
 }
 
 function StatsContent({ className }: ProfileStatsProps) {
-  const { stats, isLoading } = useStats()
+  const { stats, isLoading } = useStatsSync()
 
   const userStats = {
     totalLikes: stats?.totalLikes || 0,
