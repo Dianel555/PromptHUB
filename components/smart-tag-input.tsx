@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { EnhancedTag } from "@/components/enhanced-tag"
 import { type TagType } from "@/lib/enhanced-tag-system"
 
-interface SmartTag {
+export interface SmartTag {
   id: string
   name: string
   type?: TagType

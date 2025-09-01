@@ -8,32 +8,34 @@ const nextConfig = {
     return config
   },
   images: {
-    domains: [
-      'avatars.githubusercontent.com',
-      'api.dicebear.com',
-      'images.unsplash.com',
-      'placehold.co'
-    ],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'avatars.githubusercontent.com',
         port: '',
-        pathname: '/u/**',
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'api.dicebear.com',
         port: '',
-        pathname: '/7.x/**',
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        port: '',
+        pathname: '/**',
       }
-    ]
+    ],
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   }
 }
 

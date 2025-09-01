@@ -17,7 +17,9 @@ import {
   Calendar,
   Eye,
   Edit,
-  FileText
+  FileText,
+  Share2,
+  Download
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -88,11 +90,68 @@ export function PromptCard({
     }
 
     try {
-      await navigator.clipboard.writeText(content)
-      toast.success("提示词已复制到剪贴板")
+      // 复制完整的JSON格式数据
+      const promptData = {
+        title,
+        description,
+        content,
+        tags,
+        author: author.name,
+        createdAt: formatDate(createdAt)
+      }
+      await navigator.clipboard.writeText(JSON.stringify(promptData, null, 2))
+      toast.success("提示词JSON数据已复制到剪贴板")
     } catch (error) {
       console.error("复制失败:", error)
       toast.error("复制失败，请手动复制")
+    }
+  }
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    
+    try {
+      const shareUrl = `${window.location.origin}/prompts/${id}`
+      await navigator.clipboard.writeText(shareUrl)
+      toast.success("分享链接已复制到剪贴板")
+    } catch (error) {
+      console.error("分享失败:", error)
+      toast.error("分享失败")
+    }
+  }
+
+  const handleExportJSON = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    
+    try {
+      const promptData = {
+        title,
+        description,
+        content,
+        tags,
+        author: author.name,
+        createdAt: formatDate(createdAt),
+        likes,
+        views,
+        comments
+      }
+      
+      const dataStr = JSON.stringify(promptData, null, 2)
+      const dataBlob = new Blob([dataStr], { type: 'application/json' })
+      const url = URL.createObjectURL(dataBlob)
+      
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_')}.json`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+      
+      toast.success("JSON文件已下载")
+    } catch (error) {
+      console.error("导出失败:", error)
+      toast.error("导出失败")
     }
   }
 
@@ -207,31 +266,26 @@ export function PromptCard({
             )}
           </div>
 
-          {/* 作者信息 - 修复头像显示 */}
+          {/* 作者信息 - 修复头像显示和点击跳转 */}
           <div className="mb-4 flex items-center space-x-2">
             <Avatar 
               className="size-6 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
               onClick={handleAuthorClick}
             >
               <AvatarImage 
-                src={author.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${author.name}`} 
+                src={author.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(author.name)}`} 
                 alt={author.name}
-                onError={(e) => {
-                  // 头像加载失败时的处理
-                  const target = e.target as HTMLImageElement
-                  target.style.display = 'none'
-                }}
               />
               <AvatarFallback className="text-xs bg-primary/10 text-primary">
                 {author.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <span 
+            <button 
               className="text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
               onClick={handleAuthorClick}
             >
               {author.name}
-            </span>
+            </button>
             <span className="text-xs text-muted-foreground">•</span>
             <div className="flex items-center space-x-1 text-xs text-muted-foreground">
               <Calendar className="size-3" />
@@ -275,33 +329,43 @@ export function PromptCard({
                   variant="ghost"
                   onClick={handleCopy}
                   className="size-8 p-0 hover:bg-primary/20"
-                  title="复制内容"
+                  title="复制JSON数据"
                 >
                   <Copy className="size-4" />
-                </Button>
-              )}
-
-              {isOwner && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleEdit}
-                  className="size-8 p-0 hover:bg-green-500/20 text-green-600 dark:text-green-400"
-                  title="编辑提示词"
-                >
-                  <Edit className="size-4" />
                 </Button>
               )}
 
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={handleCardClick}
-                className="size-8 p-0 hover:bg-primary/20"
-                title="查看详情"
+                onClick={handleShare}
+                className="size-8 p-0 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                title="分享链接"
               >
-                <ExternalLink className="size-4" />
+                <Share2 className="size-4" />
               </Button>
+
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleExportJSON}
+                className="size-8 p-0 hover:bg-green-500/20 text-green-600 dark:text-green-400"
+                title="导出JSON"
+              >
+                <Download className="size-4" />
+              </Button>
+
+              {isOwner && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleEdit}
+                  className="size-8 p-0 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
+                  title="编辑提示词"
+                >
+                  <Edit className="size-4" />
+                </Button>
+              )}
             </div>
           </div>
         </CardContent>

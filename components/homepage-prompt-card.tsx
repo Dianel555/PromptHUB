@@ -92,15 +92,15 @@ export function HomepagePromptCard({
     })
   }
 
-  // 智能标签颜色分配
+  // 智能标签颜色分配 - 修复白天模式下的显示问题
   const getTagColor = (tagName: string) => {
     const colors = [
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300", 
-      "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-      "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
-      "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
-      "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300"
+      "bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50",
+      "bg-green-50 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50", 
+      "bg-purple-50 text-purple-700 hover:bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50",
+      "bg-orange-50 text-orange-700 hover:bg-orange-100 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/50",
+      "bg-pink-50 text-pink-700 hover:bg-pink-100 dark:bg-pink-900/30 dark:text-pink-300 dark:hover:bg-pink-900/50",
+      "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
     ]
     const hash = tagName.split('').reduce((a, b) => a + b.charCodeAt(0), 0)
     return colors[hash % colors.length]
@@ -152,16 +152,16 @@ export function HomepagePromptCard({
           </div>
         </CardHeader>
 
-        <CardContent className="relative flex h-full flex-col justify-between space-y-4 pt-0">
-          {/* 描述 - 缩小高度确保底部信息可见 */}
-          <div className="flex-1">
-            <p className="line-clamp-2 text-sm text-muted-foreground leading-relaxed">
+        <CardContent className="relative flex h-full flex-col p-6 pb-4">
+          {/* 描述 */}
+          <div className="flex-1 mb-4">
+            <p className="line-clamp-3 text-sm text-muted-foreground leading-relaxed">
               {description}
             </p>
           </div>
 
           {/* 标签 */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-4">
             {tags.slice(0, 3).map((tag, index) => (
               <Badge 
                 key={index} 
@@ -177,51 +177,49 @@ export function HomepagePromptCard({
             )}
           </div>
 
-          {/* 底部信息 - 修复截断问题，确保有足够空间 */}
-          <div className="space-y-3 pt-4 mt-auto border-t border-border/30">
+          {/* 底部信息 - 固定在底部，确保完整显示 */}
+          <div className="space-y-3 pt-3 mt-auto border-t border-border/30 min-h-[72px]">
             {/* 作者和统计信息 - 修复头像显示和布局 */}
-            <div className="flex items-center justify-between text-sm min-h-[24px]">
+            <div className="flex items-center justify-between text-sm min-h-[32px]">
               <button
                 onClick={handleAuthorClick}
                 className="flex min-w-0 flex-1 items-center space-x-2 text-muted-foreground hover:text-primary transition-colors mr-4"
               >
-                {author.avatar && !author.avatar.includes('placeholder.svg') ? (
-                  <div className="size-5 shrink-0 rounded-full overflow-hidden">
+                {author.avatar && author.avatar.startsWith('http') && !author.avatar.includes('placeholder.svg') ? (
+                  <div className="size-5 shrink-0 rounded-full overflow-hidden bg-muted">
                     <Image 
                       src={author.avatar} 
                       alt={author.name}
                       width={20}
                       height={20}
                       className="size-full object-cover"
-                      onError={() => {
-                        // 头像加载失败时的处理将由fallback处理
-                      }}
+                      unoptimized={author.avatar.includes('dicebear.com')}
                     />
                   </div>
                 ) : (
-                  <div className="size-5 shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-xs text-primary">
+                  <div className="size-5 shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-xs text-primary font-medium">
                     {author.name.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <span className="truncate text-sm leading-5">{author.name}</span>
+                <span className="truncate text-sm leading-6">{author.name}</span>
               </button>
               
               <div className="flex shrink-0 items-center space-x-4 text-muted-foreground">
                 <div className="flex items-center space-x-1">
                   <Heart className={cn("size-4", isLiked && "fill-red-500 text-red-500")} />
-                  <span className="text-xs leading-5">{likes}</span>
+                  <span className="text-sm leading-6">{likes}</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Eye className="size-4" />
-                  <span className="text-xs leading-5">{views}</span>
+                  <span className="text-sm leading-6">{views}</span>
                 </div>
               </div>
             </div>
 
             {/* 创建时间 */}
-            <div className="flex items-center space-x-1 text-xs text-muted-foreground pb-1">
-              <Calendar className="size-3" />
-              <span className="leading-4">{formatDate(createdAt)}</span>
+            <div className="flex items-center space-x-1 text-xs text-muted-foreground min-h-[20px]">
+              <Calendar className="size-3 shrink-0" />
+              <span className="leading-5">{formatDate(createdAt)}</span>
             </div>
           </div>
         </CardContent>
