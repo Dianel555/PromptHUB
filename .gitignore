@@ -25,7 +25,6 @@ build/
 *~
 .codebuddy/
 .serena/
-project_document/
 
 # 系统生成文件
 .DS_Store

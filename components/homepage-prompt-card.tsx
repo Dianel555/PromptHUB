@@ -177,7 +177,7 @@ export function HomepagePromptCard({
           </div>
 
           {/* 底部信息 */}
-          <div className="space-y-3 pt-2 border-t border-border/50">
+          <div className="space-y-3 pt-3 mt-3 border-t border-border/20 bg-background/50 -mx-6 px-6 pb-0">
             {/* 作者和统计信息 */}
             <div className="flex items-center justify-between text-sm">
               <button

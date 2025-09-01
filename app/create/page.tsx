@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
+import { savePrompt, getCurrentUserId } from "@/lib/prompt-storage"
 
 interface CreatePromptForm {
   title: string
@@ -119,11 +120,22 @@ export default function CreatePromptPage() {
 
     setSaving(true)
     try {
-      // 模拟API调用
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // 保存到本地存储
+      const promptData = {
+        title: form.title.trim(),
+        description: form.description.trim(),
+        content: form.content.trim(),
+        tags: form.tags,
+        author: {
+          id: getCurrentUserId(),
+          name: "当前用户", // 这里应该从用户状态获取
+          avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
+        },
+        isPublic: form.isPublic
+      }
       
-      // TODO: 实际的API调用
-      console.log("保存提示词:", form)
+      const savedPrompt = savePrompt(promptData)
+      console.log("提示词已保存:", savedPrompt)
       
       toast.success("提示词创建成功！")
       router.push("/prompts")

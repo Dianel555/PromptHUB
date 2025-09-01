@@ -70,8 +70,12 @@ export function PromptCard({
       onClick()
       return
     }
-    // 跳转到提示词详情页面
-    router.push(`/prompts/${id}`)
+    // 如果是用户自己的提示词，跳转到编辑页面；否则跳转到详情页面
+    if (isOwner) {
+      router.push(`/prompts/${id}/edit`)
+    } else {
+      router.push(`/prompts/${id}`)
+    }
   }
 
   const handleCopy = async (e: React.MouseEvent) => {
