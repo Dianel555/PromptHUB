@@ -12,20 +12,22 @@ export function SiteHeader() {
     <header className="bg-background/98 fixed top-0 z-[100] w-full border-b border-border/40 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
         <MainNav items={siteConfig.mainNav} />
-        <div className="flex flex-1 items-center justify-end space-x-4">
-          <nav className="relative z-[110] flex items-center space-x-1">
-            <AuthButton />
+        <div className="flex flex-1 items-center justify-end space-x-2">
+          <nav className="relative z-[110] flex items-center space-x-2">
+            <div className="relative z-[100]">
+              <AuthButton />
+            </div>
             <Link
               href={siteConfig.links.github}
               target="_blank"
               rel="noreferrer"
             >
-              <Button size="icon" variant="ghost">
+              <Button size="icon" variant="ghost" className="shrink-0">
                 <Icons.gitHub className="size-5" />
                 <span className="sr-only">GitHub</span>
               </Button>
             </Link>
-            <div className="relative z-[120]">
+            <div className="relative z-[120] shrink-0">
               <ThemeToggle />
             </div>
           </nav>

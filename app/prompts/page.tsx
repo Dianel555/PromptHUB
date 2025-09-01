@@ -35,23 +35,33 @@ export default function PromptsPage() {
   }, [syncedStats])
 
   useEffect(() => {
-    // 数据同步检测
-    const syncCheck = dataSyncChecker.checkDataIntegrity()
-    if (!syncCheck.isValid) {
-      console.warn('检测到数据不一致问题:', syncCheck.issues)
-      console.log('诊断报告:', dataSyncChecker.generateDiagnosticReport())
-      
-      // 尝试修复
-      if (dataSyncChecker.repairDataInconsistency()) {
-        console.log('数据修复成功')
+    try {
+      // 数据同步检测 - 添加错误处理
+      const syncCheck = dataSyncChecker.checkDataIntegrity()
+      if (!syncCheck.isValid) {
+        console.warn('检测到数据不一致问题:', syncCheck.issues)
+        console.log('诊断报告:', dataSyncChecker.generateDiagnosticReport())
+        
+        // 尝试修复
+        if (dataSyncChecker.repairDataInconsistency()) {
+          console.log('数据修复成功')
+        }
       }
+    } catch (error) {
+      console.error('数据同步检测失败:', error)
     }
 
-    // 加载用户的提示词和刷新统计数据
-    const userPrompts = getUserPrompts()
-    setPrompts(userPrompts)
-    refreshStats() // 刷新同步的统计数据
-  }, [])
+    try {
+      // 加载用户的提示词和刷新统计数据
+      const userPrompts = getUserPrompts()
+      setPrompts(userPrompts)
+      refreshStats() // 刷新同步的统计数据
+    } catch (error) {
+      console.error('加载数据失败:', error)
+      // 设置默认值以防止页面崩溃
+      setPrompts([])
+    }
+  }, [refreshStats])
 
   // 获取所有标签
   const allTags = Array.from(new Set(prompts.flatMap(prompt => prompt.tags)))

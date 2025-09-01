@@ -54,16 +54,27 @@ export function AuthButton() {
         variant="ghost"
         size="sm"
         onClick={handleProfileClick}
-        className="flex min-w-0 max-w-[140px] items-center space-x-2 px-3"
+        className="flex min-w-0 max-w-[160px] items-center space-x-2 px-3 relative"
       >
-        <Image
-          src={session.user?.image || ""}
-          alt={session.user?.name || "用户头像"}
-          width={20}
-          height={20}
-          className="size-5 shrink-0 rounded-full"
-        />
-        <span className="hidden truncate text-sm font-medium sm:inline">
+        {session.user?.image ? (
+          <Image
+            src={session.user.image}
+            alt={session.user?.name || "用户头像"}
+            width={24}
+            height={24}
+            className="size-6 shrink-0 rounded-full object-cover"
+            onError={(e) => {
+              // 头像加载失败时的处理
+              const target = e.target as HTMLImageElement
+              target.style.display = 'none'
+            }}
+          />
+        ) : (
+          <div className="size-6 shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-xs text-primary">
+            {session.user?.name?.charAt(0).toUpperCase() || 'U'}
+          </div>
+        )}
+        <span className="hidden truncate text-sm font-medium sm:inline max-w-[100px]">
           {session.user?.name}
         </span>
       </Button>
