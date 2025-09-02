@@ -249,12 +249,12 @@ export function PromptCard({
               // 智能标签颜色分配
               const getTagColor = (tagName: string) => {
                 const colors = [
-                  "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-                  "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-                  "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-                  "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
-                  "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
-                  "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300"
+                  "bg-blue-100 text-blue-800 hover:bg-blue-200 hover:text-blue-900 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50 dark:hover:text-blue-200",
+                  "bg-green-100 text-green-800 hover:bg-green-200 hover:text-green-900 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-800/50 dark:hover:text-green-200",
+                  "bg-purple-100 text-purple-800 hover:bg-purple-200 hover:text-purple-900 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-800/50 dark:hover:text-purple-200",
+                  "bg-orange-100 text-orange-800 hover:bg-orange-200 hover:text-orange-900 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-800/50 dark:hover:text-orange-200",
+                  "bg-pink-100 text-pink-800 hover:bg-pink-200 hover:text-pink-900 dark:bg-pink-900/30 dark:text-pink-300 dark:hover:bg-pink-800/50 dark:hover:text-pink-200",
+                  "bg-indigo-100 text-indigo-800 hover:bg-indigo-200 hover:text-indigo-900 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-800/50 dark:hover:text-indigo-200"
                 ]
                 const hash = tagName.split('').reduce((a, b) => a + b.charCodeAt(0), 0)
                 return colors[hash % colors.length]

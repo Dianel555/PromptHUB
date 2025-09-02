@@ -30,9 +30,23 @@ export function HeroSection() {
 
   const fetchStats = async () => {
     try {
-      // 并行获取平台统计和GitHub统计
+      // 获取本地存储的个人提示词统计
+      let localStats = { totalPrompts: 0, totalViews: 0, totalLikes: 0 }
+      
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('user_stats')
+          if (stored) {
+            localStats = JSON.parse(stored)
+          }
+        } catch (error) {
+          console.log('无法获取本地统计数据:', error)
+        }
+      }
+
+      // 并行获取平台统计和GitHub统计，同时传递本地统计数据
       const [platformResponse, githubResponse] = await Promise.all([
-        fetch("/api/platform-stats"),
+        fetch(`/api/platform-stats?localPrompts=${localStats.totalPrompts}&localViews=${localStats.totalViews}&localLikes=${localStats.totalLikes}`),
         fetch("/api/github/stats")
       ])
 
