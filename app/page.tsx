@@ -1,13 +1,11 @@
 import { HeroSection } from "@/components/hero-section"
 import { PromptGrid } from "@/components/prompt-grid"
 
-export default function IndexPage() {
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <main className="min-h-screen">
       <HeroSection />
-      <main className="flex-1">
-        <PromptGrid />
-      </main>
-    </div>
+      <PromptGrid />
+    </main>
   )
 }

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>标签显示测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 模拟可能的CSS冲突 */
+        .card-content-flex {
+            display: flex;
+            height: 100%;
+            flex-direction: column;
+        }
+        .flex-1 {
+            flex: 1 1 0%;
+        }
+        .mt-auto {
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto space-y-8">
+        <h1 class="text-2xl font-bold text-center">标签显示问题测试</h1>
+        
+        <!-- 测试1: 原始有问题的布局 -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="p-4 border-b">
+                <h2 class="font-semibold text-red-600">测试1: 有问题的布局 (flex h-full)</h2>
+            </div>
+            <div class="card-content-flex p-6 pb-4" style="height: 200px;">
+                <div class="flex-1 mb-4">
+                    <h3 class="text-lg font-semibold mb-2">AI写作助手</h3>
+                    <p class="text-sm text-gray-600">帮助您创作高质量的文章、博客和创意内容。</p>
+                </div>
+                <div class="flex flex-wrap gap-2 mt-auto border-t pt-3">
+                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">写作</span>
+                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">创意</span>
+                    <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded">内容创作</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 测试2: 修复后的布局 -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="p-4 border-b">
+                <h2 class="font-semibold text-green-600">测试2: 修复后的布局 (移除高度约束)</h2>
+            </div>
+            <div class="p-6 pb-4">
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold mb-2">AI写作助手</h3>
+                    <p class="text-sm text-gray-600">帮助您创作高质量的文章、博客和创意内容。</p>
+                </div>
+                <div class="flex flex-wrap gap-2 pt-3 border-t border-gray-200 min-h-[32px]">
+                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">写作</span>
+                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">创意</span>
+                    <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded">内容创作</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 测试3: 网格布局中的卡片 -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="p-4 border-b">
+                <h2 class="font-semibold text-blue-600">测试3: 网格布局中的卡片</h2>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="font-semibold mb-2">卡片1</h3>
+                        <p class="text-sm text-gray-600 mb-3">这是一个测试卡片的描述内容。</p>
+                        <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-200">
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">标签1</span>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">标签2</span>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="font-semibold mb-2">卡片2</h3>
+                        <p class="text-sm text-gray-600 mb-3">这是另一个测试卡片的描述内容。</p>
+                        <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-200">
+                            <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">标签3</span>
+                            <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded">标签4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('页面加载完成，检查标签显示情况');
+        
+        // 检查所有标签元素
+        const tags = document.querySelectorAll('[class*="bg-"][class*="text-"]');
+        console.log('找到标签元素数量:', tags.length);
+        
+        tags.forEach((tag, index) => {
+            const rect = tag.getBoundingClientRect();
+            console.log(`标签${index + 1}:`, {
+                text: tag.textContent,
+                visible: rect.width > 0 && rect.height > 0,
+                dimensions: { width: rect.width, height: rect.height },
+                position: { top: rect.top, left: rect.left }
+            });
+        });
+    </script>
+</body>
+</html>
