@@ -49,28 +49,60 @@ const getPromptData = async (id: string): Promise<PromptDetail | null> => {
   try {
     // 首先尝试从本地存储获取数据
     const prompts = JSON.parse(localStorage.getItem('prompts') || '[]')
+    console.log('查找提示词ID:', id, '总数据量:', prompts.length)
     
-    // 优先按新ID格式查找
-    let prompt = prompts.find((p: any) => p.id === id)
+    // 多种查找策略
+    let prompt = null
     
-    // 兼容旧ID格式（通过originalId字段）
-    if (!prompt) {
-      prompt = prompts.find((p: any) => p.originalId === id)
+    // 1. 精确ID匹配
+    prompt = prompts.find((p: any) => p.id === id)
+    if (prompt) {
+      console.log('通过精确ID找到提示词:', prompt.title)
     }
     
-    // 按索引查找（兼容纯数字ID）
+    // 2. 兼容旧ID格式
+    if (!prompt) {
+      prompt = prompts.find((p: any) => p.originalId === id)
+      if (prompt) {
+        console.log('通过originalId找到提示词:', prompt.title)
+      }
+    }
+    
+    // 3. 数字索引查找
     if (!prompt && /^\d+$/.test(id)) {
       const index = parseInt(id) - 1
       if (index >= 0 && index < prompts.length) {
         prompt = prompts[index]
+        console.log('通过索引找到提示词:', prompt?.title)
       }
     }
     
-    // 如果仍然找不到，尝试按标题模糊匹配（最后的兼容性尝试）
-    if (!prompt && id.length > 8) {
-      prompt = prompts.find((p: any) => 
-        p.title && p.title.toLowerCase().includes(id.toLowerCase().substring(0, 10))
-      )
+    // 4. 如果ID看起来像是旧格式的时间戳ID，尝试按创建时间匹配
+    if (!prompt && id.includes('_')) {
+      const timestampMatch = id.match(/prompt_(\d+)_/)
+      if (timestampMatch) {
+        const timestamp = parseInt(timestampMatch[1])
+        const targetDate = new Date(timestamp)
+        prompt = prompts.find((p: any) => {
+          if (p.createdAt) {
+            const promptDate = new Date(p.createdAt)
+            return Math.abs(promptDate.getTime() - targetDate.getTime()) < 60000 // 1分钟内
+          }
+          return false
+        })
+        if (prompt) {
+          console.log('通过时间戳匹配找到提示词:', prompt.title)
+        }
+      }
+    }
+    
+    // 5. 最后尝试按标题部分匹配
+    if (!prompt && prompts.length > 0) {
+      // 如果只有一个提示词，直接返回
+      if (prompts.length === 1) {
+        prompt = prompts[0]
+        console.log('只有一个提示词，直接返回:', prompt.title)
+      }
     }
     
     if (prompt) {
@@ -99,6 +131,7 @@ const getPromptData = async (id: string): Promise<PromptDetail | null> => {
       }
     }
     
+    console.warn('未找到匹配的提示词，ID:', id)
     return null
   } catch (error) {
     console.error('获取提示词数据失败:', error)
