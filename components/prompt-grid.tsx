@@ -17,86 +17,42 @@ const mockPrompts = [
     title: "AI图像生成专家",
     description:
       "创建令人惊叹的详细图像，包含风格修饰符、构图指南和高级参数控制。适用于各种AI图像生成工具。",
-    author: {
-      name: "Alex Chen",
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=alex`,
-    },
-    tags: ["图像", "艺术", "精选"],
-    likes: 1250,
-    views: 8900,
-    createdAt: new Date("2024-01-15"),
-    featured: true,
+    tags: ["图像", "艺术", "精选"]
   },
   {
     id: "2",
     title: "内容写作助手",
     description:
       "简化您的内容创作流程，适用于博客、文章和社交媒体帖子的多功能写作提示词。",
-    author: {
-      name: "Sarah Kim",
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=sarah`,
-    },
-    tags: ["写作", "内容"],
-    likes: 890,
-    views: 5600,
-    createdAt: new Date("2024-01-20"),
+    tags: ["写作", "内容"]
   },
   {
     id: "3",
     title: "代码调试器",
     description:
       "高效识别和修复代码中的错误，支持多种编程语言的结构化调试提示词。",
-    author: {
-      name: "Mike Johnson",
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=mike`,
-    },
-    tags: ["代码", "开发"],
-    likes: 2100,
-    views: 12000,
-    createdAt: new Date("2024-01-25"),
+    tags: ["代码", "开发"]
   },
   {
     id: "4",
     title: "学术研究助手",
     description:
       "通过结构化的文献综述、方法论建议和引用格式来增强您的研究过程。",
-    author: {
-      name: "Dr. Brown",
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=brown`,
-    },
-    tags: ["学术", "研究", "精选"],
-    likes: 1450,
-    views: 9800,
-    createdAt: new Date("2024-02-01"),
-    featured: true,
+    tags: ["学术", "研究", "精选"]
   },
   {
     id: "5",
     title: "开源项目文档生成器",
     description:
       "为开源项目创建清晰、全面的README和技术文档，提升项目可读性。包括安装指南、使用说明、API文档和贡献指南，让开发者快速上手。",
-    author: {
-      name: "Emma Davis",
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=emma`,
-    },
-    tags: ["开源", "文档"],
-    likes: 980,
-    views: 6700,
-    createdAt: new Date("2024-02-05"),
+    tags: ["开源", "文档"]
   },
   {
     id: "6",
     title: "社区讨论主持人",
     description:
       "专业引导和促进技术社区讨论，创建包容性的交流环境。帮助维护社区秩序，鼓励建设性对话，解决冲突，提升整体讨论质量和参与度。",
-    author: {
-      name: "Community Team",
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=community`,
-    },
-    tags: ["社区", "协作"],
-    likes: 750,
-    views: 4200,
-    createdAt: new Date("2024-02-10"),
+    tags: ["社区", "协作"]
   },
 ]
 

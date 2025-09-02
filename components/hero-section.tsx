@@ -32,7 +32,7 @@ export function HeroSection() {
     try {
       // 并行获取平台统计和GitHub统计
       const [platformResponse, githubResponse] = await Promise.all([
-        fetch("/api/stats"),
+        fetch("/api/platform-stats"),
         fetch("/api/github/stats")
       ])
 
