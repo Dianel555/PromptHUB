@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { motion } from "framer-motion"
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeHighlight from 'rehype-highlight'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -10,10 +14,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import {
   Heart,
-  MessageCircle,
   Copy,
   Share2,
-  Edit,
+  Edit3,
   Tag,
   Calendar,
   Eye,
@@ -21,7 +24,8 @@ import {
   ArrowLeft
 } from "lucide-react"
 import { toast } from "sonner"
-import { useUserInteraction } from "@/hooks/use-unified-data"
+import { usePrompts, useUserInteraction } from "@/hooks/use-prompts"
+import 'highlight.js/styles/github.css'
 
 interface PromptDetail {
   id: string
@@ -33,15 +37,13 @@ interface PromptDetail {
     name: string
     avatar?: string
     bio: string
+    email?: string
   }
   tags: string[]
   likes: number
-  comments: number
   views: number
   createdAt: string
   updatedAt: string
-  isLiked: boolean
-  isOwner: boolean
 }
 
 // 获取真实数据的函数
@@ -77,38 +79,7 @@ const getPromptData = async (id: string): Promise<PromptDetail | null> => {
       }
     }
     
-    // 4. 如果ID看起来像是旧格式的时间戳ID，尝试按创建时间匹配
-    if (!prompt && id.includes('_')) {
-      const timestampMatch = id.match(/prompt_(\d+)_/)
-      if (timestampMatch) {
-        const timestamp = parseInt(timestampMatch[1])
-        const targetDate = new Date(timestamp)
-        prompt = prompts.find((p: any) => {
-          if (p.createdAt) {
-            const promptDate = new Date(p.createdAt)
-            return Math.abs(promptDate.getTime() - targetDate.getTime()) < 60000 // 1分钟内
-          }
-          return false
-        })
-        if (prompt) {
-          console.log('通过时间戳匹配找到提示词:', prompt.title)
-        }
-      }
-    }
-    
-    // 5. 最后尝试按标题部分匹配
-    if (!prompt && prompts.length > 0) {
-      // 如果只有一个提示词，直接返回
-      if (prompts.length === 1) {
-        prompt = prompts[0]
-        console.log('只有一个提示词，直接返回:', prompt.title)
-      }
-    }
-    
     if (prompt) {
-      // 获取当前用户信息来判断是否为创建者
-      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}')
-      
       return {
         id: prompt.id,
         title: prompt.title,
@@ -118,16 +89,14 @@ const getPromptData = async (id: string): Promise<PromptDetail | null> => {
           id: prompt.author?.id || 'unknown',
           name: prompt.author?.name || '匿名用户',
           avatar: prompt.author?.avatar,
-          bio: prompt.author?.bio || '这个用户很神秘，什么都没有留下。'
+          bio: prompt.author?.bio || '这个用户很神秘，什么都没有留下。',
+          email: prompt.author?.email
         },
         tags: prompt.tags || [],
         likes: prompt.likes || 0,
-        comments: prompt.comments || 0,
         views: prompt.views || 0,
         createdAt: prompt.createdAt || new Date().toISOString(),
-        updatedAt: prompt.updatedAt || prompt.createdAt || new Date().toISOString(),
-        isLiked: prompt.isLiked || false,
-        isOwner: currentUser.id === prompt.author?.id
+        updatedAt: prompt.updatedAt || prompt.createdAt || new Date().toISOString()
       }
     }
     
@@ -139,16 +108,14 @@ const getPromptData = async (id: string): Promise<PromptDetail | null> => {
   }
 }
 
-// 移除模拟数据，改为显示真实的404页面
-
 export default function PromptDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { data: session } = useSession()
   const [prompt, setPrompt] = useState<PromptDetail | null>(null)
   const [loading, setLoading] = useState(true)
-  const [liked, setLiked] = useState(false)
-  const [likeCount, setLikeCount] = useState(0)
-  const { toggleLike, incrementView } = useUserInteraction(params.id as string)
+  const { prompts, toggleLike, incrementView } = usePrompts()
+  const { interaction } = useUserInteraction(params.id as string)
 
   useEffect(() => {
     // 获取真实提示词数据
@@ -159,11 +126,9 @@ export default function PromptDetailPage() {
         
         if (promptData) {
           setPrompt(promptData)
-          setLiked(promptData.isLiked)
-          setLikeCount(promptData.likes)
           
           // 增加浏览量
-          await incrementView()
+          await incrementView(params.id as string)
         } else {
           // 如果找不到真实数据，设置为null显示404页面
           setPrompt(null)
@@ -181,29 +146,18 @@ export default function PromptDetailPage() {
     fetchPrompt()
   }, [params.id, incrementView])
 
+  // 从统一数据中获取最新的点赞和浏览数据
+  const currentPrompt = prompts.find((p: any) => p.id === params.id)
+  const currentLikes = currentPrompt?.likes ?? prompt?.likes ?? 0
+  const currentViews = currentPrompt?.views ?? prompt?.views ?? 0
+  const userLiked = interaction?.isLiked || false
+
   const handleLike = async () => {
     if (!prompt) return
     
     try {
-      const result = await toggleLike()
-      if (result) {
-        const newLikedState = !liked
-        const newLikeCount = liked ? likeCount - 1 : likeCount + 1
-        
-        setLiked(newLikedState)
-        setLikeCount(newLikeCount)
-        
-        // 更新当前prompt状态
-        setPrompt({
-          ...prompt,
-          likes: newLikeCount,
-          isLiked: newLikedState
-        })
-        
-        toast.success(newLikedState ? "点赞成功" : "已取消点赞")
-      } else {
-        toast.error("操作失败，请重试")
-      }
+      const newLikedState = await toggleLike(params.id as string)
+      toast.success(newLikedState ? "点赞成功" : "已取消点赞")
     } catch (error) {
       console.error("点赞操作失败:", error)
       toast.error("操作失败，请重试")
@@ -237,7 +191,7 @@ export default function PromptDetailPage() {
   }
 
   const handleEdit = () => {
-    router.push(`/prompts/${params.id}/edit`)
+    router.push(`/create?edit=${params.id}`)
   }
 
   const handleBack = () => {
@@ -272,6 +226,9 @@ export default function PromptDetailPage() {
     const hash = tagName.split('').reduce((a, b) => a + b.charCodeAt(0), 0)
     return colors[hash % colors.length]
   }
+
+  // 检查是否为作者
+  const isAuthor = session?.user?.email === prompt?.author?.email
 
   if (loading) {
     return (
@@ -348,6 +305,18 @@ export default function PromptDetailPage() {
                   
                   {/* 操作按钮 */}
                   <div className="flex items-center space-x-2 lg:ml-4 flex-shrink-0">
+                    {isAuthor && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleEdit}
+                        className="flex items-center space-x-1 hover:bg-primary/10 text-primary border-primary/20 hover:border-primary/40 transition-all duration-200"
+                      >
+                        <Edit3 className="h-4 w-4" />
+                        <span>编辑</span>
+                      </Button>
+                    )}
+                    
                     <Button
                       variant="outline"
                       size="sm"
@@ -367,18 +336,6 @@ export default function PromptDetailPage() {
                       <Share2 className="size-4 lg:mr-2" />
                       <span className="hidden lg:inline">分享</span>
                     </Button>
-                    
-                    {prompt.isOwner && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleEdit}
-                        className="hover:bg-primary/10 text-primary border-primary/20 hover:border-primary/40 transition-all duration-200"
-                      >
-                        <Edit className="size-4 lg:mr-2" />
-                        <span className="hidden lg:inline">编辑</span>
-                      </Button>
-                    )}
                   </div>
                 </div>
 
@@ -432,14 +389,23 @@ export default function PromptDetailPage() {
 
               <Separator className="my-8" />
 
-              {/* 提示词内容 */}
+              {/* 提示词内容 - 使用Markdown渲染 */}
               <div className="mb-8">
                 <h2 className="text-xl font-semibold text-foreground mb-4">提示词内容</h2>
-                <div className="rounded-lg bg-muted/30 p-6 border border-border/50">
-                  <pre className="whitespace-pre-wrap text-sm text-foreground leading-relaxed font-mono">
-                    {prompt.content}
-                  </pre>
-                </div>
+                <Card className="border border-border/50">
+                  <CardContent className="p-6">
+                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                      <div className="whitespace-pre-wrap">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          rehypePlugins={[rehypeHighlight]}
+                        >
+                          {prompt.content}
+                        </ReactMarkdown>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
 
               <Separator className="my-8" />
@@ -454,19 +420,14 @@ export default function PromptDetailPage() {
                   
                   <div className="flex items-center space-x-1">
                     <Eye className="size-4" />
-                    <span>{prompt.views} 次浏览</span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-1">
-                    <MessageCircle className="size-4" />
-                    <span>{prompt.comments} 条评论</span>
+                    <span>{currentViews} 次浏览</span>
                   </div>
                 </div>
 
                 {/* 点赞按钮 */}
                 <motion.button
                   className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                    liked 
+                    userLiked 
                       ? "bg-red-500/10 text-red-500 hover:bg-red-500/20" 
                       : "bg-muted/50 text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
                   }`}
@@ -474,8 +435,8 @@ export default function PromptDetailPage() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Heart className={`size-5 ${liked ? "fill-current" : ""}`} />
-                  <span className="font-medium">{likeCount}</span>
+                  <Heart className={`size-5 ${userLiked ? "fill-current" : ""}`} />
+                  <span className="font-medium">{currentLikes}</span>
                 </motion.button>
               </div>
             </CardContent>

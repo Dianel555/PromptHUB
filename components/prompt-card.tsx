@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { useSession } from "next-auth/react"
-import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -13,17 +12,14 @@ import {
   Heart,
   Star,
   Copy,
-  ExternalLink,
   User,
   Calendar,
   Eye,
-  Edit,
-  FileText,
   Share2,
   Download
 } from "lucide-react"
 import { toast } from "sonner"
-import { useUserInteraction } from "@/hooks/use-unified-data"
+import { usePrompts, useUserInteraction } from "@/hooks/use-prompts"
 
 interface PromptCardProps {
   id: string | number
@@ -55,9 +51,9 @@ export function PromptCard({
   content,
   author,
   tags,
-  likes,
+  likes: initialLikes,
   comments = 0,
-  views = 0,
+  views: initialViews = 0,
   createdAt,
   isLiked = false,
   isOwner = false,
@@ -68,19 +64,15 @@ export function PromptCard({
 }: PromptCardProps) {
   const router = useRouter()
   const { data: session } = useSession()
-  
-  // 使用统一数据管理的交互Hook
-  const { 
-    interaction, 
-    loading: interactionLoading, 
-    toggleLike, 
-    toggleFavorite, 
-    incrementView 
-  } = useUserInteraction(id.toString())
+  const { prompts, toggleLike, toggleFavorite, incrementView } = usePrompts()
+  const { interaction } = useUserInteraction(id.toString())
+  const [isLiking, setIsLiking] = useState(false)
 
-  // 本地状态用于UI响应
-  const [likeCount, setLikeCount] = useState(likes)
-  const [viewCount, setViewCount] = useState(views)
+  // 从统一数据中获取最新的数据
+  const currentPrompt = prompts.find(p => p.id === id.toString())
+  const currentLikes = currentPrompt?.likes ?? initialLikes
+  const currentViews = currentPrompt?.views ?? initialViews
+  const userHasLiked = interaction?.isLiked || false
 
   // 使用当前用户会话数据作为头像来源
   const displayAvatar = isOwner && session?.user?.image 
@@ -99,13 +91,12 @@ export function PromptCard({
     
     // 增加浏览量
     try {
-      const newViewCount = await incrementView()
-      setViewCount(newViewCount)
+      await incrementView(id.toString())
     } catch (error) {
       console.error('增加浏览量失败:', error)
     }
     
-    // 统一跳转到详情页面，编辑功能通过详情页面的编辑按钮实现
+    // 统一跳转到详情页面
     router.push(`/prompts/${id}`)
   }
 
@@ -118,17 +109,8 @@ export function PromptCard({
     }
 
     try {
-      // 复制完整的JSON格式数据
-      const promptData = {
-        title,
-        description,
-        content,
-        tags,
-        author: author.name,
-        createdAt: formatDate(createdAt)
-      }
-      await navigator.clipboard.writeText(JSON.stringify(promptData, null, 2))
-      toast.success("提示词JSON数据已复制到剪贴板")
+      await navigator.clipboard.writeText(content)
+      toast.success("提示词内容已复制到剪贴板")
     } catch (error) {
       console.error("复制失败:", error)
       toast.error("复制失败，请手动复制")
@@ -159,8 +141,8 @@ export function PromptCard({
         tags,
         author: author.name,
         createdAt: formatDate(createdAt),
-        likes,
-        views,
+        likes: currentLikes,
+        views: currentViews,
         comments
       }
       
@@ -186,27 +168,25 @@ export function PromptCard({
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation()
     
-    if (interactionLoading) return
+    if (isLiking) return
     
+    setIsLiking(true)
     try {
-      const result = await toggleLike()
-      if (result) {
-        setLikeCount(result.likeCount)
-        toast.success(result.isLiked ? "点赞成功" : "已取消点赞")
-      }
+      const newLikedState = await toggleLike(id.toString())
+      toast.success(newLikedState ? "点赞成功" : "已取消点赞")
     } catch (error) {
       console.error("点赞操作失败:", error)
       toast.error("操作失败，请重试")
+    } finally {
+      setIsLiking(false)
     }
   }
 
   const handleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation()
     
-    if (interactionLoading) return
-    
     try {
-      const isFavorited = await toggleFavorite()
+      const isFavorited = await toggleFavorite(id.toString())
       toast.success(isFavorited ? "收藏成功" : "已取消收藏")
     } catch (error) {
       console.error("收藏操作失败:", error)
@@ -218,16 +198,6 @@ export function PromptCard({
     e.stopPropagation()
     // 统一跳转到标准个人主页路由
     router.push('/profile')
-  }
-
-  const handleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (onEdit) {
-      onEdit()
-    } else {
-      // 默认跳转到编辑页面
-      router.push(`/prompts/${id}/edit`)
-    }
   }
 
   const formatDate = (date: Date | string) => {
@@ -259,7 +229,7 @@ export function PromptCard({
               {description}
             </p>
 
-            {/* 内容预览 - 缩小高度确保底部信息可见 */}
+            {/* 内容预览 */}
             {showPreview && content && (
               <div className="mt-3 rounded-lg bg-gradient-to-r from-muted/20 to-muted/10 p-3 border border-border/30">
                 <div className="prose prose-sm max-w-none">
@@ -304,7 +274,7 @@ export function PromptCard({
             )}
           </div>
 
-          {/* 作者信息 - 修复头像显示和点击跳转 */}
+          {/* 作者信息 */}
           <div className="mb-4 flex items-center space-x-2">
             <Avatar 
               className="size-6 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
@@ -335,36 +305,31 @@ export function PromptCard({
           <div className="flex items-center space-x-4 text-sm text-gray-400">
             <motion.button
               className={`flex items-center space-x-1 transition-colors duration-300 ${
-                interaction.isLiked 
+                userHasLiked 
                   ? "text-red-500 hover:text-red-600" 
                   : "hover:text-red-500"
-              } ${interactionLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              } ${isLiking ? "opacity-50 cursor-not-allowed" : ""}`}
               onClick={handleLike}
-              disabled={interactionLoading}
-              whileHover={{ scale: interactionLoading ? 1 : 1.1 }}
-              whileTap={{ scale: interactionLoading ? 1 : 0.95 }}
+              disabled={isLiking}
+              whileHover={{ scale: isLiking ? 1 : 1.1 }}
+              whileTap={{ scale: isLiking ? 1 : 0.95 }}
             >
-              <Heart className={`size-4 ${interaction.isLiked ? "fill-current" : ""}`} />
-              <span>{likeCount}</span>
+              <Heart className={`size-4 ${userHasLiked ? "fill-current" : ""}`} />
+              <span>{currentLikes}</span>
             </motion.button>
 
             <motion.button
-              className={`flex items-center space-x-1 transition-colors duration-300 ${
-                interaction.isFavorited 
-                  ? "text-yellow-500 hover:text-yellow-600" 
-                  : "hover:text-yellow-500"
-              } ${interactionLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              className="flex items-center space-x-1 transition-colors duration-300 hover:text-yellow-500"
               onClick={handleFavorite}
-              disabled={interactionLoading}
-              whileHover={{ scale: interactionLoading ? 1 : 1.1 }}
-              whileTap={{ scale: interactionLoading ? 1 : 0.95 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <Star className={`size-4 ${interaction.isFavorited ? "fill-current" : ""}`} />
+              <Star className="size-4" />
             </motion.button>
 
             <div className="flex items-center space-x-1 text-gray-400">
               <Eye className="size-4" />
-              <span>{viewCount}</span>
+              <span>{currentViews}</span>
             </div>
 
             <div className="flex-1" />
@@ -377,7 +342,7 @@ export function PromptCard({
                   variant="ghost"
                   onClick={handleCopy}
                   className="size-8 p-0 hover:bg-primary/20"
-                  title="复制JSON数据"
+                  title="复制内容"
                 >
                   <Copy className="size-4" />
                 </Button>

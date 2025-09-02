@@ -1,6 +1,22 @@
 "use client"
 
-import { Prompt } from './prompt-storage'
+// 定义Prompt接口
+export interface Prompt {
+  id: string
+  title: string
+  description: string
+  content: string
+  tags: string[]
+  author: {
+    name: string
+    avatar?: string
+    id?: string
+  }
+  likes: number
+  views: number
+  createdAt: string
+  updatedAt: string
+}
 
 // 事件类型定义
 export type DataEvent = 'prompt-updated' | 'stats-updated' | 'like-toggled' | 'favorite-toggled'
@@ -23,66 +39,6 @@ function generateStableId(title: string, content: string): string {
   // 转换为正数并生成12位字符串
   const hashStr = Math.abs(hash).toString(36).padStart(8, '0').substring(0, 8)
   return `prompt_${hashStr}`
-}
-
-// 数据迁移函数 - 更保守的迁移策略
-function migrateToStableIds(): boolean {
-  try {
-    const prompts = JSON.parse(localStorage.getItem('prompts') || '[]')
-    
-    // 如果没有数据，跳过迁移
-    if (prompts.length === 0) {
-      return true
-    }
-    
-    // 检查是否需要迁移
-    const needsMigration = prompts.some((prompt: any) => 
-      !prompt.id || 
-      (prompt.id.includes('_') && prompt.id.length > 20) // 长时间戳ID需要迁移
-    )
-    
-    if (!needsMigration) {
-      console.log('数据已是稳定格式，跳过迁移')
-      return true
-    }
-    
-    let hasChanges = false
-    const migratedPrompts = prompts.map((prompt: any, index: number) => {
-      // 如果已经是合理的ID格式，保持不变
-      if (prompt.id && prompt.id.length <= 20 && !prompt.id.includes('_', 8)) {
-        return prompt
-      }
-      
-      // 为需要迁移的数据生成新ID
-      let newId
-      if (prompt.title && prompt.content) {
-        newId = generateStableId(prompt.title, prompt.content)
-      } else {
-        // 如果缺少内容，使用索引生成ID
-        newId = `prompt_${(index + 1).toString().padStart(3, '0')}`
-      }
-      
-      hasChanges = true
-      
-      return {
-        ...prompt,
-        id: newId,
-        originalId: prompt.id, // 保留原ID用于兼容
-        migratedAt: new Date().toISOString()
-      }
-    })
-    
-    if (hasChanges) {
-      localStorage.setItem('prompts', JSON.stringify(migratedPrompts))
-      console.log('数据迁移完成，已更新', migratedPrompts.filter((_: any, i: number) => migratedPrompts[i].id !== prompts[i].id).length, '个提示词的ID')
-
-    }
-    
-    return true
-  } catch (error) {
-    console.error('数据迁移失败:', error)
-    return false
-  }
 }
 
 // 统计数据接口
@@ -132,9 +88,6 @@ class UnifiedDataManager {
    */
   private async initializeData(): Promise<void> {
     try {
-      // 执行数据迁移
-      migrateToStableIds()
-      
       // 验证数据完整性
       const validation = await this.validateDataIntegrity()
       if (!validation.isValid) {
@@ -182,12 +135,19 @@ class UnifiedDataManager {
     })
   }
 
+  /**
+   * 通知所有监听器数据已更新
+   */
+  notifyListeners(): void {
+    this.emit('stats-updated', {})
+  }
+
   // ==================== 数据获取 ====================
 
   /**
    * 获取所有提示词
    */
-  async getPrompts(): Promise<Prompt[]> {
+  getPrompts(): Prompt[] {
     try {
       const cached = this.cache.get('prompts')
       if (cached && Date.now() - cached.timestamp < 5000) { // 5秒缓存
@@ -204,11 +164,20 @@ class UnifiedDataManager {
   }
 
   /**
+   * 保存提示词到存储
+   */
+  savePrompts(prompts: Prompt[]): void {
+    this.savePromptsToStorage(prompts)
+    this.cache.delete('prompts')
+    this.cache.delete('stats')
+  }
+
+  /**
    * 根据ID获取单个提示词
    */
   async getPromptById(id: string): Promise<Prompt | null> {
     try {
-      const prompts = await this.getPrompts()
+      const prompts = this.getPrompts()
       return prompts.find(p => p.id === id) || null
     } catch (error) {
       console.error('获取提示词详情失败:', error)
@@ -231,7 +200,7 @@ class UnifiedDataManager {
       }
 
       // 获取现有提示词
-      const prompts = await this.getPrompts()
+      const prompts = this.getPrompts()
       
       // 检查是否已存在相同ID的提示词
       const existingIndex = prompts.findIndex(p => p.id === id)
@@ -246,11 +215,7 @@ class UnifiedDataManager {
       }
 
       // 保存到localStorage
-      this.savePromptsToStorage(prompts)
-      
-      // 清除缓存
-      this.cache.delete('prompts')
-      this.cache.delete('stats')
+      this.savePrompts(prompts)
       
       // 触发事件
       this.emit('prompt-updated', { id, prompt: newPrompt })
@@ -272,8 +237,7 @@ class UnifiedDataManager {
         return cached.data
       }
 
-      const prompts = await this.getPrompts()
-      const interactions = this.getUserInteractions()
+      const prompts = this.getPrompts()
       const favorites = this.getFavorites()
 
       const stats: UnifiedStats = {
@@ -320,7 +284,7 @@ class UnifiedDataManager {
    */
   async updatePrompt(id: string, updates: Partial<Prompt>): Promise<void> {
     try {
-      const prompts = await this.getPrompts()
+      const prompts = this.getPrompts()
       const index = prompts.findIndex(p => p.id === id)
       
       if (index === -1) {
@@ -328,11 +292,9 @@ class UnifiedDataManager {
       }
 
       prompts[index] = { ...prompts[index], ...updates, updatedAt: new Date().toISOString() }
-      this.savePromptsToStorage(prompts)
+      this.savePrompts(prompts)
       
-      // 清除缓存并触发事件
-      this.cache.delete('prompts')
-      this.cache.delete('stats')
+      // 触发事件
       this.emit('prompt-updated', { id, updates })
     } catch (error) {
       console.error('更新提示词失败:', error)
@@ -341,12 +303,14 @@ class UnifiedDataManager {
   }
 
   /**
-   * 切换点赞状态
+   * 切换点赞状态 - 修复重复计算问题
    */
   async toggleLike(promptId: string): Promise<{ isLiked: boolean; likeCount: number }> {
     try {
       const interactions = this.getUserInteractions()
       const currentInteraction = interactions[promptId] || { isLiked: false, viewCount: 0 }
+      
+      // 获取当前点赞状态
       const wasLiked = currentInteraction.isLiked
       const newLikedState = !wasLiked
 
@@ -358,7 +322,7 @@ class UnifiedDataManager {
       this.saveUserInteractions(interactions)
 
       // 获取提示词数据并更新点赞数
-      const prompts = await this.getPrompts()
+      const prompts = this.getPrompts()
       const promptIndex = prompts.findIndex(p => p.id === promptId)
       
       if (promptIndex !== -1) {
@@ -378,24 +342,26 @@ class UnifiedDataManager {
           newLikeCount = currentLikes
         }
         
-        // 直接更新prompts数组中的数据，避免重复调用updatePrompt
+        // 更新提示词的点赞数
         prompts[promptIndex] = {
           ...prompt,
           likes: newLikeCount,
           updatedAt: new Date().toISOString()
         }
         
-        // 保存到localStorage
-        this.savePromptsToStorage(prompts)
+        this.savePrompts(prompts)
+        console.log(`点赞状态切换: ${promptId}, 新状态: ${newLikedState}, 点赞数: ${currentLikes} -> ${newLikeCount}`)
         
-        // 清除缓存
-        this.cache.delete('prompts')
-        this.cache.delete('stats')
+        this.cache.delete('stats') // 清除统计缓存
         
-        this.emit('like-toggled', { promptId, isLiked: newLikedState, likeCount: newLikeCount })
+        // 触发事件通知
+        this.emit('like-toggled', { promptId, isLiked: newLikedState })
+        this.notifyListeners()
+        
         return { isLiked: newLikedState, likeCount: newLikeCount }
       }
 
+      // 如果没找到提示词，返回默认值
       return { isLiked: newLikedState, likeCount: 0 }
     } catch (error) {
       console.error('切换点赞状态失败:', error)
@@ -432,7 +398,7 @@ class UnifiedDataManager {
   }
 
   /**
-   * 增加浏览量
+   * 增加浏览量 - 修复持久化问题
    */
   async incrementView(promptId: string): Promise<number> {
     try {
@@ -447,11 +413,20 @@ class UnifiedDataManager {
       this.saveUserInteractions(interactions)
 
       // 更新提示词的浏览量
-      const prompts = await this.getPrompts()
-      const prompt = prompts.find(p => p.id === promptId)
-      if (prompt) {
+      const prompts = this.getPrompts()
+      const promptIndex = prompts.findIndex(p => p.id === promptId)
+      if (promptIndex !== -1) {
+        const prompt = prompts[promptIndex]
         const newViewCount = (prompt.views || 0) + 1
-        await this.updatePrompt(promptId, { views: newViewCount })
+        
+        prompts[promptIndex] = {
+          ...prompt,
+          views: newViewCount,
+          updatedAt: new Date().toISOString()
+        }
+        
+        this.savePrompts(prompts)
+        console.log(`浏览量增加: ${promptId}, 新浏览量: ${newViewCount}`)
         return newViewCount
       }
 
@@ -528,7 +503,7 @@ class UnifiedDataManager {
 
     try {
       // 检查提示词数据
-      const prompts = await this.getPrompts()
+      const prompts = this.getPrompts()
       prompts.forEach((prompt, index) => {
         if (!prompt.id) issues.push(`提示词 ${index} 缺少ID`)
         if (!prompt.title) issues.push(`提示词 ${prompt.id} 缺少标题`)
@@ -559,7 +534,7 @@ class UnifiedDataManager {
    */
   async repairDataInconsistency(): Promise<boolean> {
     try {
-      const prompts = await this.getPrompts()
+      const prompts = this.getPrompts()
       let hasChanges = false
 
       // 修复提示词数据
@@ -579,8 +554,7 @@ class UnifiedDataManager {
       })
 
       if (hasChanges) {
-        this.savePromptsToStorage(prompts)
-        this.cache.clear()
+        this.savePrompts(prompts)
         this.emit('stats-updated', await this.getStats())
       }
 
