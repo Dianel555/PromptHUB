@@ -6,14 +6,7 @@ import { Separator } from "@/components/ui/separator"
 import { Eye, Heart, BookmarkIcon, FileText, Star, GitFork, Users, Calendar, Loader2 } from "lucide-react"
 import { useStats, useGithubStats } from "@/hooks/use-stats"
 
-interface PlatformStats {
-  totalPrompts: number
-  totalUsers: number
-  activeUsers: number
-  totalLikes: number
-  recentPrompts: number
-  lastUpdated: string
-}
+// 移除重复的接口定义，直接使用 useStats 返回的类型
 
 interface GitHubStats {
   stars: number

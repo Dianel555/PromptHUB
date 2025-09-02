@@ -8,6 +8,10 @@ interface Stats {
   followersCount: number
   followingCount: number
   achievements: string[]
+  totalUsers: number
+  activeUsers: number
+  recentPrompts: number
+  lastUpdated: string
 }
 
 const fetcher = async (url: string) => {
@@ -47,7 +51,11 @@ export function useStats() {
       totalViews: 0,
       followersCount: 0,
       followingCount: 0,
-      achievements: []
+      achievements: [],
+      totalUsers: 0,
+      activeUsers: 0,
+      recentPrompts: 0,
+      lastUpdated: new Date().toISOString()
     }
   })
 

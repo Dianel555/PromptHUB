@@ -135,6 +135,10 @@ export async function GET() {
         followersCount,
         followingCount,
         achievements: ["新用户"], // 添加默认成就
+        totalUsers: 1000, // 平台总用户数（示例数据）
+        activeUsers: 150, // 活跃用户数（示例数据）
+        recentPrompts: 25, // 最近新增提示词数（示例数据）
+        lastUpdated: new Date().toISOString()
       }
 
       return NextResponse.json(stats)
@@ -152,6 +156,10 @@ export async function GET() {
         followersCount: Math.abs((userHash * 7) % 100) + 5,
         followingCount: Math.abs((userHash * 11) % 80) + 3,
         achievements: ["新用户"], // 添加默认成就
+        totalUsers: 1000, // 平台总用户数（示例数据）
+        activeUsers: 150, // 活跃用户数（示例数据）
+        recentPrompts: 25, // 最近新增提示词数（示例数据）
+        lastUpdated: new Date().toISOString()
       }
 
       return NextResponse.json(fallbackStats)
