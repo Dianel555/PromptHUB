@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { PromptCard } from "@/components/prompt-card"
 import { getUserPrompts, getUserStats, type Prompt } from "@/lib/prompt-storage"
 import { dataSyncChecker } from "@/lib/data-sync-checker"
+import { statsManager } from "@/lib/stats-manager"
 import { useStats } from "@/hooks/use-stats"
 
 export default function PromptsPage() {
@@ -27,40 +28,59 @@ export default function PromptsPage() {
   useEffect(() => {
     if (syncedStats) {
       setStats({
-        totalPrompts: syncedStats.totalPrompts,
-        totalLikes: syncedStats.totalLikes,
-        totalViews: syncedStats.totalViews
+        totalPrompts: syncedStats.totalPrompts || 0,
+        totalLikes: syncedStats.totalLikes || 0,
+        totalViews: syncedStats.totalViews || 0
       })
     }
   }, [syncedStats])
 
   useEffect(() => {
-    try {
-      // 数据同步检测 - 添加错误处理
-      const syncCheck = dataSyncChecker.checkDataIntegrity()
-      if (!syncCheck.isValid) {
-        console.warn('检测到数据不一致问题:', syncCheck.issues)
-        console.log('诊断报告:', dataSyncChecker.generateDiagnosticReport())
-        
-        // 尝试修复
-        if (dataSyncChecker.repairDataInconsistency()) {
-          console.log('数据修复成功')
+    const initializeData = async () => {
+      try {
+        // 数据同步检测 - 添加错误处理
+        const syncCheck = dataSyncChecker.checkDataIntegrity()
+        if (!syncCheck.isValid) {
+          console.warn('检测到数据不一致问题:', syncCheck.issues)
+          console.log('诊断报告:', dataSyncChecker.generateDiagnosticReport())
+          
+          // 尝试修复
+          if (dataSyncChecker.repairDataInconsistency()) {
+            console.log('数据修复成功')
+          }
         }
+
+        // 加载用户的提示词
+        const userPrompts = getUserPrompts()
+        setPrompts(userPrompts)
+
+        // 获取统计数据（带降级处理）
+        try {
+          const combinedStats = await statsManager.getCombinedStats()
+          setStats(combinedStats)
+          
+          // 如果使用的是本地数据，尝试同步到服务器
+          if (combinedStats.source === 'local') {
+            statsManager.syncLocalDataToServer()
+          }
+        } catch (statsError) {
+          console.error('统计数据获取失败:', statsError)
+          // 使用本地统计数据作为最后的降级
+          const localStats = getUserStats()
+          setStats(localStats)
+        }
+
+        // 刷新API统计数据
+        refreshStats()
+      } catch (error) {
+        console.error('数据初始化失败:', error)
+        // 设置默认值以防止页面崩溃
+        setPrompts([])
+        setStats({ totalPrompts: 0, totalLikes: 0, totalViews: 0 })
       }
-    } catch (error) {
-      console.error('数据同步检测失败:', error)
     }
 
-    try {
-      // 加载用户的提示词和刷新统计数据
-      const userPrompts = getUserPrompts()
-      setPrompts(userPrompts)
-      refreshStats() // 刷新同步的统计数据
-    } catch (error) {
-      console.error('加载数据失败:', error)
-      // 设置默认值以防止页面崩溃
-      setPrompts([])
-    }
+    initializeData()
   }, [refreshStats])
 
   // 获取所有标签

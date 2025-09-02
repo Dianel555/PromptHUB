@@ -291,7 +291,7 @@ export default function EditPromptPage() {
               <Button 
                 variant="ghost" 
                 onClick={() => router.back()}
-                className="hover:bg-muted/50"
+                className="hover:bg-muted/50 transition-all duration-200"
               >
                 <ArrowLeft className="size-4 mr-2" />
                 返回
@@ -307,23 +307,8 @@ export default function EditPromptPage() {
                 </p>
               </div>
               
-              <Button
-                variant="outline"
-                onClick={handlePreviewToggle}
-                className="hover:bg-muted/50"
-              >
-                {showPreview ? (
-                  <>
-                    <EyeOff className="size-4 mr-2" />
-                    隐藏预览
-                  </>
-                ) : (
-                  <>
-                    <Eye className="size-4 mr-2" />
-                    显示预览
-                  </>
-                )}
-              </Button>
+              {/* 占位元素保持布局平衡 */}
+              <div className="w-[120px]"></div>
             </div>
           </motion.div>
 
@@ -412,7 +397,7 @@ export default function EditPromptPage() {
                       onClick={handleAddTag}
                       disabled={!newTag.trim() || form.tags.length >= 10}
                       variant="outline"
-                      className="shrink-0 hover:bg-primary/10"
+                      className="shrink-0 hover:bg-primary/10 transition-all duration-200"
                     >
                       <Plus className="size-4" />
                     </Button>
@@ -426,12 +411,12 @@ export default function EditPromptPage() {
                         {form.tags.map((tag, index) => (
                           <Badge
                             key={index}
-                            className={`text-sm border-0 hover:scale-105 transition-all cursor-pointer ${getTagColor(tag)}`}
+                            className={`text-sm border-0 hover:scale-105 transition-all duration-200 cursor-pointer ${getTagColor(tag)}`}
                           >
                             {tag}
                             <button
                               onClick={() => handleRemoveTag(tag)}
-                              className="ml-2 hover:bg-black/10 rounded-full p-0.5 transition-colors"
+                              className="ml-2 hover:bg-black/10 rounded-full p-0.5 transition-all duration-200"
                             >
                               <X className="size-3" />
                             </button>
@@ -483,13 +468,13 @@ export default function EditPromptPage() {
                       </div>
                     </div>
                     
-                    {/* 操作按钮移至内容框底部 */}
-                    <div className="flex items-center justify-center space-x-4 pt-4 border-t border-border/30">
+                    {/* 操作按钮组 - 保存按钮在左，预览按钮在右 */}
+                    <div className="flex items-center justify-between pt-4 border-t border-border/30">
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
                             variant="outline"
-                            className="hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-950"
+                            className="hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-950 transition-all duration-200"
                           >
                             <Trash2 className="size-4 mr-2" />
                             删除
@@ -518,23 +503,43 @@ export default function EditPromptPage() {
                         </AlertDialogContent>
                       </AlertDialog>
                       
-                      <Button
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="bg-primary hover:bg-primary/90"
-                      >
-                        {saving ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            保存中...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="size-4 mr-2" />
-                            保存更改
-                          </>
-                        )}
-                      </Button>
+                      <div className="flex items-center space-x-3">
+                        <Button
+                          onClick={handleSave}
+                          disabled={saving}
+                          className="bg-primary hover:bg-primary/90 transition-all duration-200"
+                        >
+                          {saving ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              保存中...
+                            </>
+                          ) : (
+                            <>
+                              <Save className="size-4 mr-2" />
+                              保存更改
+                            </>
+                          )}
+                        </Button>
+                        
+                        <Button
+                          onClick={handlePreviewToggle}
+                          variant="outline"
+                          className="hover:bg-primary/10 transition-all duration-200"
+                        >
+                          {showPreview ? (
+                            <>
+                              <EyeOff className="size-4 mr-2" />
+                              隐藏预览
+                            </>
+                          ) : (
+                            <>
+                              <Eye className="size-4 mr-2" />
+                              显示预览
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -576,7 +581,7 @@ export default function EditPromptPage() {
                           {form.tags.map((tag, index) => (
                             <Badge
                               key={index}
-                              className={`text-sm border-0 ${getTagColor(tag)}`}
+                              className={`text-sm border-0 hover:scale-105 transition-all duration-200 cursor-pointer ${getTagColor(tag)}`}
                             >
                               {tag}
                             </Badge>

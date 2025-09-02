@@ -84,12 +84,8 @@ export function PromptCard({
       onClick()
       return
     }
-    // 如果是用户自己的提示词，跳转到编辑页面；否则跳转到详情页面
-    if (isOwner) {
-      router.push(`/prompts/${id}/edit`)
-    } else {
-      router.push(`/prompts/${id}`)
-    }
+    // 统一跳转到详情页面，编辑功能通过详情页面的编辑按钮实现
+    router.push(`/prompts/${id}`)
   }
 
   const handleCopy = async (e: React.MouseEvent) => {

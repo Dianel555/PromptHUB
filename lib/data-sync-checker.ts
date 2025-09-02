@@ -81,10 +81,43 @@ export class DataSyncChecker {
     try {
       const { getUserPrompts, updateUserStats } = require('./prompt-storage')
       
+      // 检查并修复提示词数据
+      const prompts = getUserPrompts()
+      let hasChanges = false
+      
+      // 修复缺失的必要字段
+      prompts.forEach((prompt: any, index: number) => {
+        if (!prompt.id) {
+          prompt.id = `repaired_${Date.now()}_${index}`
+          hasChanges = true
+        }
+        if (!prompt.author || !prompt.author.id) {
+          prompt.author = { id: 'unknown', name: '未知用户' }
+          hasChanges = true
+        }
+        if (typeof prompt.likes !== 'number') {
+          prompt.likes = 0
+          hasChanges = true
+        }
+        if (typeof prompt.views !== 'number') {
+          prompt.views = 0
+          hasChanges = true
+        }
+        if (typeof prompt.comments !== 'number') {
+          prompt.comments = 0
+          hasChanges = true
+        }
+      })
+      
+      // 如果有修改，保存数据
+      if (hasChanges) {
+        localStorage.setItem('user_prompts', JSON.stringify(prompts))
+      }
+      
       // 重新计算统计数据
       updateUserStats()
       
-      console.log('数据修复完成')
+      console.log('数据修复完成，修复了', hasChanges ? '部分' : '无', '数据问题')
       return true
     } catch (error) {
       console.error('数据修复失败:', error)
