@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Heart,
-  MessageCircle,
+  Star,
   Copy,
   ExternalLink,
   User,
@@ -69,6 +69,7 @@ export function PromptCard({
   const { data: session } = useSession()
   const [liked, setLiked] = useState(isLiked)
   const [likeCount, setLikeCount] = useState(likes)
+  const [favorited, setFavorited] = useState(false)
 
   // 使用当前用户会话数据作为头像来源
   const displayAvatar = isOwner && session?.user?.image 
@@ -179,6 +180,25 @@ export function PromptCard({
       console.error("更新点赞状态失败:", error)
       // 回滚状态
       setLiked(liked)
+    }
+  }
+
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    
+    const newFavoritedState = !favorited
+    setFavorited(newFavoritedState)
+    
+    // 调用存储系统更新收藏状态
+    try {
+      const { toggleFavorite } = require("@/lib/prompt-storage")
+      toggleFavorite(id.toString(), newFavoritedState)
+      
+      console.log(`${newFavoritedState ? "收藏" : "取消收藏"} 提示词:`, id)
+    } catch (error) {
+      console.error("更新收藏状态失败:", error)
+      // 回滚状态
+      setFavorited(favorited)
     }
   }
 
@@ -315,10 +335,18 @@ export function PromptCard({
               <span>{likeCount}</span>
             </motion.button>
 
-            <div className="flex items-center space-x-1 text-gray-400">
-              <MessageCircle className="size-4" />
-              <span>{comments}</span>
-            </div>
+            <motion.button
+              className={`flex items-center space-x-1 transition-colors duration-300 ${
+                favorited 
+                  ? "text-yellow-500 hover:text-yellow-600" 
+                  : "hover:text-yellow-500"
+              }`}
+              onClick={handleFavorite}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Star className={`size-4 ${favorited ? "fill-current" : ""}`} />
+            </motion.button>
 
             <div className="flex items-center space-x-1 text-gray-400">
               <Eye className="size-4" />
@@ -360,18 +388,6 @@ export function PromptCard({
               >
                 <Download className="size-4" />
               </Button>
-
-              {isOwner && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleEdit}
-                  className="size-8 p-0 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
-                  title="编辑提示词"
-                >
-                  <Edit className="size-4" />
-                </Button>
-              )}
             </div>
           </div>
         </CardContent>

@@ -16,6 +16,8 @@ export interface Prompt {
   createdAt: string
   updatedAt: string
   isPublic: boolean
+  isLiked?: boolean
+  isFavorited?: boolean
 }
 
 const STORAGE_KEY = 'user_prompts'
@@ -222,4 +224,24 @@ export const toggleLike = (id: string, isLiked: boolean): number => {
   }
   
   return 0
+}
+
+// 切换收藏状态
+export const toggleFavorite = (id: string, isFavorited: boolean): boolean => {
+  const prompts = getUserPrompts()
+  const prompt = prompts.find(p => p.id === id)
+  
+  if (prompt) {
+    prompt.isFavorited = isFavorited
+    prompt.updatedAt = new Date().toISOString()
+    
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(prompts))
+      return isFavorited
+    } catch (error) {
+      console.error('更新收藏失败:', error)
+    }
+  }
+  
+  return false
 }
