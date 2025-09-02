@@ -15,7 +15,7 @@ export function usePrompts() {
       setLoading(true)
       setError(null)
       const data = await unifiedDataManager.getPrompts()
-      setPrompts(data)
+      setPrompts(data as any)
     } catch (err) {
       setError(err instanceof Error ? err.message : '获取提示词失败')
     } finally {
@@ -56,7 +56,7 @@ export function usePrompt(id: string) {
       setLoading(true)
       setError(null)
       const data = await unifiedDataManager.getPromptById(id)
-      setPrompt(data)
+      setPrompt(data as any)
     } catch (err) {
       setError(err instanceof Error ? err.message : '获取提示词详情失败')
     } finally {

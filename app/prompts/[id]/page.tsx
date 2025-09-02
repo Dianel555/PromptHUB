@@ -24,7 +24,7 @@ import {
   ArrowLeft
 } from "lucide-react"
 import { toast } from "sonner"
-import { usePrompts, useUserInteraction } from "@/hooks/use-prompts"
+import { usePromptStats } from "@/hooks/use-prompt-stats"
 import 'highlight.js/styles/github.css'
 
 interface PromptDetail {
@@ -114,8 +114,7 @@ export default function PromptDetailPage() {
   const { data: session } = useSession()
   const [prompt, setPrompt] = useState<PromptDetail | null>(null)
   const [loading, setLoading] = useState(true)
-  const { prompts, toggleLike, incrementView } = usePrompts()
-  const { interaction } = useUserInteraction(params.id as string)
+  const { stats, toggleLike, incrementView, refreshStats } = usePromptStats(params.id as string)
 
   useEffect(() => {
     // 获取真实提示词数据
@@ -128,7 +127,7 @@ export default function PromptDetailPage() {
           setPrompt(promptData)
           
           // 增加浏览量
-          await incrementView(params.id as string)
+          await incrementView()
         } else {
           // 如果找不到真实数据，设置为null显示404页面
           setPrompt(null)
@@ -146,21 +145,20 @@ export default function PromptDetailPage() {
     fetchPrompt()
   }, [params.id, incrementView])
 
-  // 从统一数据中获取最新的点赞和浏览数据
-  const currentPrompt = prompts.find((p: any) => p.id === params.id)
-  const currentLikes = currentPrompt?.likes ?? prompt?.likes ?? 0
-  const currentViews = currentPrompt?.views ?? prompt?.views ?? 0
-  const userLiked = interaction?.isLiked || false
+  // 使用新的统计数据
+  const currentLikes = stats.likes
+  const currentViews = stats.views
+  const userLiked = stats.isLiked
 
   const handleLike = async () => {
     if (!prompt) return
     
     try {
-      const newLikedState = await toggleLike(params.id as string)
+      const newLikedState = await toggleLike()
       toast.success(newLikedState ? "点赞成功" : "已取消点赞")
     } catch (error) {
       console.error("点赞操作失败:", error)
-      toast.error("操作失败，请重试")
+      toast.error(error instanceof Error ? error.message : "操作失败，请重试")
     }
   }
 
@@ -394,15 +392,52 @@ export default function PromptDetailPage() {
                 <h2 className="text-xl font-semibold text-foreground mb-4">提示词内容</h2>
                 <Card className="border border-border/50">
                   <CardContent className="p-6">
-                    <div className="prose prose-sm max-w-none dark:prose-invert">
-                      <div className="whitespace-pre-wrap">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          rehypePlugins={[rehypeHighlight]}
-                        >
-                          {prompt.content}
-                        </ReactMarkdown>
-                      </div>
+                    <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-pre:border prose-blockquote:border-l-primary prose-blockquote:bg-muted/50">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeHighlight]}
+                        components={{
+                          code: ({ node, className, children, ...props }: any) => {
+                            const inline = !className?.includes('language-')
+                            const match = /language-(\w+)/.exec(className || '')
+                            return !inline && match ? (
+                              <pre className="bg-muted border rounded-lg p-4 overflow-x-auto">
+                                <code className={className} {...props}>
+                                  {children}
+                                </code>
+                              </pre>
+                            ) : (
+                              <code className="bg-muted px-1.5 py-0.5 rounded text-sm" {...props}>
+                                {children}
+                              </code>
+                            )
+                          },
+                          blockquote: ({ children }) => (
+                            <blockquote className="border-l-4 border-primary pl-4 italic bg-muted/50 py-2 my-4">
+                              {children}
+                            </blockquote>
+                          ),
+                          table: ({ children }) => (
+                            <div className="overflow-x-auto">
+                              <table className="min-w-full border-collapse border border-border">
+                                {children}
+                              </table>
+                            </div>
+                          ),
+                          th: ({ children }) => (
+                            <th className="border border-border bg-muted px-4 py-2 text-left font-semibold">
+                              {children}
+                            </th>
+                          ),
+                          td: ({ children }) => (
+                            <td className="border border-border px-4 py-2">
+                              {children}
+                            </td>
+                          )
+                        }}
+                      >
+                        {prompt.content}
+                      </ReactMarkdown>
                     </div>
                   </CardContent>
                 </Card>
@@ -434,6 +469,7 @@ export default function PromptDetailPage() {
                   onClick={handleLike}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  disabled={stats.loading}
                 >
                   <Heart className={`size-5 ${userLiked ? "fill-current" : ""}`} />
                   <span className="font-medium">{currentLikes}</span>

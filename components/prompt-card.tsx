@@ -170,10 +170,34 @@ export function PromptCard({
     
     if (isLiking) return
     
+    if (!session) {
+      toast.error("请先登录")
+      return
+    }
+    
     setIsLiking(true)
     try {
-      const newLikedState = await toggleLike(id.toString())
-      toast.success(newLikedState ? "点赞成功" : "已取消点赞")
+      // 乐观更新
+      const newLikedState = !userHasLiked
+      
+      // 调用新的API
+      const response = await fetch(`/api/prompts/${id}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        toast.success(data.liked ? "点赞成功" : "已取消点赞")
+        // 触发数据刷新
+        window.dispatchEvent(new CustomEvent('promptStatsUpdate', { 
+          detail: { promptId: id.toString(), likes: data.totalLikes, liked: data.liked }
+        }))
+      } else {
+        toast.error("操作失败，请重试")
+      }
     } catch (error) {
       console.error("点赞操作失败:", error)
       toast.error("操作失败，请重试")
