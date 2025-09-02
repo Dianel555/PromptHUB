@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Star, Users, BookOpen, TrendingUp } from "lucide-react"
+import { useUnifiedStats } from "@/hooks/use-unified-data"
 
 interface PlatformStats {
   totalPrompts: number
@@ -16,44 +17,25 @@ interface PlatformStats {
 export function HeroSection() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
-  const [stats, setStats] = useState<PlatformStats>({
+  const { stats: userStats, loading: isLoadingStats } = useUnifiedStats()
+  const [platformStats, setPlatformStats] = useState<PlatformStats>({
     totalPrompts: 0,
     totalUsers: 0,
     githubStars: 0
   })
-  const [isLoadingStats, setIsLoadingStats] = useState(true)
 
-  // 获取统计数据
-  useEffect(() => {
-    fetchStats()
-  }, [])
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
-      // 获取本地存储的个人提示词统计
-      let localStats = { totalPrompts: 0, totalViews: 0, totalLikes: 0 }
-      
-      if (typeof window !== 'undefined') {
-        try {
-          const stored = localStorage.getItem('user_stats')
-          if (stored) {
-            localStats = JSON.parse(stored)
-          }
-        } catch (error) {
-          console.log('无法获取本地统计数据:', error)
-        }
-      }
-
-      // 并行获取平台统计和GitHub统计，同时传递本地统计数据
+      // 使用统一数据管理中的用户统计数据
       const [platformResponse, githubResponse] = await Promise.all([
-        fetch(`/api/platform-stats?localPrompts=${localStats.totalPrompts}&localViews=${localStats.totalViews}&localLikes=${localStats.totalLikes}`),
+        fetch(`/api/platform-stats?localPrompts=${userStats.totalPrompts}&localViews=${userStats.totalViews}&localLikes=${userStats.totalLikes}`),
         fetch("/api/github/stats")
       ])
 
       const platformData = await platformResponse.json()
       const githubData = await githubResponse.json()
 
-      setStats({
+      setPlatformStats({
         totalPrompts: platformData.totalPrompts || 0,
         totalUsers: platformData.totalUsers || 0,
         githubStars: githubData.stars || 0
@@ -61,10 +43,13 @@ export function HeroSection() {
     } catch (error) {
       console.error("获取统计数据失败:", error)
       // 保持默认值
-    } finally {
-      setIsLoadingStats(false)
     }
-  }
+  }, [userStats.totalPrompts, userStats.totalViews, userStats.totalLikes])
+
+  // 获取统计数据
+  useEffect(() => {
+    fetchStats()
+  }, [fetchStats])
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && searchQuery.trim()) {
@@ -181,19 +166,19 @@ export function HeroSection() {
           {[
             { 
               label: "提示词数量", 
-              value: isLoadingStats ? "..." : formatNumber(stats.totalPrompts),
+              value: isLoadingStats ? "..." : formatNumber(platformStats.totalPrompts),
               icon: BookOpen,
               color: "text-blue-500"
             },
             { 
               label: "社区贡献者", 
-              value: isLoadingStats ? "..." : formatNumber(stats.totalUsers),
+              value: isLoadingStats ? "..." : formatNumber(platformStats.totalUsers),
               icon: Users,
               color: "text-green-500"
             },
             { 
               label: "GitHub Stars", 
-              value: isLoadingStats ? "..." : formatNumber(stats.githubStars),
+              value: isLoadingStats ? "..." : formatNumber(platformStats.githubStars),
               icon: Star,
               color: "text-yellow-500"
             },

@@ -7,54 +7,12 @@ import { useSession } from "next-auth/react"
 import { useTheme } from "next-themes"
 
 import { TagType, getTagThemeClasses } from "@/lib/enhanced-tag-system"
+import { usePrompts } from "@/hooks/use-unified-data"
+import { Prompt } from "@/lib/prompt-storage"
 
 import { HomepagePromptCard } from "./homepage-prompt-card"
 
-// 模拟数据
-const mockPrompts = [
-  {
-    id: "1",
-    title: "AI图像生成专家",
-    description:
-      "创建令人惊叹的详细图像，包含风格修饰符、构图指南和高级参数控制。适用于各种AI图像生成工具。",
-    tags: ["图像", "艺术", "精选"]
-  },
-  {
-    id: "2",
-    title: "内容写作助手",
-    description:
-      "简化您的内容创作流程，适用于博客、文章和社交媒体帖子的多功能写作提示词。",
-    tags: ["写作", "内容"]
-  },
-  {
-    id: "3",
-    title: "代码调试器",
-    description:
-      "高效识别和修复代码中的错误，支持多种编程语言的结构化调试提示词。",
-    tags: ["代码", "开发"]
-  },
-  {
-    id: "4",
-    title: "学术研究助手",
-    description:
-      "通过结构化的文献综述、方法论建议和引用格式来增强您的研究过程。",
-    tags: ["学术", "研究", "精选"]
-  },
-  {
-    id: "5",
-    title: "开源项目文档生成器",
-    description:
-      "为开源项目创建清晰、全面的README和技术文档，提升项目可读性。包括安装指南、使用说明、API文档和贡献指南，让开发者快速上手。",
-    tags: ["开源", "文档"]
-  },
-  {
-    id: "6",
-    title: "社区讨论主持人",
-    description:
-      "专业引导和促进技术社区讨论，创建包容性的交流环境。帮助维护社区秩序，鼓励建设性对话，解决冲突，提升整体讨论质量和参与度。",
-    tags: ["社区", "协作"]
-  },
-]
+
 
 interface PromptGridProps {
   searchQuery?: string
@@ -68,13 +26,36 @@ export function PromptGrid({
   const { data: session, status } = useSession()
   const { theme, resolvedTheme } = useTheme()
   const router = useRouter()
+  const { prompts, loading, error } = usePrompts()
   const [currentCategory, setCurrentCategory] = useState(selectedCategory)
   const [displayCount, setDisplayCount] = useState(6)
 
   // 检测当前是否为深色模式
   const isDark = resolvedTheme === "dark"
+  
+  // 加载状态处理
+  if (loading) {
+    return (
+      <section className="px-4 py-16">
+        <div className="container mx-auto max-w-7xl text-center">
+          <div className="animate-pulse">加载中...</div>
+        </div>
+      </section>
+    )
+  }
+
+  if (error) {
+    return (
+      <section className="px-4 py-16">
+        <div className="container mx-auto max-w-7xl text-center">
+          <div className="text-red-500">加载失败: {error}</div>
+        </div>
+      </section>
+    )
+  }
+  
   // 过滤提示词
-  const filteredPrompts = mockPrompts.filter((prompt) => {
+  const filteredPrompts = prompts.filter((prompt: Prompt) => {
     const matchesSearch =
       prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       prompt.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -179,7 +160,7 @@ export function PromptGrid({
 
         {/* 提示词网格 */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
-          {displayedPrompts.map((prompt, index) => (
+          {displayedPrompts.map((prompt: Prompt, index: number) => (
             <motion.div
               key={prompt.id}
               initial={{ opacity: 0, y: 20 }}

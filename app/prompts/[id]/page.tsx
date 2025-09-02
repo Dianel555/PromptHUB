@@ -21,6 +21,7 @@ import {
   ArrowLeft
 } from "lucide-react"
 import { toast } from "sonner"
+import { useUserInteraction } from "@/hooks/use-unified-data"
 
 interface PromptDetail {
   id: string
@@ -133,6 +134,7 @@ export default function PromptDetailPage() {
   const [loading, setLoading] = useState(true)
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(0)
+  const { toggleLike, incrementView } = useUserInteraction(params.id as string)
 
   useEffect(() => {
     // 获取真实提示词数据
@@ -147,11 +149,7 @@ export default function PromptDetailPage() {
           setLikeCount(promptData.likes)
           
           // 增加浏览量
-          const prompts = JSON.parse(localStorage.getItem('prompts') || '[]')
-          const updatedPrompts = prompts.map((p: any) => 
-            p.id === params.id ? { ...p, views: (p.views || 0) + 1 } : p
-          )
-          localStorage.setItem('prompts', JSON.stringify(updatedPrompts))
+          await incrementView()
         } else {
           // 如果找不到真实数据，使用模拟数据
           setPrompt(mockPromptData)
@@ -167,44 +165,33 @@ export default function PromptDetailPage() {
     }
 
     fetchPrompt()
-  }, [params.id])
+  }, [params.id, incrementView])
 
-  const handleLike = () => {
-    const newLikedState = !liked
-    const newLikeCount = liked ? likeCount - 1 : likeCount + 1
+  const handleLike = async () => {
+    if (!prompt) return
     
-    setLiked(newLikedState)
-    setLikeCount(newLikeCount)
-    
-    // 更新本地存储中的点赞状态
     try {
-      const prompts = JSON.parse(localStorage.getItem('prompts') || '[]')
-      const updatedPrompts = prompts.map((p: any) => 
-        p.id === params.id 
-          ? { 
-              ...p, 
-              likes: newLikeCount,
-              isLiked: newLikedState 
-            } 
-          : p
-      )
-      localStorage.setItem('prompts', JSON.stringify(updatedPrompts))
-      
-      // 更新当前prompt状态
-      if (prompt) {
+      const result = await toggleLike()
+      if (result) {
+        const newLikedState = !liked
+        const newLikeCount = liked ? likeCount - 1 : likeCount + 1
+        
+        setLiked(newLikedState)
+        setLikeCount(newLikeCount)
+        
+        // 更新当前prompt状态
         setPrompt({
           ...prompt,
           likes: newLikeCount,
           isLiked: newLikedState
         })
+        
+        toast.success(newLikedState ? "点赞成功" : "已取消点赞")
+      } else {
+        toast.error("操作失败，请重试")
       }
-      
-      toast.success(newLikedState ? "点赞成功" : "已取消点赞")
     } catch (error) {
-      console.error("更新点赞状态失败:", error)
-      // 回滚状态
-      setLiked(liked)
-      setLikeCount(likeCount)
+      console.error("点赞操作失败:", error)
       toast.error("操作失败，请重试")
     }
   }

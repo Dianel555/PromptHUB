@@ -2,11 +2,13 @@
 
 import React from "react"
 import { motion } from "framer-motion"
+import { useRouter } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { toast } from "sonner"
+import { useUserInteraction } from "@/hooks/use-unified-data"
 
 interface HomepagePromptCardProps {
   id: string | number
@@ -15,6 +17,7 @@ interface HomepagePromptCardProps {
   tags: string[]
   className?: string
   onClick?: () => void
+  isDemo?: boolean
 }
 
 export function HomepagePromptCard({
@@ -23,17 +26,30 @@ export function HomepagePromptCard({
   description,
   tags,
   className = "",
-  onClick
+  onClick,
+  isDemo = false
 }: HomepagePromptCardProps) {
+  const router = useRouter()
+  const { incrementView } = useUserInteraction(String(id))
 
-  const handleCardClick = () => {
+  const handleCardClick = async () => {
     if (onClick) {
       onClick()
-    } else {
+    } else if (isDemo) {
       // 对于演示卡片，显示预览模态框而不是跳转
       toast.info("这是演示提示词", {
         description: "点击右上角的登录按钮来创建您自己的提示词"
       })
+    } else {
+      // 真实提示词，增加浏览量并跳转到详情页
+      try {
+        await incrementView()
+        router.push(`/prompts/${id}`)
+      } catch (error) {
+        console.error("增加浏览量失败:", error)
+        // 即使增加浏览量失败，也要跳转到详情页
+        router.push(`/prompts/${id}`)
+      }
     }
   }
 

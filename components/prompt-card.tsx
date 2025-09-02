@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { useSession } from "next-auth/react"
@@ -23,6 +23,7 @@ import {
   Download
 } from "lucide-react"
 import { toast } from "sonner"
+import { useUserInteraction } from "@/hooks/use-unified-data"
 
 interface PromptCardProps {
   id: string | number
@@ -67,9 +68,19 @@ export function PromptCard({
 }: PromptCardProps) {
   const router = useRouter()
   const { data: session } = useSession()
-  const [liked, setLiked] = useState(isLiked)
+  
+  // 使用统一数据管理的交互Hook
+  const { 
+    interaction, 
+    loading: interactionLoading, 
+    toggleLike, 
+    toggleFavorite, 
+    incrementView 
+  } = useUserInteraction(id.toString())
+
+  // 本地状态用于UI响应
   const [likeCount, setLikeCount] = useState(likes)
-  const [favorited, setFavorited] = useState(false)
+  const [viewCount, setViewCount] = useState(views)
 
   // 使用当前用户会话数据作为头像来源
   const displayAvatar = isOwner && session?.user?.image 
@@ -80,11 +91,20 @@ export function PromptCard({
     ? session.user.name 
     : author.name
 
-  const handleCardClick = () => {
+  const handleCardClick = async () => {
     if (onClick) {
       onClick()
       return
     }
+    
+    // 增加浏览量
+    try {
+      const newViewCount = await incrementView()
+      setViewCount(newViewCount)
+    } catch (error) {
+      console.error('增加浏览量失败:', error)
+    }
+    
     // 统一跳转到详情页面，编辑功能通过详情页面的编辑按钮实现
     router.push(`/prompts/${id}`)
   }
@@ -163,42 +183,34 @@ export function PromptCard({
     }
   }
 
-  const handleLike = (e: React.MouseEvent) => {
+  const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation()
     
-    const newLikedState = !liked
-    setLiked(newLikedState)
+    if (interactionLoading) return
     
-    // 调用存储系统更新点赞状态
     try {
-      const { toggleLike } = require("@/lib/prompt-storage")
-      const newLikeCount = toggleLike(id.toString(), newLikedState)
-      setLikeCount(newLikeCount)
-      
-      console.log(`${newLikedState ? "点赞" : "取消点赞"} 提示词:`, id, "新点赞数:", newLikeCount)
+      const result = await toggleLike()
+      if (result) {
+        setLikeCount(result.likeCount)
+        toast.success(result.isLiked ? "点赞成功" : "已取消点赞")
+      }
     } catch (error) {
-      console.error("更新点赞状态失败:", error)
-      // 回滚状态
-      setLiked(liked)
+      console.error("点赞操作失败:", error)
+      toast.error("操作失败，请重试")
     }
   }
 
-  const handleFavorite = (e: React.MouseEvent) => {
+  const handleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation()
     
-    const newFavoritedState = !favorited
-    setFavorited(newFavoritedState)
+    if (interactionLoading) return
     
-    // 调用存储系统更新收藏状态
     try {
-      const { toggleFavorite } = require("@/lib/prompt-storage")
-      toggleFavorite(id.toString(), newFavoritedState)
-      
-      console.log(`${newFavoritedState ? "收藏" : "取消收藏"} 提示词:`, id)
+      const isFavorited = await toggleFavorite()
+      toast.success(isFavorited ? "收藏成功" : "已取消收藏")
     } catch (error) {
-      console.error("更新收藏状态失败:", error)
-      // 回滚状态
-      setFavorited(favorited)
+      console.error("收藏操作失败:", error)
+      toast.error("操作失败，请重试")
     }
   }
 
@@ -323,34 +335,36 @@ export function PromptCard({
           <div className="flex items-center space-x-4 text-sm text-gray-400">
             <motion.button
               className={`flex items-center space-x-1 transition-colors duration-300 ${
-                liked 
+                interaction.isLiked 
                   ? "text-red-500 hover:text-red-600" 
                   : "hover:text-red-500"
-              }`}
+              } ${interactionLoading ? "opacity-50 cursor-not-allowed" : ""}`}
               onClick={handleLike}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
+              disabled={interactionLoading}
+              whileHover={{ scale: interactionLoading ? 1 : 1.1 }}
+              whileTap={{ scale: interactionLoading ? 1 : 0.95 }}
             >
-              <Heart className={`size-4 ${liked ? "fill-current" : ""}`} />
+              <Heart className={`size-4 ${interaction.isLiked ? "fill-current" : ""}`} />
               <span>{likeCount}</span>
             </motion.button>
 
             <motion.button
               className={`flex items-center space-x-1 transition-colors duration-300 ${
-                favorited 
+                interaction.isFavorited 
                   ? "text-yellow-500 hover:text-yellow-600" 
                   : "hover:text-yellow-500"
-              }`}
+              } ${interactionLoading ? "opacity-50 cursor-not-allowed" : ""}`}
               onClick={handleFavorite}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
+              disabled={interactionLoading}
+              whileHover={{ scale: interactionLoading ? 1 : 1.1 }}
+              whileTap={{ scale: interactionLoading ? 1 : 0.95 }}
             >
-              <Star className={`size-4 ${favorited ? "fill-current" : ""}`} />
+              <Star className={`size-4 ${interaction.isFavorited ? "fill-current" : ""}`} />
             </motion.button>
 
             <div className="flex items-center space-x-1 text-gray-400">
               <Eye className="size-4" />
-              <span>{views}</span>
+              <span>{viewCount}</span>
             </div>
 
             <div className="flex-1" />
