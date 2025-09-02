@@ -178,12 +178,20 @@ export function PromptGrid({
         </motion.div>
 
         {/* 提示词网格 */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
           {displayedPrompts.map((prompt, index) => (
-            <HomepagePromptCard
+            <motion.div
               key={prompt.id}
-              {...prompt}
-            />
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              className="h-full"
+            >
+              <HomepagePromptCard
+                {...prompt}
+                className="h-full"
+              />
+            </motion.div>
           ))}
         </div>
 

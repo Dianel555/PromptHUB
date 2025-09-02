@@ -58,7 +58,7 @@ export function HomepagePromptCard({
       className={cn("", className)}
     >
       <Card 
-        className="group relative cursor-pointer overflow-hidden border-0 bg-gradient-to-br from-background/80 to-background/40 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20"
+        className="group relative cursor-pointer overflow-hidden border-0 bg-gradient-to-br from-background/80 to-background/40 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 h-[280px] flex flex-col"
         onClick={handleCardClick}
       >
         {/* 背景装饰 */}
@@ -67,23 +67,23 @@ export function HomepagePromptCard({
         <CardHeader className="relative pb-3">
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
-              <h3 className="line-clamp-2 text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+              <h3 className="line-clamp-2 text-lg font-semibold text-foreground group-hover:text-primary transition-colors min-h-[3.5rem]">
                 {title}
               </h3>
             </div>
           </div>
         </CardHeader>
 
-        <CardContent className="relative p-6 pb-4">
+        <CardContent className="relative p-6 pb-4 flex-1 flex flex-col">
           {/* 描述 */}
-          <div className="mb-4">
-            <p className="line-clamp-3 text-sm text-muted-foreground leading-relaxed">
+          <div className="mb-4 flex-1">
+            <p className="line-clamp-4 text-sm text-muted-foreground leading-relaxed min-h-[5rem]">
               {description}
             </p>
           </div>
 
           {/* 标签 - 确保可见性 */}
-          <div className="flex flex-wrap gap-2 pt-3 border-t border-border/20 min-h-[32px]">
+          <div className="flex flex-wrap gap-2 pt-3 border-t border-border/20 min-h-[32px] flex-shrink-0">
             {tags && tags.length > 0 ? (
               <>
                 {tags.slice(0, 3).map((tag, index) => (

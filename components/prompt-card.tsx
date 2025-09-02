@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
+import { useSession } from "next-auth/react"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -65,8 +66,18 @@ export function PromptCard({
   showPreview = true
 }: PromptCardProps) {
   const router = useRouter()
+  const { data: session } = useSession()
   const [liked, setLiked] = useState(isLiked)
   const [likeCount, setLikeCount] = useState(likes)
+
+  // 使用当前用户会话数据作为头像来源
+  const displayAvatar = isOwner && session?.user?.image 
+    ? session.user.image 
+    : author.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(author.name)}`
+  
+  const displayName = isOwner && session?.user?.name 
+    ? session.user.name 
+    : author.name
 
   const handleCardClick = () => {
     if (onClick) {
@@ -177,9 +188,8 @@ export function PromptCard({
 
   const handleAuthorClick = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (author.id) {
-      router.push(`/profile/${author.id}`)
-    }
+    // 统一跳转到标准个人主页路由
+    router.push('/profile')
   }
 
   const handleEdit = (e: React.MouseEvent) => {
@@ -273,18 +283,18 @@ export function PromptCard({
               onClick={handleAuthorClick}
             >
               <AvatarImage 
-                src={author.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(author.name)}`} 
-                alt={author.name}
+                src={displayAvatar} 
+                alt={displayName}
               />
               <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                {author.name.charAt(0).toUpperCase()}
+                {displayName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <button 
               className="text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
               onClick={handleAuthorClick}
             >
-              {author.name}
+              {displayName}
             </button>
             <span className="text-xs text-muted-foreground">•</span>
             <div className="flex items-center space-x-1 text-xs text-muted-foreground">
