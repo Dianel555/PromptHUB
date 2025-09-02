@@ -25,20 +25,43 @@ function generateStableId(title: string, content: string): string {
   return `prompt_${hashStr}`
 }
 
-// 数据迁移函数
+// 数据迁移函数 - 更保守的迁移策略
 function migrateToStableIds(): boolean {
   try {
     const prompts = JSON.parse(localStorage.getItem('prompts') || '[]')
-    let hasChanges = false
     
-    const migratedPrompts = prompts.map((prompt: any) => {
-      // 如果已经是稳定ID格式，跳过
-      if (prompt.id && prompt.id.startsWith('prompt_') && prompt.id.length <= 16 && !prompt.id.includes('_', 8)) {
+    // 如果没有数据，跳过迁移
+    if (prompts.length === 0) {
+      return true
+    }
+    
+    // 检查是否需要迁移
+    const needsMigration = prompts.some((prompt: any) => 
+      !prompt.id || 
+      (prompt.id.includes('_') && prompt.id.length > 20) // 长时间戳ID需要迁移
+    )
+    
+    if (!needsMigration) {
+      console.log('数据已是稳定格式，跳过迁移')
+      return true
+    }
+    
+    let hasChanges = false
+    const migratedPrompts = prompts.map((prompt: any, index: number) => {
+      // 如果已经是合理的ID格式，保持不变
+      if (prompt.id && prompt.id.length <= 20 && !prompt.id.includes('_', 8)) {
         return prompt
       }
       
-      // 生成新的稳定ID
-      const newId = generateStableId(prompt.title || '', prompt.content || '')
+      // 为需要迁移的数据生成新ID
+      let newId
+      if (prompt.title && prompt.content) {
+        newId = generateStableId(prompt.title, prompt.content)
+      } else {
+        // 如果缺少内容，使用索引生成ID
+        newId = `prompt_${(index + 1).toString().padStart(3, '0')}`
+      }
+      
       hasChanges = true
       
       return {
@@ -51,7 +74,7 @@ function migrateToStableIds(): boolean {
     
     if (hasChanges) {
       localStorage.setItem('prompts', JSON.stringify(migratedPrompts))
-      console.log('数据迁移完成，已更新', migratedPrompts.length, '个提示词的ID')
+      console.log('数据迁移完成，已更新', migratedPrompts.filter((_: any, i: number) => migratedPrompts[i].id !== prompts[i].id).length, '个提示词的ID')
     }
     
     return true
@@ -193,6 +216,52 @@ class UnifiedDataManager {
   }
 
   /**
+   * 创建新提示词
+   */
+  async createPrompt(promptData: Omit<Prompt, 'id'>): Promise<Prompt> {
+    try {
+      // 生成稳定ID
+      const id = generateStableId(promptData.title, promptData.content)
+      
+      const newPrompt: Prompt = {
+        ...promptData,
+        id,
+        updatedAt: promptData.createdAt || new Date().toISOString()
+      }
+
+      // 获取现有提示词
+      const prompts = await this.getPrompts()
+      
+      // 检查是否已存在相同ID的提示词
+      const existingIndex = prompts.findIndex(p => p.id === id)
+      if (existingIndex !== -1) {
+        // 如果存在，更新现有提示词
+        prompts[existingIndex] = newPrompt
+        console.log('更新现有提示词:', id)
+      } else {
+        // 如果不存在，添加新提示词到开头
+        prompts.unshift(newPrompt)
+        console.log('创建新提示词:', id)
+      }
+
+      // 保存到localStorage
+      this.savePromptsToStorage(prompts)
+      
+      // 清除缓存
+      this.cache.delete('prompts')
+      this.cache.delete('stats')
+      
+      // 触发事件
+      this.emit('prompt-updated', { id, prompt: newPrompt })
+      
+      return newPrompt
+    } catch (error) {
+      console.error('创建提示词失败:', error)
+      throw error
+    }
+  }
+
+  /**
    * 获取统计数据
    */
   async getStats(): Promise<UnifiedStats> {
@@ -277,7 +346,8 @@ class UnifiedDataManager {
     try {
       const interactions = this.getUserInteractions()
       const currentInteraction = interactions[promptId] || { isLiked: false, viewCount: 0 }
-      const newLikedState = !currentInteraction.isLiked
+      const wasLiked = currentInteraction.isLiked
+      const newLikedState = !wasLiked
 
       // 更新用户交互数据
       interactions[promptId] = {
@@ -286,12 +356,40 @@ class UnifiedDataManager {
       }
       this.saveUserInteractions(interactions)
 
-      // 更新提示词的点赞数
+      // 获取提示词数据并更新点赞数
       const prompts = await this.getPrompts()
-      const prompt = prompts.find(p => p.id === promptId)
-      if (prompt) {
-        const newLikeCount = Math.max(0, (prompt.likes || 0) + (newLikedState ? 1 : -1))
-        await this.updatePrompt(promptId, { likes: newLikeCount })
+      const promptIndex = prompts.findIndex(p => p.id === promptId)
+      
+      if (promptIndex !== -1) {
+        const prompt = prompts[promptIndex]
+        const currentLikes = prompt.likes || 0
+        
+        // 修复点赞数计算逻辑：基于之前的状态来决定增减
+        let newLikeCount
+        if (newLikedState && !wasLiked) {
+          // 用户点赞：只有之前没有点赞时才+1
+          newLikeCount = currentLikes + 1
+        } else if (!newLikedState && wasLiked) {
+          // 用户取消点赞：只有之前有点赞时才-1
+          newLikeCount = Math.max(0, currentLikes - 1)
+        } else {
+          // 状态没有实际改变，保持原数量
+          newLikeCount = currentLikes
+        }
+        
+        // 直接更新prompts数组中的数据，避免重复调用updatePrompt
+        prompts[promptIndex] = {
+          ...prompt,
+          likes: newLikeCount,
+          updatedAt: new Date().toISOString()
+        }
+        
+        // 保存到localStorage
+        this.savePromptsToStorage(prompts)
+        
+        // 清除缓存
+        this.cache.delete('prompts')
+        this.cache.delete('stats')
         
         this.emit('like-toggled', { promptId, isLiked: newLikedState, likeCount: newLikeCount })
         return { isLiked: newLikedState, likeCount: newLikeCount }

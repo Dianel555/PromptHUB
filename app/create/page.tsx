@@ -99,35 +99,39 @@ export default function CreatePage() {
     }
 
     setIsSaving(true)
+    
     try {
-      // 这里应该调用API保存数据
-      // 暂时使用本地存储模拟
       const promptData = {
-        id: Date.now().toString(),
         title: title.trim(),
         description: description.trim(),
         content: content.trim(),
         tags: tags.map(tag => tag.name),
         author: {
           name: session.user?.name || "匿名用户",
-          avatar: session.user?.image,
-          id: session.user?.email
+          avatar: session.user?.image || undefined,
+          id: session.user?.email || `user_${Date.now()}`
         },
         likes: 0,
         views: 0,
         comments: 0,
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        isPublic: true,
         isLiked: false,
-        isOwner: true
+        isFavorited: false
       }
 
-      // 保存到本地存储
-      const existingPrompts = JSON.parse(localStorage.getItem("userPrompts") || "[]")
-      existingPrompts.unshift(promptData)
-      localStorage.setItem("userPrompts", JSON.stringify(existingPrompts))
-
+      // 动态导入统一数据管理器
+      const { unifiedDataManager } = await import('@/lib/unified-data-manager')
+      
+      // 使用统一数据管理器创建提示词
+      const savedPrompt = await unifiedDataManager.createPrompt(promptData)
+      
+      console.log('提示词创建成功:', savedPrompt)
       toast.success("提示词创建成功！")
-      router.push("/prompts")
+      
+      // 跳转到新创建的提示词详情页
+      router.push(`/prompts/${savedPrompt.id}`)
     } catch (error) {
       console.error("保存失败:", error)
       toast.error("保存失败，请重试")
