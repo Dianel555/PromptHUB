@@ -75,6 +75,7 @@ function migrateToStableIds(): boolean {
     if (hasChanges) {
       localStorage.setItem('prompts', JSON.stringify(migratedPrompts))
       console.log('数据迁移完成，已更新', migratedPrompts.filter((_: any, i: number) => migratedPrompts[i].id !== prompts[i].id).length, '个提示词的ID')
+
     }
     
     return true
