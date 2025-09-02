@@ -5,6 +5,62 @@ import { Prompt } from './prompt-storage'
 // 事件类型定义
 export type DataEvent = 'prompt-updated' | 'stats-updated' | 'like-toggled' | 'favorite-toggled'
 
+// 稳定ID生成函数
+function generateStableId(title: string, content: string): string {
+  const combinedContent = (title + content).trim()
+  if (!combinedContent) {
+    return `prompt_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`
+  }
+  
+  // 使用简单哈希算法生成稳定ID
+  let hash = 0
+  for (let i = 0; i < combinedContent.length; i++) {
+    const char = combinedContent.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // 转换为32位整数
+  }
+  
+  // 转换为正数并生成12位字符串
+  const hashStr = Math.abs(hash).toString(36).padStart(8, '0').substring(0, 8)
+  return `prompt_${hashStr}`
+}
+
+// 数据迁移函数
+function migrateToStableIds(): boolean {
+  try {
+    const prompts = JSON.parse(localStorage.getItem('prompts') || '[]')
+    let hasChanges = false
+    
+    const migratedPrompts = prompts.map((prompt: any) => {
+      // 如果已经是稳定ID格式，跳过
+      if (prompt.id && prompt.id.startsWith('prompt_') && prompt.id.length <= 16 && !prompt.id.includes('_', 8)) {
+        return prompt
+      }
+      
+      // 生成新的稳定ID
+      const newId = generateStableId(prompt.title || '', prompt.content || '')
+      hasChanges = true
+      
+      return {
+        ...prompt,
+        id: newId,
+        originalId: prompt.id, // 保留原ID用于兼容
+        migratedAt: new Date().toISOString()
+      }
+    })
+    
+    if (hasChanges) {
+      localStorage.setItem('prompts', JSON.stringify(migratedPrompts))
+      console.log('数据迁移完成，已更新', migratedPrompts.length, '个提示词的ID')
+    }
+    
+    return true
+  } catch (error) {
+    console.error('数据迁移失败:', error)
+    return false
+  }
+}
+
 // 统计数据接口
 export interface UnifiedStats {
   totalPrompts: number
@@ -40,6 +96,30 @@ class UnifiedDataManager {
     Object.values(['prompt-updated', 'stats-updated', 'like-toggled', 'favorite-toggled'] as DataEvent[]).forEach(event => {
       this.eventListeners.set(event, [])
     })
+    
+    // 执行数据迁移（仅在浏览器环境中）
+    if (typeof window !== 'undefined') {
+      this.initializeData()
+    }
+  }
+
+  /**
+   * 初始化数据，包括迁移旧格式ID
+   */
+  private async initializeData(): Promise<void> {
+    try {
+      // 执行数据迁移
+      migrateToStableIds()
+      
+      // 验证数据完整性
+      const validation = await this.validateDataIntegrity()
+      if (!validation.isValid) {
+        console.warn('数据完整性检查发现问题:', validation.issues)
+        await this.repairDataInconsistency()
+      }
+    } catch (error) {
+      console.error('数据初始化失败:', error)
+    }
   }
 
   // ==================== 事件系统 ====================

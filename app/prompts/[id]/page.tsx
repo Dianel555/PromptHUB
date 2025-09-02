@@ -49,7 +49,29 @@ const getPromptData = async (id: string): Promise<PromptDetail | null> => {
   try {
     // 首先尝试从本地存储获取数据
     const prompts = JSON.parse(localStorage.getItem('prompts') || '[]')
-    const prompt = prompts.find((p: any) => p.id === id)
+    
+    // 优先按新ID格式查找
+    let prompt = prompts.find((p: any) => p.id === id)
+    
+    // 兼容旧ID格式（通过originalId字段）
+    if (!prompt) {
+      prompt = prompts.find((p: any) => p.originalId === id)
+    }
+    
+    // 按索引查找（兼容纯数字ID）
+    if (!prompt && /^\d+$/.test(id)) {
+      const index = parseInt(id) - 1
+      if (index >= 0 && index < prompts.length) {
+        prompt = prompts[index]
+      }
+    }
+    
+    // 如果仍然找不到，尝试按标题模糊匹配（最后的兼容性尝试）
+    if (!prompt && id.length > 8) {
+      prompt = prompts.find((p: any) => 
+        p.title && p.title.toLowerCase().includes(id.toLowerCase().substring(0, 10))
+      )
+    }
     
     if (prompt) {
       // 获取当前用户信息来判断是否为创建者
@@ -84,48 +106,7 @@ const getPromptData = async (id: string): Promise<PromptDetail | null> => {
   }
 }
 
-// 模拟数据作为后备
-const mockPromptData: PromptDetail = {
-  id: "1",
-  title: "高效的代码审查提示词",
-  description: "这是一个专门用于代码审查的AI提示词，能够帮助开发者快速识别代码中的问题并提供改进建议。",
-  content: `你是一位经验丰富的高级软件工程师，专门负责代码审查。请仔细审查以下代码，并从以下几个方面提供详细的反馈：
-
-1. **代码质量**：
-   - 代码是否遵循最佳实践？
-   - 是否有潜在的性能问题？
-   - 代码的可读性如何？
-
-2. **安全性**：
-   - 是否存在安全漏洞？
-   - 输入验证是否充分？
-   - 是否有敏感信息泄露的风险？
-
-3. **架构设计**：
-   - 代码结构是否合理？
-   - 是否符合SOLID原则？
-   - 模块化程度如何？
-
-4. **测试覆盖**：
-   - 是否需要添加单元测试？
-   - 边界条件是否考虑充分？
-
-请提供具体的改进建议，并给出修改后的代码示例。`,
-  author: {
-    id: "user1",
-    name: "张开发",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=zhang",
-    bio: "全栈开发工程师，专注于Web技术和AI应用开发"
-  },
-  tags: ["代码审查", "软件工程", "最佳实践", "质量保证"],
-  likes: 128,
-  comments: 23,
-  views: 1205,
-  createdAt: "2024-01-15T10:30:00Z",
-  updatedAt: "2024-01-16T14:20:00Z",
-  isLiked: false,
-  isOwner: false
-}
+// 移除模拟数据，改为显示真实的404页面
 
 export default function PromptDetailPage() {
   const params = useParams()
@@ -151,13 +132,13 @@ export default function PromptDetailPage() {
           // 增加浏览量
           await incrementView()
         } else {
-          // 如果找不到真实数据，使用模拟数据
-          setPrompt(mockPromptData)
-          setLiked(mockPromptData.isLiked)
-          setLikeCount(mockPromptData.likes)
+          // 如果找不到真实数据，设置为null显示404页面
+          setPrompt(null)
+          console.warn(`提示词不存在: ${params.id}`)
         }
       } catch (error) {
         console.error("获取提示词详情失败:", error)
+        setPrompt(null)
         toast.error("加载失败，请重试")
       } finally {
         setLoading(false)
