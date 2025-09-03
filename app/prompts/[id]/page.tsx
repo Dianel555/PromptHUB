@@ -25,6 +25,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { usePromptStats } from "@/hooks/use-prompt-stats"
+import { getPromptById } from "@/lib/prompt-storage"
 import 'highlight.js/styles/github.css'
 
 interface PromptDetail {
@@ -46,62 +47,32 @@ interface PromptDetail {
   updatedAt: string
 }
 
-// 获取真实数据的函数
-const getPromptData = async (id: string): Promise<PromptDetail | null> => {
+/* 统一使用 prompt-storage 的真实数据，避免读取错误的 localStorage 键导致详情页找不到内容 */
+const getPromptData = (id: string): PromptDetail | null => {
   try {
-    // 首先尝试从本地存储获取数据
-    const prompts = JSON.parse(localStorage.getItem('prompts') || '[]')
-    console.log('查找提示词ID:', id, '总数据量:', prompts.length)
-    
-    // 多种查找策略
-    let prompt = null
-    
-    // 1. 精确ID匹配
-    prompt = prompts.find((p: any) => p.id === id)
-    if (prompt) {
-      console.log('通过精确ID找到提示词:', prompt.title)
+    const p = getPromptById(id)
+    if (!p) {
+      console.warn('未找到匹配的提示词，ID:', id)
+      return null
     }
-    
-    // 2. 兼容旧ID格式
-    if (!prompt) {
-      prompt = prompts.find((p: any) => p.originalId === id)
-      if (prompt) {
-        console.log('通过originalId找到提示词:', prompt.title)
-      }
+    return {
+      id: p.id,
+      title: p.title,
+      description: p.description,
+      content: p.content,
+      author: {
+        id: p.author?.id || 'unknown',
+        name: p.author?.name || '匿名用户',
+        avatar: p.author?.avatar,
+        bio: '这个用户很神秘，什么都没有留下。',
+        email: undefined
+      },
+      tags: p.tags || [],
+      likes: p.likes || 0,
+      views: p.views || 0,
+      createdAt: p.createdAt || new Date().toISOString(),
+      updatedAt: p.updatedAt || p.createdAt || new Date().toISOString()
     }
-    
-    // 3. 数字索引查找
-    if (!prompt && /^\d+$/.test(id)) {
-      const index = parseInt(id) - 1
-      if (index >= 0 && index < prompts.length) {
-        prompt = prompts[index]
-        console.log('通过索引找到提示词:', prompt?.title)
-      }
-    }
-    
-    if (prompt) {
-      return {
-        id: prompt.id,
-        title: prompt.title,
-        description: prompt.description,
-        content: prompt.content,
-        author: {
-          id: prompt.author?.id || 'unknown',
-          name: prompt.author?.name || '匿名用户',
-          avatar: prompt.author?.avatar,
-          bio: prompt.author?.bio || '这个用户很神秘，什么都没有留下。',
-          email: prompt.author?.email
-        },
-        tags: prompt.tags || [],
-        likes: prompt.likes || 0,
-        views: prompt.views || 0,
-        createdAt: prompt.createdAt || new Date().toISOString(),
-        updatedAt: prompt.updatedAt || prompt.createdAt || new Date().toISOString()
-      }
-    }
-    
-    console.warn('未找到匹配的提示词，ID:', id)
-    return null
   } catch (error) {
     console.error('获取提示词数据失败:', error)
     return null
@@ -121,7 +92,7 @@ export default function PromptDetailPage() {
     const fetchPrompt = async () => {
       setLoading(true)
       try {
-        const promptData = await getPromptData(params.id as string)
+        const promptData = getPromptData(params.id as string)
         
         if (promptData) {
           setPrompt(promptData)
@@ -189,7 +160,7 @@ export default function PromptDetailPage() {
   }
 
   const handleEdit = () => {
-    router.push(`/create?edit=${params.id}`)
+    router.push(`/prompts/${params.id}/edit`)
   }
 
   const handleBack = () => {
@@ -479,6 +450,24 @@ export default function PromptDetailPage() {
           </Card>
         </motion.div>
       </div>
+
+      {/* 右下角固定点赞按钮 */}
+      <motion.button
+        className={`fixed bottom-6 right-6 z-50 flex items-center space-x-2 rounded-full px-4 py-3 shadow-lg transition-all ${
+          userLiked
+            ? "bg-red-500 text-white hover:bg-red-600"
+            : "bg-background/90 text-foreground hover:bg-muted/80 border"
+        }`}
+        onClick={handleLike}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        disabled={stats.loading}
+        aria-label="点赞"
+      >
+        <Heart className={`size-5 ${userLiked ? "fill-current" : ""}`} />
+        <span className="font-medium">{currentLikes}</span>
+      </motion.button>
+
     </div>
   )
 }

@@ -27,7 +27,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { useUser } from "@/hooks/use-user"
-import ProfileStats from "@/components/profile/ProfileStats"
+
 import ErrorBoundary from "@/components/ErrorBoundary"
 
 export default function ProfilePage() {
@@ -124,8 +124,13 @@ export default function ProfilePage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="mb-4">
-            <ProfileStats />
+          <div className="mb-4 flex gap-3">
+            <Button onClick={() => router.push("/prompts")}>
+              我的提示词
+            </Button>
+            <Button variant="outline" onClick={() => router.push("/create")}>
+              创建提示词
+            </Button>
           </div>
 
           {/* 成就徽章 */}

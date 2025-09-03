@@ -230,8 +230,6 @@ export default function PromptsPage() {
                     comments={prompt.comments}
                     views={prompt.views}
                     createdAt={prompt.createdAt}
-                    isLiked={false}
-                    isOwner={true}
                     className={viewMode === "list" ? "max-w-none" : ""}
                     showPreview={viewMode === "list"}
                   />
