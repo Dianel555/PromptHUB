@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { PromptCard } from "@/components/prompt-card"
 import { getUserPrompts, getCurrentUserId, updateUserStats, type Prompt } from "@/lib/prompt-storage"
 import { useUnifiedStats } from "@/hooks/use-unified-data"
+import { unifiedDataManager } from "@/lib/unified-data-manager"
 import { dataSyncChecker } from "@/lib/data-sync-checker"
 import { statsManager } from "@/lib/stats-manager"
 import { useStats } from "@/hooks/use-stats"
@@ -47,30 +48,54 @@ export default function PromptsPage() {
           }
         }
 
-        // 加载用户的提示词 + 首次运行黑名单清理 + 仅显示当前用户创建内容
-        const userPrompts = getUserPrompts()
-        let cleaned = userPrompts
+        // 加载并迁移提示词数据：合并 unifiedDataManager.prompts -> user_prompts，并回填 author.id
+        const local = getUserPrompts()
+        let merged = local
+
         try {
-          if (typeof window !== 'undefined' && !localStorage.getItem('system_cards_cleaned')) {
-            const blacklist = new Set([
-              "React Hook 最佳实践",
-              "TypeScript 高级类型定义",
-              "Next.js 性能优化指南"
-            ])
-            const filtered = userPrompts.filter(p => !blacklist.has(p.title))
-            if (filtered.length !== userPrompts.length) {
-              localStorage.setItem("user_prompts", JSON.stringify(filtered))
-              updateUserStats()
-            }
-            localStorage.setItem('system_cards_cleaned', '1')
-            cleaned = filtered
+          if (typeof window !== 'undefined' && !localStorage.getItem('prompts_migrated')) {
+            const unified = (unifiedDataManager.getPrompts?.() || []) as any[]
+            const currentUserId = getCurrentUserId()
+
+            // 转换 unified 数据为 Prompt 形态并回填 author.id
+            const converted = unified.map((p: any) => ({
+              id: p.id,
+              title: p.title,
+              description: p.description,
+              content: p.content,
+              tags: Array.isArray(p.tags) ? p.tags : [],
+              author: {
+                id: p.author?.id || currentUserId,
+                name: p.author?.name || "当前用户",
+                avatar: p.author?.avatar,
+              },
+              likes: typeof p.likes === "number" ? p.likes : 0,
+              comments: 0,
+              views: typeof p.views === "number" ? p.views : 0,
+              createdAt: p.createdAt || new Date().toISOString(),
+              updatedAt: p.updatedAt || p.createdAt || new Date().toISOString(),
+              isPublic: true,
+            }))
+
+            // 基于 id 去重合并
+            const byId = new Map<string, any>()
+            ;[...local, ...converted].forEach((item) => {
+              if (!byId.has(item.id)) byId.set(item.id, item)
+            })
+            merged = Array.from(byId.values())
+
+            localStorage.setItem("user_prompts", JSON.stringify(merged))
+            localStorage.setItem("prompts_migrated", "1")
+            updateUserStats()
           }
         } catch (e) {
-          console.warn("首次清理系统示例卡片失败:", e)
+          console.error("提示词迁移失败:", e)
         }
+
+        // 仅显示当前用户创建内容；若为空则回退显示全部（兼容旧数据）
         const currentUserId = getCurrentUserId()
-        const onlyCurrentUser = cleaned.filter(p => p.author?.id === currentUserId)
-        setPrompts(onlyCurrentUser)
+        const onlyMine = merged.filter(p => p.author?.id === currentUserId)
+        setPrompts(onlyMine.length > 0 ? onlyMine : merged)
 
         // 统计数据由统一数据管理处理，无需手动获取
 
