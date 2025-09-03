@@ -13,6 +13,9 @@ import {
   Upload,
   FileText,
   BookOpen,
+  ArrowLeft,
+  Plus,
+  X
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -22,7 +25,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { SmartTagInput, SmartTag } from "@/components/smart-tag-input"
 import { toast } from "sonner"
 import { savePrompt, getCurrentUserInfo } from "@/lib/prompt-storage"
 
@@ -34,7 +36,8 @@ export default function CreatePage() {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [content, setContent] = useState("")
-  const [tags, setTags] = useState<SmartTag[]>([])
+  const [tags, setTags] = useState<string[]>([])
+  const [newTag, setNewTag] = useState("")
   const [isPreview, setIsPreview] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
@@ -51,7 +54,7 @@ export default function CreatePage() {
       if (data.description) setDescription(data.description)
       if (data.content) setContent(data.content)
       if (Array.isArray(data.tags)) {
-        setTags(data.tags.map((t: string) => ({ id: t, name: t })))
+        setTags(data.tags.map((t: any) => String(t)))
       }
       setShowImport(false)
       setImportText("")
@@ -79,17 +82,43 @@ export default function CreatePage() {
         if (data.description) setDescription(data.description)
         if (data.content) setContent(data.content)
         if (Array.isArray(data.tags)) {
-          setTags(data.tags.map((t: string) => ({ id: t, name: t })))
+          setTags(data.tags.map((t: any) => String(t)))
         }
         toast.success("文件导入成功")
       } catch {
         toast.error("文件格式错误，请上传有效的JSON文件")
       } finally {
-        // 允许选择同一文件时再次触发 onChange
         if (fileInputRef.current) fileInputRef.current.value = ""
       }
     }
     reader.readAsText(file)
+  }
+
+  // 标签交互（与 /prompts/[id]/edit 一致风格）
+  const handleAddTag = () => {
+    const trimmed = newTag.trim()
+    if (!trimmed) return
+    if (tags.includes(trimmed)) {
+      toast.error("标签已存在")
+      return
+    }
+    if (tags.length >= 10) {
+      toast.error("最多只能添加10个标签")
+      return
+    }
+    setTags(prev => [...prev, trimmed])
+    setNewTag("")
+  }
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(prev => prev.filter(t => t !== tagToRemove))
+  }
+
+  const handleTagKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault()
+      handleAddTag()
+    }
   }
 
   // 保存
@@ -105,16 +134,14 @@ export default function CreatePage() {
 
     setIsSaving(true)
     try {
-      // 固定使用本地用户信息，确保与 /prompts 过滤一致
       const currentUser = getCurrentUserInfo()
-
       const payload = {
         title: title.trim(),
         description: description.trim(),
         content: content.trim(),
-        tags: tags.map((t) => t.name),
+        tags: tags,
         author: {
-          id: currentUser.id, // 对齐 getCurrentUserId() => "current_user"
+          id: currentUser.id,
           name: currentUser.name || (session.user?.name ?? "匿名用户"),
           avatar: currentUser.avatar || (session.user?.image ?? undefined),
         },
@@ -122,12 +149,10 @@ export default function CreatePage() {
         isLiked: false,
         isFavorited: false,
       }
-
       const created = savePrompt(payload as any)
       toast.success("提示词创建成功！")
       router.push(`/prompts/${created.id}`)
     } catch (error) {
-      // 不使用 try...catch 的要求在全局，但此处需用户提示
       console.error("保存失败:", error)
       toast.error("保存失败，请重试")
     } finally {
@@ -171,24 +196,32 @@ export default function CreatePage() {
     )
   }
 
-  // 所有标签（用于预览用 Badge）
-  const previewTags = tags.map((t) => t.name)
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
-          {/* 头部 */}
+          {/* 顶部返回+标题 */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-6"
           >
             <div className="flex items-center justify-between">
-              <div className="text-center w-full">
+              <Button 
+                variant="ghost" 
+                onClick={() => router.back()}
+                className="hover:bg-muted/50 transition-all duration-200"
+              >
+                <ArrowLeft className="size-4 mr-2" />
+                返回
+              </Button>
+
+              <div className="text-center flex-1">
                 <h1 className="text-3xl font-bold text-foreground">创建新提示词</h1>
                 <p className="text-muted-foreground mt-1">分享你的高质量提示词，帮助更多人提升效率</p>
               </div>
+
+              <div className="w-[120px]" />
             </div>
           </motion.div>
 
@@ -324,6 +357,48 @@ export default function CreatePage() {
                     />
                   </div>
 
+                  {/* 标签（位置在内容之上） */}
+                  <div className="space-y-2">
+                    <Label>标签</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="输入标签名称..."
+                        value={newTag}
+                        onChange={(e) => setNewTag(e.target.value)}
+                        onKeyPress={handleTagKeyPress}
+                        className="bg-background/50 border-border/50 focus:border-primary/50"
+                        maxLength={20}
+                      />
+                      <Button
+                        onClick={handleAddTag}
+                        variant="outline"
+                        className="shrink-0 hover:bg-primary/10 transition-all duration-200"
+                        disabled={!newTag.trim() || tags.length >= 10}
+                      >
+                        <Plus className="size-4" />
+                      </Button>
+                    </div>
+
+                    {tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {tags.map((tag, index) => (
+                          <Badge
+                            key={index}
+                            className="text-sm border-0 hover:scale-105 transition-all duration-200 cursor-pointer"
+                          >
+                            {tag}
+                            <button
+                              onClick={() => handleRemoveTag(tag)}
+                              className="ml-2 hover:bg-black/10 rounded-full p-0.5 transition-all duration-200"
+                            >
+                              <X className="size-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   {/* 内容 */}
                   <div className="space-y-2">
                     <Label htmlFor="content">提示词内容 *</Label>
@@ -335,25 +410,6 @@ export default function CreatePage() {
                       className="bg-background/50 border-border/50 focus:border-primary/50 min-h-[240px] font-mono text-sm leading-relaxed"
                       maxLength={10000}
                     />
-                  </div>
-
-                  {/* 标签 */}
-                  <div className="space-y-2">
-                    <Label>标签</Label>
-                    <SmartTagInput
-                      tags={tags}
-                      onTagsChange={setTags}
-                      placeholder="添加相关标签..."
-                    />
-                    {previewTags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 pt-2">
-                        {previewTags.map((tag, i) => (
-                          <Badge key={i} variant="secondary">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -380,9 +436,9 @@ export default function CreatePage() {
                       <p className="text-muted-foreground">{description || "未设置描述"}</p>
                     </div>
 
-                    {previewTags.length > 0 && (
+                    {tags.length > 0 && (
                       <div className="flex flex-wrap gap-2">
-                        {previewTags.map((tag, i) => (
+                        {tags.map((tag, i) => (
                           <Badge key={i} className="text-sm">{tag}</Badge>
                         ))}
                       </div>

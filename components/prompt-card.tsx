@@ -19,7 +19,8 @@ import {
   Download
 } from "lucide-react"
 import { toast } from "sonner"
-import { usePrompts, useUserInteraction } from "@/hooks/use-prompts"
+import { useUserInteraction } from "@/hooks/use-unified-data"
+import { usePromptStats } from "@/hooks/use-prompt-stats"
 
 interface PromptCardProps {
   id: string | number
@@ -64,15 +65,14 @@ export function PromptCard({
 }: PromptCardProps) {
   const router = useRouter()
   const { data: session } = useSession()
-  const { prompts, toggleLike, toggleFavorite, incrementView } = usePrompts()
-  const { interaction } = useUserInteraction(id.toString())
+  const { toggleFavorite } = useUserInteraction(id.toString())
+  const { stats, toggleLike: toggleLikeStats, incrementView } = usePromptStats(id.toString())
   const [isLiking, setIsLiking] = useState(false)
 
   // 从统一数据中获取最新的数据
-  const currentPrompt = prompts.find(p => p.id === id.toString())
-  const currentLikes = currentPrompt?.likes ?? initialLikes
-  const currentViews = currentPrompt?.views ?? initialViews
-  const userHasLiked = interaction?.isLiked || false
+  const currentLikes = stats.likes ?? initialLikes
+  const currentViews = stats.views ?? initialViews
+  const userHasLiked = stats.isLiked || false
 
   // 使用当前用户会话数据作为头像来源
   const displayAvatar = isOwner && session?.user?.image 
@@ -91,7 +91,7 @@ export function PromptCard({
     
     // 增加浏览量
     try {
-      await incrementView(id.toString())
+      await incrementView()
     } catch (error) {
       console.error('增加浏览量失败:', error)
     }
@@ -167,37 +167,15 @@ export function PromptCard({
 
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation()
-    
     if (isLiking) return
-    
     if (!session) {
       toast.error("请先登录")
       return
     }
-    
     setIsLiking(true)
     try {
-      // 乐观更新
-      const newLikedState = !userHasLiked
-      
-      // 调用新的API
-      const response = await fetch(`/api/prompts/${id}/like`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        toast.success(data.liked ? "点赞成功" : "已取消点赞")
-        // 触发数据刷新
-        window.dispatchEvent(new CustomEvent('promptStatsUpdate', { 
-          detail: { promptId: id.toString(), likes: data.totalLikes, liked: data.liked }
-        }))
-      } else {
-        toast.error("操作失败，请重试")
-      }
+      const liked = await toggleLikeStats()
+      toast.success(liked ? "点赞成功" : "已取消点赞")
     } catch (error) {
       console.error("点赞操作失败:", error)
       toast.error("操作失败，请重试")
@@ -210,7 +188,7 @@ export function PromptCard({
     e.stopPropagation()
     
     try {
-      const isFavorited = await toggleFavorite(id.toString())
+      const isFavorited = await toggleFavorite()
       toast.success(isFavorited ? "收藏成功" : "已取消收藏")
     } catch (error) {
       console.error("收藏操作失败:", error)

@@ -123,31 +123,12 @@ export default function PromptDetailPage() {
 
   const handleLike = async () => {
     if (!prompt) return
-    
     try {
-      // 乐观更新
-      const newLikedState = !userLiked
-      toggleLike() // 使用 usePromptStats 提供的 toggleLike 函数
-      
-      // 调用 API 端点
-      const response = await fetch(`/api/prompts/${params.id}/like`, {
-        method: 'POST'
-      })
-      
-      if (!response.ok) {
-        throw new Error('点赞操作失败')
-      }
-      
-      const data = await response.json()
-      
-      // 使用 API 返回的数据更新状态
-      refreshStats() // 刷新统计数据
-      
-      toast.success(data.liked ? "点赞成功" : "已取消点赞")
+      const liked = await toggleLike()
+      await refreshStats()
+      toast.success(liked ? "点赞成功" : "已取消点赞")
     } catch (error) {
       console.error("点赞操作失败:", error)
-      // 回滚乐观更新
-      toggleLike() // 再次调用 toggleLike 来回滚
       toast.error("操作失败，请重试")
     }
   }
