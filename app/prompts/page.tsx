@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { PromptCard } from "@/components/prompt-card"
-import { getUserPrompts, type Prompt } from "@/lib/prompt-storage"
+import { getUserPrompts, getCurrentUserId, updateUserStats, type Prompt } from "@/lib/prompt-storage"
 import { useUnifiedStats } from "@/hooks/use-unified-data"
 import { dataSyncChecker } from "@/lib/data-sync-checker"
 import { statsManager } from "@/lib/stats-manager"
@@ -47,9 +47,30 @@ export default function PromptsPage() {
           }
         }
 
-        // 加载用户的提示词
+        // 加载用户的提示词 + 首次运行黑名单清理 + 仅显示当前用户创建内容
         const userPrompts = getUserPrompts()
-        setPrompts(userPrompts)
+        let cleaned = userPrompts
+        try {
+          if (typeof window !== 'undefined' && !localStorage.getItem('system_cards_cleaned')) {
+            const blacklist = new Set([
+              "React Hook 最佳实践",
+              "TypeScript 高级类型定义",
+              "Next.js 性能优化指南"
+            ])
+            const filtered = userPrompts.filter(p => !blacklist.has(p.title))
+            if (filtered.length !== userPrompts.length) {
+              localStorage.setItem("user_prompts", JSON.stringify(filtered))
+              updateUserStats()
+            }
+            localStorage.setItem('system_cards_cleaned', '1')
+            cleaned = filtered
+          }
+        } catch (e) {
+          console.warn("首次清理系统示例卡片失败:", e)
+        }
+        const currentUserId = getCurrentUserId()
+        const onlyCurrentUser = cleaned.filter(p => p.author?.id === currentUserId)
+        setPrompts(onlyCurrentUser)
 
         // 统计数据由统一数据管理处理，无需手动获取
 
@@ -230,7 +251,7 @@ export default function PromptsPage() {
                     comments={prompt.comments}
                     views={prompt.views}
                     createdAt={prompt.createdAt}
-                    className={viewMode === "list" ? "max-w-none" : ""}
+                    className={`${viewMode === "list" ? "max-w-none" : ""} h-[280px]`}
                     showPreview={viewMode === "list"}
                   />
                 </motion.div>
