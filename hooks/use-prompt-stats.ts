@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
+import { incrementViews as incrementViewsLocal, toggleLike as toggleLikeLocal } from '@/lib/prompt-storage'
 
 interface PromptStats {
   likes: number
@@ -120,6 +121,14 @@ export function usePromptStats(promptId: string): UsePromptStatsReturn {
           likes: data.totalLikes
         }))
         return data.liked
+      } else if (response.status === 404) {
+        const newTotal = toggleLikeLocal(promptId, newLikedState)
+        setStats(prev => ({
+          ...prev,
+          isLiked: newLikedState,
+          likes: newTotal
+        }))
+        return newLikedState
       } else {
         // 回滚乐观更新
         setStats(prev => ({
@@ -172,9 +181,13 @@ export function usePromptStats(promptId: string): UsePromptStatsReturn {
         const serverViews = data.totalViews || newViews
         setStats(prev => ({ ...prev, views: serverViews }))
         saveViewsToCache(serverViews)
+      } else if (response.status === 404) {
+        incrementViewsLocal(promptId)
       }
     } catch (error) {
       console.error('更新浏览量失败:', error)
+      // 本地数据源回退
+      try { incrementViewsLocal(promptId) } catch {}
       // 不抛出错误，浏览量更新失败不应该影响用户体验
     }
   }, [promptId, stats.views, saveViewsToCache])

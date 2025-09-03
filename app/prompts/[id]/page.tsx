@@ -25,7 +25,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { usePromptStats } from "@/hooks/use-prompt-stats"
-import { getPromptById } from "@/lib/prompt-storage"
+import { getPromptById, getCurrentUserInfo } from "@/lib/prompt-storage"
 import 'highlight.js/styles/github.css'
 
 interface PromptDetail {
@@ -125,11 +125,30 @@ export default function PromptDetailPage() {
     if (!prompt) return
     
     try {
-      const newLikedState = await toggleLike()
-      toast.success(newLikedState ? "点赞成功" : "已取消点赞")
+      // 乐观更新
+      const newLikedState = !userLiked
+      toggleLike() // 使用 usePromptStats 提供的 toggleLike 函数
+      
+      // 调用 API 端点
+      const response = await fetch(`/api/prompts/${params.id}/like`, {
+        method: 'POST'
+      })
+      
+      if (!response.ok) {
+        throw new Error('点赞操作失败')
+      }
+      
+      const data = await response.json()
+      
+      // 使用 API 返回的数据更新状态
+      refreshStats() // 刷新统计数据
+      
+      toast.success(data.liked ? "点赞成功" : "已取消点赞")
     } catch (error) {
       console.error("点赞操作失败:", error)
-      toast.error(error instanceof Error ? error.message : "操作失败，请重试")
+      // 回滚乐观更新
+      toggleLike() // 再次调用 toggleLike 来回滚
+      toast.error("操作失败，请重试")
     }
   }
 
@@ -196,8 +215,13 @@ export default function PromptDetailPage() {
     return colors[hash % colors.length]
   }
 
-  // 检查是否为作者
-  const isAuthor = session?.user?.email === prompt?.author?.email
+  // 检查是否为作者（支持本地创建的提示词）
+  const currentUser = getCurrentUserInfo()
+  const isAuthor = !!prompt && (
+    prompt.author?.id === currentUser.id ||
+    (session?.user?.email && session.user.email === prompt.author?.email) ||
+    (session?.user?.name && session.user.name === prompt.author?.name)
+  )
 
   if (loading) {
     return (
@@ -285,7 +309,6 @@ export default function PromptDetailPage() {
                         <span>编辑</span>
                       </Button>
                     )}
-                    
                     <Button
                       variant="outline"
                       size="sm"
@@ -295,7 +318,6 @@ export default function PromptDetailPage() {
                       <Copy className="size-4 lg:mr-2" />
                       <span className="hidden lg:inline">复制</span>
                     </Button>
-                    
                     <Button
                       variant="outline"
                       size="sm"
